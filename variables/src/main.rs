@@ -12,4 +12,16 @@ fn main() {
     let spaces = "   ";
     let spaces = spaces.len();
     println!("{}", spaces);
+
+    let tup = (500, 6.4, 1);
+
+    let (_w, y, _z) = tup;
+
+    println!("The value of y is: {y}");
+    let five_hundred = tup.0;
+    println!("five_hundred is : {five_hundred}");
+
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
+    let second = a[1];
+    println!("second  is: {second}");
 }
