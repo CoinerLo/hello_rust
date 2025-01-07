@@ -28,6 +28,10 @@ fn main() {
     m.call();
 
     let v4 = Ipv4Addr(127, 0, 0, 1);
+    println!("v4.0 ={:?}", v4.0);
+    println!("v4.1 ={:?}", v4.1);
+    println!("v4.2 ={:?}", v4.2);
+    println!("v4.3 ={:?}", v4.3);
     let home = IpAddr::V4(v4);
     println!("home ={:?}", home);
 
