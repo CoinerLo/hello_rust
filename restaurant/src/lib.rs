@@ -11,7 +11,7 @@ mod front_of_house {
     }
 }
 
-use crate::front_of_house::hosting;
+// use crate::front_of_house::hosting;
 use crate::front_of_house::hosting::add_to_waitlist; // так лучше не делать, так как непонятно потом откуда в итоге берется функция
 use std::collections::HashMap; // Но подключать структуры таким образом правильно
 
@@ -24,6 +24,8 @@ use std::io::Result as IoResult; // пример альяса, как задат
 // fn function2() -> IoResult<()> {
 //     // --snip--
 // }
+
+pub use crate::front_of_house::hosting; // реэкспорт элементов
 
 pub fn eat_at_restaurant() {
     crate::front_of_house::hosting::add_to_waitlist(); // это абсолютная ссылка, она наичнается с корневого каталога
@@ -49,7 +51,7 @@ fn deliver_order() {}
 mod back_of_house {
     fn fix_incorrect_order() {
         cook_order();
-        super::deliver_order();
+        super::deliver_order(); // обращение к элементу на уровень выше (в родительском)
     }
 
     fn cook_order() {}
@@ -73,3 +75,23 @@ mod back_of_house {
         Salat,
     }
 }
+
+// вложенные импорты
+// --snip--
+// use std::cmp::Ordering;
+// use std::io;
+// --snip--
+
+// --snip--
+use std::{cmp::Ordering, io}; // так ипорт из двух строк и больше становится более лаконичным в одну
+// --snip--
+
+// ------------------------------------
+
+// use std::io;
+// use std::io::Write;
+
+// use std::io::{self, Write}; // импорт себя и вложенного элемента
+
+// -----------------------------------
+use std::collections::*; // импортировать весь модуль, все что в нем есть
