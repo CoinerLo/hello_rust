@@ -40,9 +40,16 @@ fn main() {
         Float(f64),
         Text(String),
     }
-    let row = vec![
+    let mut row = vec![
         SpreadsheetCell::Int(3),
         SpreadsheetCell::Text(String::from("blue")),
         SpreadsheetCell::Float(10.12),
     ];
+
+    // удаление элементов вектора
+    let one_row = row.pop();
+    match one_row {
+        Some(row) => println!("One row"),
+        None => println!("No element",)
+    }
 }
