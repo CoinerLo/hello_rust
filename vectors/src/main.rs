@@ -19,4 +19,30 @@ fn main() {
         None => println!("There is no third element."),
     }
 
+    // векторы хранятся в куче, их длина может меняться динамически, значит элементы могут перемещаться в памяти
+    // ссылки на отдальные элементы вектора становятся недействительными при изменении вектора
+
+    // Перебор значений
+    let v4 = vec![100, 32, 57];
+    for i in &v4 {
+        println!("{i}");
+    }
+
+    let mut v5 = vec![100, 32, 57];
+    for i in &mut v5 {
+        *i += 50; // ------------------------- оператор разыменовывания * 
+        println!("{i}");
+    }
+
+    // сохраняем множество разных типов
+    enum SpreadsheetCell {
+        Int(i32),
+        Float(f64),
+        Text(String),
+    }
+    let row = vec![
+        SpreadsheetCell::Int(3),
+        SpreadsheetCell::Text(String::from("blue")),
+        SpreadsheetCell::Float(10.12),
+    ];
 }
