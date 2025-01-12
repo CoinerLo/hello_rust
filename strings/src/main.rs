@@ -89,4 +89,11 @@ fn next_level() {
     let s11 = String::from("toe");
 
     let s12 = format!("{s9}-{s10}-{s11}");
+
+    for c in "Здравствуйте".chars() {
+        println!("{c}");
+    }
+    for c in "Здравствуйте".bytes() {
+        println!("{c}");
+    }
 }
