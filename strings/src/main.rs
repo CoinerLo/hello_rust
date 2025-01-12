@@ -33,6 +33,8 @@ fn main() {
     println!("{s5}");
     let (s6, len6) = calculate_length(s3);
     println!("s6 = {s6}, len6 = {len6}");
+
+    next_level();
 }
 
 
@@ -55,4 +57,36 @@ fn takes_and_gives_back(st: String) -> String {
 fn calculate_length(a_string: String) -> (String, usize) {
     let legth = a_string.len();
     (a_string, legth)
+}
+
+fn next_level() {
+    println!("----------------------------- Next level!");
+    let mut s = String::new();
+    let data = "initial contents";
+    let s = data.to_string();
+    let s = "initial contents".to_string();
+    let s = String::from("initial contents");
+
+    let mut s2 = String::from("initial");
+    s2.push_str("cont");
+    println!("s2 is {s2}");
+
+    let mut s = String::from("lo");
+    s.push('l'); // одиночные кавычки - это char
+
+    let s2 = String::from("Hello, ");
+    let s3 = String::from("world!");
+    let s4 = s2 + &s3;
+
+    let s5 = String::from("tic");
+    let s6 = String::from("tac");
+    let s7 = String::from("toe");
+
+    let s8 = s5 + "-" + &s6 + "-" + &s7;
+
+    let s9 = String::from("tic");
+    let s10 = String::from("tac");
+    let s11 = String::from("toe");
+
+    let s12 = format!("{s9}-{s10}-{s11}");
 }
