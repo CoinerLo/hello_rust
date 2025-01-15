@@ -1,7 +1,8 @@
+use std::error::Error;
 use std::{fs::File, io::ErrorKind};
 use std::io::{self, Read};
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let greeting_file_result = File::open("hello.txt");
     let _greeting_file = match greeting_file_result {
         Ok(file) => file,
@@ -37,6 +38,10 @@ fn main() {
     let _ = read_username_from_file();
     let _ = read_username_from_file_with_operator();
     let _ = read_username_from_file_with_operatorv2();
+
+    let _greeting_file = File::open("hello.txt")?; // так мы можем делать благодаря тому что из main возвращается ошибка или единичное значение
+
+    Ok(())
 }
 
 // Проброс ошибок
@@ -67,4 +72,8 @@ fn read_username_from_file_with_operatorv2() -> Result<String, io::Error> {
     let mut username = String::new();
     File::open("text.txt")?.read_to_string(&mut username)?;
     Ok(username)
+}
+
+fn _last_char_of_first_line(text: &str) -> Option<char> {
+    text.lines().next()?.chars().last()
 }
