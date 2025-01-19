@@ -47,13 +47,20 @@ pub trait Summary_v2 {
     fn summarize_author(&self) -> String;
 
     fn summarize(&self) -> String {
-        format!("(Read more from {}...)", self.summarize_author())
-    }
+        format!("(Read more from {}...)", self.summarize_author()) // метод обаращется к методам своего типажа и становится заданным по дефолту
+    }                                                              // для структуры достаточно будет имплементировать только summarize_author
 }
 
 pub struct Email {
     pub address: String,
     pub content: String,
+}
+
+pub struct Tweet2 {
+    pub username: String,
+    pub content: String,
+    pub reply: bool,
+    pub retweet: bool,
 }
 
 impl Summary_v2 for Email {
@@ -63,7 +70,7 @@ impl Summary_v2 for Email {
     }
 }
 
-impl Summary_v2 for Tweet {
+impl Summary_v2 for Tweet2 {
     fn summarize_author(&self) -> String {
         format!("@{}", self.username)
     }
@@ -83,6 +90,12 @@ pub fn test_run() {
         number: String::from("+7999"),
     };
     println!("call default summarize = {}", _sms.summarize());
+
+    let email = Email {
+        address: String::from("Not found"),
+        content: String::from("Not yet"),
+    };
+    println!("call special summarize for email = {}", email.summarize());
 }
 
 #[cfg(test)]
