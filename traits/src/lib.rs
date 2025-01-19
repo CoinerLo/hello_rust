@@ -41,7 +41,33 @@ pub struct SMS {
     pub number: String,
 }
 
-impl Summary_def for SMS {}
+impl Summary_def for SMS {} // имплементация типажей с дефолтными методами
+
+pub trait Summary_v2 {
+    fn summarize_author(&self) -> String;
+
+    fn summarize(&self) -> String {
+        format!("(Read more from {}...)", self.summarize_author())
+    }
+}
+
+pub struct Email {
+    pub address: String,
+    pub content: String,
+}
+
+impl Summary_v2 for Email {
+    fn summarize_author(&self) -> String {
+        println!("Only address...");
+        self.address.clone()
+    }
+}
+
+impl Summary_v2 for Tweet {
+    fn summarize_author(&self) -> String {
+        format!("@{}", self.username)
+    }
+}
 
 pub fn test_run() {
     let mut _i = Tweet {
