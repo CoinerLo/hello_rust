@@ -11,6 +11,11 @@ fn longest<'a>(x: &'a str, y: &str) -> &'a str {
     x
 }
 
+// время жизни ссылки в структуре
+struct ImportantExcerpt<'a> {
+    _part: &'a str,
+}
+
 fn main() {
     let x = "x";
     let y = "y";
@@ -21,4 +26,12 @@ fn main() {
     let p = "p";
     let w = longest_first(t, p);
     println!("w = {w}");
+
+    let novel = String::from("Call me Ishmael. Some years ago...");
+    let first_sentence = novel.split('.').next().unwrap();
+    let _i = ImportantExcerpt {
+        _part: first_sentence,
+    };
+
+
 }
