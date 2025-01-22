@@ -13,7 +13,18 @@ fn longest<'a>(x: &'a str, y: &str) -> &'a str {
 
 // время жизни ссылки в структуре
 struct ImportantExcerpt<'a> {
-    _part: &'a str,
+    part: &'a str,
+}
+
+// три правила неявного вывода времени жизни ссылки
+impl<'a> ImportantExcerpt<'a> {
+    fn level(&self) -> i32 {
+        3
+    }
+    fn announce_and_return_part(&self, announcement: &str) -> &str {
+        println!("Attention please: {announcement}");
+        self.part
+    }
 }
 
 fn main() {
@@ -30,8 +41,27 @@ fn main() {
     let novel = String::from("Call me Ishmael. Some years ago...");
     let first_sentence = novel.split('.').next().unwrap();
     let _i = ImportantExcerpt {
-        _part: first_sentence,
+        part: first_sentence,
     };
 
+    // статическое время жизни - все время работы программы
+    let s: &'static str = "I have a static lifetime.";
+}
 
+use std::fmt::Display;
+
+fn longest_with_an_announcement<'a, T>(
+    x: &'a str,
+    y: &'a str,
+    ann: T,
+) -> &'a str
+where
+    T: Display,
+{
+    println!("Announcement! {ann}");
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
 }
