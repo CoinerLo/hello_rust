@@ -25,6 +25,26 @@ mod tests {
 
         assert!(larger.can_hold(&smaller));
     }
+
+    #[test]
+    fn smaller_cannot_hold_larger() {
+        let larger = Rectangle {
+            width: 8,
+            height: 7,
+        };
+        let smaller = Rectangle {
+            width: 5,
+            height: 1,
+        };
+
+        assert!(!smaller.can_hold(&larger));
+    }
+
+    #[test]
+    fn greeting_contains_name() {
+        let result = greeting("Carol");
+        assert!(result.contains("Carol"));
+    }
 }
 
 // cargo test
@@ -40,3 +60,8 @@ impl Rectangle {
         self.width > other.width && self.height > other.height
     }
 }
+
+pub fn greeting(name: &str) -> String {
+    format!("Hello {name}!")
+}
+
