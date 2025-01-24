@@ -54,6 +54,25 @@ mod tests {
             "Greeting did not contain name, value was `{result}`"
         );
     }
+
+    #[test]
+    #[should_panic] // Проверка на панику - проходит проверку при наличии ошибки
+    // #[should_panic(expected = "less than or equal to 100")] // таким вариантом мы указываем какое вхождение строки должно быть в сообщении появившейся паники
+    fn greater_than_100() {
+        Guess::new(200);
+    }
+
+    // тесты с использованием Result<T, E>
+    #[test]
+    fn it_works() -> Result<(), String> {
+        let result = add(2, 2);
+
+        if result == 4 {
+            Ok(())
+        } else {
+            Err(String::from("two plus two does not equal four"))
+        }
+    }
 }
 
 // cargo test
@@ -74,3 +93,17 @@ pub fn greeting(name: &str) -> String {
     format!("Hello {name}!")
 }
 
+
+pub struct Guess {
+    value: i32,
+}
+
+impl Guess {
+    pub fn new(value: i32) -> Guess {
+        if value < 1 || value > 100 {
+            panic!("Guess value must be between 1 and 100, got {value}.");
+        }
+
+        Guess { value }
+    }
+}
