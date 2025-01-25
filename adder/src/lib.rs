@@ -47,6 +47,7 @@ mod tests {
     }
 
     #[test]
+    // #[ignore] // игнорирование тестов
     fn greeting_contains_name_with_description() {
         let result = greeting("Carol");
         assert!(
@@ -114,3 +115,16 @@ impl Guess {
 
 // если тесты проходят - консоли из них не выводятся. Для вывода, надо запускать:
 // cargo test -- --show-output
+
+// запуск конкретного теста по имени
+// cargo test it_works
+
+// запуск нескольких тестов по вхождению в имя (например есть cargo test greeting_contains_name и greeting_contains_name_with_description)
+// cargo test greeting_contains_name
+
+// игнорирование тестов
+// #[ignore]
+// выполняем только проигнорированные тесты
+// cargo test -- --ignored
+// выполнить все тесты и те что игнорируются тоже
+// cargo test -- --include-ignored
