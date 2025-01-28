@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 
 enum ShirtColor {
@@ -34,6 +36,31 @@ impl Inventory {
 }
 
 fn main() {
+    let store = Inventory {
+        shirts: vec![ShirtColor::Blue, ShirtColor::Red, ShirtColor::Blue],
+    };
 
-    println!("Hello, world!");
+    let user_pref1 = Some(ShirtColor::Red);
+    let giveaway1 = store.giveaway(user_pref1);
+    println!("The user with preference {:?} gets {:?}", user_pref1, giveaway1);
+
+    let user_pref2 = None;
+    let giveaway2 = store.giveaway(user_pref2);
+
+    println!("The user with preference {:?} gets {:?}", user_pref2, giveaway2);
+
+    // Тема замыканий
+    // Выведение и анотация типов замыканий
+    let expensive_closure = |num: u32| -> u32 {
+        println!("calculating slowly...");
+        thread::sleep(Duration::from_secs(2));
+        num
+    };
+
+    fn  add_one_v1 (x: u32) -> u32 { x + 1 }                         // обычная функция 
+    let add_one_v2 = |x: u32| -> u32 { x + 1 }; // замыкание с полной анотацией типов
+    // let add_one_v3 = |x| { x + 1 }; // тоже валидный вариант, но будет подсвечивать ошибкой выведения типа, до первого применения, когда тип сможет вывестись автоматически
+    // let add_one_v4 = |x| x + 1;     // самый минималистичный вариант, тип выведется после первого использования, зависимо от переданных данных
+
+    // захват ссылок или передача владения
 }
