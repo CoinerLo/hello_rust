@@ -63,4 +63,15 @@ fn main() {
     // let add_one_v4 = |x| x + 1;     // самый минималистичный вариант, тип выведется после первого использования, зависимо от переданных данных
 
     // захват ссылок или передача владения
+    // первый вариант - захват неизменяемых ссылок
+    let list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let only_borrows = || println!("From closure: {list:?}");
+
+    println!("Before calling closure: {list:?}");
+    only_borrows();
+    println!("After calling closure: {list:?}");
+
+    
 }
