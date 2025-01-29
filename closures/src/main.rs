@@ -73,5 +73,12 @@ fn main() {
     only_borrows();
     println!("After calling closure: {list:?}");
 
-    
+    // второй вариант - захват мутабельных ссылок
+    let mut list1 = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let mut borrows_mutably = || list1.push(7);
+    // здесь list1 не доступен по ссылке
+    borrows_mutably();
+    println!("After calling closure: {list:?}");
 }
