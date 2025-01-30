@@ -81,4 +81,12 @@ fn main() {
     // здесь list1 не доступен по ссылке
     borrows_mutably();
     println!("After calling closure: {list:?}");
+
+    // третий вариант - передача владения
+    // Нужно указывать явно что значение передаем методом move
+    let list2 = vec![1, 2, 3];
+    println!("Before defining closure: {list2:?}");
+    thread::spawn(move || println!("From thread: {list2:?}"))
+        .join()
+        .unwrap();
 }
