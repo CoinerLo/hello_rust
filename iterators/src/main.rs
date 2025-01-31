@@ -25,3 +25,7 @@ fn iterator_demonstration() {
     assert_eq!(v1_iter.next(), Some(&3));
     assert_eq!(v1_iter.next(), None);
 }
+
+// значения которые возвращает iter - неизменяемые ссылки
+// into_iter - итератор который становится владельцем = v1.into_iter
+// iter_mut - итератор по изменяемым ссылкам
