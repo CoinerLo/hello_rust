@@ -29,3 +29,20 @@ fn iterator_demonstration() {
 // значения которые возвращает iter - неизменяемые ссылки
 // into_iter - итератор который становится владельцем = v1.into_iter
 // iter_mut - итератор по изменяемым ссылкам
+
+// методы, которые потребляют итераторы
+#[test]
+fn iterator_sum() {
+    let v1 = vec![1, 2, 3];
+    let v1_iter = v1.iter();
+    let total: i32 = v1_iter.sum();
+    assert_eq!(total, 6);
+}
+
+// методы, которые создают другие итераторы
+#[test]
+fn iterator_sum2() {
+    let v1: Vec<i32> = vec![1, 2, 3];
+    let v2: Vec<i32> = v1.iter().map(|x| x + 1).collect();
+    assert_eq!(v2, vec![2, 3, 4]);
+}
