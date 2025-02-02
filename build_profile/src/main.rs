@@ -12,4 +12,6 @@ fn main() {
 
 // [profile.*]
 // общие настройки для все сборок
+// https://doc.rust-lang.org/cargo/reference/profiles.html
+
 
