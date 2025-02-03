@@ -1,4 +1,7 @@
+use rand;
+
 pub fn add_one(x: i32) -> i32 {
+    rand::random::<u64>();
     x + 1
 }
 
