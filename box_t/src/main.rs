@@ -18,5 +18,31 @@ fn main() {
     let y1 = Box::new(x1);
     assert_eq!(7, x1);
     assert_eq!(7, *y1); // поведение аналогичное разименовыванию ссылки - так как Box это и есть ссылка, а если быть точнее - умный указатель на данные в куче
-    
+
+    let x2 = 9;
+    let y2 = MyBox(x2);
+    assert_eq!(9, x2);
+    assert_eq!(9, *y2);
 }
+
+struct MyBox<T>(T);
+
+use std::ops::Deref;
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+
+// типаж Deref отвечает за возможность разименовывания
+
+impl<T> Deref for MyBox<T> {
+    type Target = T; // связанный тип для использования в Deref
+
+    fn deref(&self) -> &Self::Target {
+        &self.0 // ссылка на значение к которому хочет получить доступ оператор *
+    }
+}
+
+
