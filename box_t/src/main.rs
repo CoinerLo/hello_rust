@@ -6,6 +6,10 @@ enum List {
 
 use crate::List::{Cons, Nil};
 
+fn hello(name: &str) {
+    println!("Hello, {name}");
+}
+
 fn main() {
     let list = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
 
@@ -23,6 +27,14 @@ fn main() {
     let y2 = MyBox(x2);
     assert_eq!(9, x2);
     assert_eq!(9, *y2);
+
+    let m = MyBox::new(String::from("Rust"));
+    // Неявное разменовывание необходимое кол-во раз MyBox -> String -> str
+    hello(&m);
+    //Явно пришлось бы писать так:
+    hello(&(*m)[..]);
+
+    // есть еще DerefMut
 }
 
 struct MyBox<T>(T);
@@ -45,4 +57,4 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
-
+// Rust заменяет оператор * примененный к умным казателям вызовом y.deref() и затем применяет простое разименовывание *(y.deref())
