@@ -16,4 +16,6 @@ fn main() {
         data: String::from("other stuff"),
     };
     println!("CustomSmartPointers created!");
+    drop(_b); // досрочный вывод из эксплуатации данных
+    println!("CustomSmartPointer dropped before the end of main.");
 }
