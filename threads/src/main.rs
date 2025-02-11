@@ -2,6 +2,7 @@ use std::{thread, time::Duration};
 
 fn main() {
     let v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // владение перемещается в тред
     let handle = thread::spawn(move || {
         for i in v {
             println!("hi number {i} from the spawned thread!");
