@@ -18,6 +18,18 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
+pub struct Button {
+    pub width: u32,
+    pub height: u32,
+    pub label: String,
+}
+
+impl Draw for Button {
+    fn draw(&self) {
+        // any
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
