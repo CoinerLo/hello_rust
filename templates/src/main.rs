@@ -16,4 +16,25 @@ fn main() {
     } else {
         println!("Using blue as the background color");
     }
+
+    let mut stack = Vec::new();
+    stack.push(1);
+    stack.push(2);
+    stack.push(3);
+
+    while let Some(top) = stack.pop() {
+        println!("{top}")
+    }
+
+    let v = vec!['a', 'b', 'c'];
+    for (index, value) in v.iter().enumerate() {
+        println!("{value} is at index {index}");
+    }
+
+    let (_x, _y, _z) = (1, 2, 3);
+    let (_x, _y, ..) = (1, 2, 3);
+}
+
+fn print_coordinates(&(x, y): &(i32, i32)) {
+    println!("Current location: ({x}, {y})");
 }
