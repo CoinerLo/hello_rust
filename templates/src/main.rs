@@ -53,6 +53,13 @@ fn main() {
         _ => println!("Default case, x = {x:?}"),
     }
     println!("at the end: x = {x:?}, y = {y}");
+
+    let x = 1;
+    match x {
+        1 | 2 => println!("one or two"), // оператор or
+        3 => println!("three"),
+        _ => println!("anything"),
+    }
 }
 
 fn print_coordinates(&(x, y): &(i32, i32)) {
