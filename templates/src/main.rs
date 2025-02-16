@@ -36,6 +36,23 @@ fn main() {
 
     let point = (3, 5);
     print_coordinates(&point);
+
+    let x = 1;
+    match x {
+        1 => println!("one"),
+        2 => println!("two"),
+        3 => println!("three"),
+        _ => println!("anything"),
+    }
+
+    let x = Some(5);
+    let y = 10;
+    match x {
+        Some(50) => println!("Got 50"),
+        Some(y) => println!("Matched, y = {y}"), // этот шаблон вводит новую переменную y (она затеняет нашу y из верхнего скоупа) и её значение будет соответствовать любому значению x в Some, поэтому этот шаблон и сработает
+        _ => println!("Default case, x = {x:?}"),
+    }
+    println!("at the end: x = {x:?}, y = {y}");
 }
 
 fn print_coordinates(&(x, y): &(i32, i32)) {
