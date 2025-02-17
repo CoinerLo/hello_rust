@@ -107,6 +107,30 @@ fn main() {
             println!("Change the color to red {r}, green {g}, and blue {b}");
         }
     }
+
+    // деструктуризация вложенных структур и перечислений
+    let msgn = MessageNested::ChangeColor(Color::Hsv(0, 160, 255));
+    match msgn {
+        MessageNested::ChangeColor(Color::Rgb(r, g, b)) => {
+            println!("Change color to red {r}, green {g}, and blue {b}");
+        }
+        MessageNested::ChangeColor(Color::Hsv(h, s, v)) => {
+            println!("Change color to hue {h}, saturation {s}, value {v}");
+        }
+        _ => (),
+    }
+}
+
+enum Color {
+    Rgb(i32, i32, i32),
+    Hsv(i32, i32, i32),
+}
+
+enum MessageNested {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(Color),
 }
 
 enum Message {
