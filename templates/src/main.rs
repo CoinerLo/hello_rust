@@ -119,6 +119,16 @@ fn main() {
         }
         _ => (),
     }
+
+    // деструктуризация структур и кортежей
+    let ((feet, inches), Point { x, y }) = ((3, 10), Point { x: 3, y: -10 });
+
+    // игнорирование значения
+    foo(3, 4);
+}
+
+fn foo(_: i32, y: i32) {
+    println!("This code only uses y parameter: {y}");
 }
 
 enum Color {
