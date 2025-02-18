@@ -125,6 +125,26 @@ fn main() {
 
     // игнорирование значения
     foo(3, 4);
+
+    let mut setting_value = Some(5);
+    let new_setting_value = Some(10);
+    // let new_setting_value = None;
+    match (setting_value, new_setting_value) {
+        (Some(_), Some(_)) => {
+            println!("Can't overwrite an existing customizes value");
+        }
+        _ => {
+            setting_value = new_setting_value;
+        }
+    }
+    println!("setting is {setting_value:?}");
+
+    let numbers = (2, 4, 8, 16, 32);
+    match numbers {
+        (first, _, third, _, fifth) => {
+            println!("Some numbers: {first}, {third}, {fifth}");
+        }
+    }
 }
 
 fn foo(_: i32, y: i32) {
