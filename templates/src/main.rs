@@ -145,6 +145,17 @@ fn main() {
             println!("Some numbers: {first}, {third}, {fifth}");
         }
     }
+
+    let origin = Point { x: 0, y: 0 };
+    match origin {
+        Point { x, ..} => println!("x is {x}"),
+    }
+
+    match numbers {
+        (first, .., last) => {
+            println!("Some numbers: {first}, {last}");
+        }
+    }
 }
 
 fn foo(_: i32, y: i32) {
