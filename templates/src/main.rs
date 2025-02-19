@@ -182,7 +182,21 @@ fn main() {
         _ => println!("No"),
     }
 
-    
+    // bindings @
+    let msg = MessageNext::Hello { id: 5 };
+    match msg {
+        MessageNext::Hello {
+            id: id_variable @ 3..=7,
+        } => println!("Found an id in range: {id_variable}"),
+        MessageNext::Hello { id: 10..=12 } => {
+            println!("Found an id in another range")
+        }
+        MessageNext::Hello { id } => println!("Found some other id: {id}"),
+    }
+}
+
+enum MessageNext {
+    Hello { id: i32 },
 }
 
 fn foo(_: i32, y: i32) {
