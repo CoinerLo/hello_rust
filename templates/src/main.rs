@@ -174,6 +174,15 @@ fn main() {
         _ => println!("Default case, x = {x:?}"),
     }
     println!("at the end: x ={x:?}, y = {y}");
+
+    let x = 4;
+    let y = false;
+    match x {
+        4 | 5 | 6 if y => println!("Yes"),
+        _ => println!("No"),
+    }
+
+    
 }
 
 fn foo(_: i32, y: i32) {
