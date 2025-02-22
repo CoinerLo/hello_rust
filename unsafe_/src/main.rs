@@ -22,6 +22,18 @@ fn main() {
     let (a, b) = r.split_at_mut(3);
     assert_eq!(a, &mut [1, 2, 3]);
     assert_eq!(b, &mut [4, 5, 6]);
+
+    split_at_mut(r,2);
+
+    // extern - взаимодействие с кодом на другом языке
+    unsafe {
+        println!("Absolute value of -3 according to C: {}", abs(-3));
+    }
+
+}
+
+unsafe  extern "C" {
+    fn abs(input: i32) -> i32;
 }
 
 unsafe fn dangerous() {}
