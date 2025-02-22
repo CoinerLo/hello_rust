@@ -29,11 +29,14 @@ fn main() {
     unsafe {
         println!("Absolute value of -3 according to C: {}", abs(-3));
     }
+    // Если функция помечена как safe в блоке extern
+    // println!("Absolute value of -3 according to C: {}", abs(-3));
 
 }
 
-unsafe  extern "C" {
+unsafe extern "C" {
     fn abs(input: i32) -> i32;
+    // safe fn abs(input: i32) -> i32;
 }
 
 unsafe fn dangerous() {}
@@ -48,4 +51,10 @@ fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
             slice::from_raw_parts_mut(ptr.add(mid), len - mid),
         )
     }
+}
+
+// создание кода который может использоваться в других языках
+#[unsafe(no_mangle)] // эта нотация говорит компилятору не менять название функции при копилировании
+pub extern "C" fn call_from_c() {
+    println!("Just called a Rust function from C!");
 }
