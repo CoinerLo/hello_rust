@@ -10,4 +10,10 @@ fn main() {
 
     let address = 0x012345usize;
     let _r = address as *const i32;
+
+    unsafe {
+        dangerous();
+    }
 }
+
+unsafe fn dangerous() {}
