@@ -49,6 +49,16 @@ fn main() {
     }
 }
 
+ // доступ к полям union тоже можно получить только в unsafe
+
+unsafe  trait _Foo {
+    // methods go here
+}
+
+unsafe impl _Foo for i32 {
+    // method imlementations go here
+}
+
 unsafe extern "C" {
     fn abs(input: i32) -> i32;
     // safe fn abs(input: i32) -> i32;
