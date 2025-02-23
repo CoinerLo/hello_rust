@@ -1,5 +1,14 @@
 use core::slice;
 
+static HELLO: &str = "Hello, world!";
+static mut COUNTER: u32 = 0;
+
+unsafe fn add_to_counter(inc: u32) {
+    unsafe {
+        COUNTER += inc;
+    }
+}
+
 fn main() {
     let mut num = 5;
     let r1 = &raw const num;
@@ -32,6 +41,12 @@ fn main() {
     // Если функция помечена как safe в блоке extern
     // println!("Absolute value of -3 according to C: {}", abs(-3));
 
+    // global var
+    println!("name is: {HELLO}");
+    unsafe {
+        add_to_counter(3);
+        println!("COUNTER: {}", *(&raw const COUNTER));
+    }
 }
 
 unsafe extern "C" {
