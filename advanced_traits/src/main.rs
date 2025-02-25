@@ -25,6 +25,7 @@ fn main() {
     person.fly();
 
     println!("A baby dog is called a {}", Dog::baby_name());
+    println!("A baby dog is called a {}", <Dog as Animal>::baby_name());
 }
 
 // trait Add<Rhs=Self> {
