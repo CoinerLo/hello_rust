@@ -29,6 +29,9 @@ fn main() {
 
     let p = Point { x: 2, y:3 };
     Point::outline_print(&p);
+
+    let w = Wrapper(vec![String::from("hello"), String::from("world")]);
+    println!("w = {w}");
 }
 
 // trait Add<Rhs=Self> {
@@ -112,3 +115,12 @@ impl fmt::Display for Point {
 }
 
 impl OutlinePrint for Point {}
+
+//Обертка над стандартными типажами
+struct Wrapper(Vec<String>);
+
+impl fmt::Display for Wrapper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[{}]", self.0.join(", "))
+    }
+}
