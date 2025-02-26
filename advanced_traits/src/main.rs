@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::{fmt::{self}, ops::Add};
 
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -26,6 +26,9 @@ fn main() {
 
     println!("A baby dog is called a {}", Dog::baby_name());
     println!("A baby dog is called a {}", <Dog as Animal>::baby_name());
+
+    let p = Point { x: 2, y:3 };
+    Point::outline_print(&p);
 }
 
 // trait Add<Rhs=Self> {
@@ -89,4 +92,23 @@ impl Animal for Dog {
     }
 }
 
+// реализуем стендартный типаж Display
+trait OutlinePrint: fmt::Display {
+    fn outline_print(&self) {
+        let output = self.to_string();
+        let len = output.len();
+        println!("{}", "*".repeat(len + 4));
+        println!("*{}*", " ".repeat(len + 2));
+        println!("* {output} *");
+        println!("*{}*", " ".repeat(len + 2));
+        println!("{}", "*".repeat(len + 4));
+    }
+}
 
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+impl OutlinePrint for Point {}
