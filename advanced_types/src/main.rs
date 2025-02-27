@@ -1,10 +1,15 @@
 use core::fmt;
 
+// псевдонимы типов
 type Kilometers = i32;
 
 type Thunk = Box<dyn Fn() + Send + 'static>;
 
 type Result<T> = std::result::Result<T, std::io::Error>;
+
+// тип never
+// fn bar() -> ! {}
+// типа never имеют тикие структуры как loop, panic!, continue
 
 fn main() {
     let x: i32 = 5;
@@ -16,6 +21,8 @@ fn main() {
     fn _returns_long_type() -> Thunk {
         Box::new(|| println!("by"))
     }
+
+
 }
 
 pub trait Write {
