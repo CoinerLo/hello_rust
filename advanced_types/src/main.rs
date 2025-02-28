@@ -22,7 +22,10 @@ fn main() {
         Box::new(|| println!("by"))
     }
 
-
+    // типы с динамическим размером
+    fn generic<T: ?Sized>(t: &T) {
+        // --snip--
+    }
 }
 
 pub trait Write {
