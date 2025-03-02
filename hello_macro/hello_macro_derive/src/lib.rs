@@ -37,3 +37,12 @@ fn impl_hello_macro(ast: &syn::DeriveInput) -> TokenStream {
     };
     gen.into()
 }
+
+// Еще один типа макроса - атрибутный. Он используется самостоятельно и отдельно от derive
+// может использоваться не только со структурами и перечислениями но и с функциями либо другими типами
+// attr - аттрибут который прикрепляется, item - итем к которому прикрепляется аттрибут (на примере это функция)
+// #[proc_macro_attribute]
+// pub fn route(attr: TokenStream, item: TokenStream) -> TokenStream {}
+
+// #[route(GET, "/")]
+// fn index() {}
