@@ -1,4 +1,4 @@
-use std::{fs, io::{BufRead, BufReader, Write}, net::{TcpListener, TcpStream}, thread::{self, Thread}, time::Duration};
+use std::{fs, io::{BufRead, BufReader, Write}, net::{TcpListener, TcpStream}, thread::{self}, time::Duration};
 
 use hello::ThreadPool;
 
