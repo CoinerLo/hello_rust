@@ -2,7 +2,7 @@ use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!("Сервер запущен на 127.0.0.1:8080");
 
@@ -15,6 +15,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return;
             }
         };
-        
+        println!("ПолученоЖ {:?}", &buffer[..n]);
+        if let Err(e) = socket.write_all(&buffer[..n]).await {
+            eprintln!("Ошибка записи: {}", e);
+            return;
+        }
     }
 }
