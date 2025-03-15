@@ -1,5 +1,6 @@
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use serde::{Serialize, Deserialize};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -46,4 +47,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         });
     }
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type")] // Указываем поле `type` для различения типов сообщений
+enum Message {
+    Join { username: String }, // Клиент присоединяется к чату
+    SendMessage { content: String }, // Клиент отправляет сообщение
+    ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
 }
