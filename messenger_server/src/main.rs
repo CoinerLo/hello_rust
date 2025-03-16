@@ -53,10 +53,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // Обрабатываем сообщение
                 match message {
                     Message::Join { username } => {
-
+                        println!("Клиент {} присоединился", username);
+                        let response = Message::ReceiveMessage {
+                            sender: "Server".to_string(),
+                            content: format!("Добро пожаловать {}!", username),
+                        };
+                        send_massage(&mut socket, &response).await;
                     }
                     Message::SendMessage { content } => {
-
+                        println!("Получено сообщениеЖ {}", content);
+                        let response = Message::ReceiveMessage {
+                            sender: "Echo".to_string(),
+                            content: content,
+                        };
+                        send_massage(&mut socket, &response).await;
                     }
                     _ => {}
                 }
