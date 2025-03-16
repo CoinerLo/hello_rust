@@ -50,6 +50,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 };
 
+                // Обрабатываем сообщение
+                match message {
+                    Message::Join { username } => {
+
+                    }
+                    Message::SendMessage { content } => {
+
+                    }
+                    _ => {}
+                }
+
                 // Выводим полученные данные
                 println!(
                     "Получено от клиента {}: {:?}",
@@ -74,4 +85,11 @@ enum Message {
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
+}
+
+async fn send_massage(socket: &mut tokio::net::TcpStream, message: &Message) {
+    let json_message = serde_json::to_string(message).unwrap();
+    if let Err(e) = socket.write_all(json_message.as_bytes()).await {
+        eprintln!("Ошибка записи {}", e);
+    }
 }
