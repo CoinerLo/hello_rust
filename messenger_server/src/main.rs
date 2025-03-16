@@ -32,6 +32,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 };
 
+                // Преобразуем байты в строку
+                let message_str = match String::from_utf8(buffer[..n].to_vec()) {
+                    Ok(s) => s,
+                    Err(_) => {
+                        eprintln!("Ошибка декодирования utf-8");
+                        continue;
+                    }
+                };
+
+                // Десериализуем JSON в структуру Message
+                let message: Message = match serde_json::from_str(&message_str) {
+                    Ok(msg) => msg,
+                    Err(e) => {
+                        eprintln!("Ошибка десериализации JSON: {}", e);
+                        continue;
+                    }
+                };
+
                 // Выводим полученные данные
                 println!(
                     "Получено от клиента {}: {:?}",
