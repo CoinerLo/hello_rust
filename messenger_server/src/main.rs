@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
@@ -8,10 +12,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!("Сервер запущен на 127.0.0.1:8080");
 
+    // глобальное состояние сервера
+    let clients: Clients = Arc::new(Mutex::new(HashMap::new()));
+
     loop {
         // Принимаем входящее подключение
         let (mut socket, addr) = listener.accept().await?;
         println!("Новое подключение: {}", addr);
+
+        // Клонируем состояние для каждой задачи
+        let clients = clients.clone();
 
         // Обрабатываем подключение в отдельной задаче
         tokio::spawn(async move {
@@ -52,11 +62,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 // Обрабатываем сообщение
                 match message {
-                    Message::Join { username } => {
-                        println!("Клиент {} присоединился", username);
+                    Message::Join { username: new_username } => {
+                        println!("Клиент {} присоединился", new_username);
+
+                        // добавляем клиента в список
+                        let mut clients_lock = clients.lock().await;
+                        clients_lock.insert(new_username.clone(), socket.try_clone().unwrap());
+                        drop(clients_lock);
+
                         let response = Message::ReceiveMessage {
                             sender: "Server".to_string(),
-                            content: format!("Добро пожаловать {}!", username),
+                            content: format!("Добро пожаловать {}!", new_username),
                         };
                         send_massage(&mut socket, &response).await;
                     }
@@ -69,19 +85,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         send_massage(&mut socket, &response).await;
                     }
                     _ => {}
-                }
-
-                // Выводим полученные данные
-                println!(
-                    "Получено от клиента {}: {:?}",
-                    addr,
-                    String::from_utf8_lossy(&buffer[..n])
-                );
-
-                // Отправляем эхо-ответ
-                if let Err(e) = socket.write_all(&buffer[..n]).await {
-                    eprintln!("Ошибка записи клиенту {}: {}", addr, e);
-                    return;
                 }
             }
         });
@@ -96,6 +99,8 @@ enum Message {
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
 }
+
+type Clients = Arc<Mutex<HashMap<String, tokio::net::TcpStream>>>;
 
 async fn send_massage(socket: &mut tokio::net::TcpStream, message: &Message) {
     let json_message = serde_json::to_string(message).unwrap();
