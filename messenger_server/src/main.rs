@@ -92,12 +92,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Message::SendMessage { content } => {
                                 if let Some(sender) = &username {
                                     println!("Получено сообщение от {}: {}", sender, content);
-                                    let response = serde_json::to_string(&Message::ReceiveMessage {
+                                    let message = serde_json::to_string(&Message::ReceiveMessage {
                                         sender: sender.clone(),
                                         content: content.clone(),
                                     })
                                     .unwrap();
 
+                                    if let Err(e) = tx.send(message) {
+                                        eprintln!("Ошибка отправки в канал: {}", e);
+                                    }
                                 }
                             }
                             _ => {}
