@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
+use serde_json;
 use tokio::sync::{broadcast, Mutex};
 
 use tokio::net::TcpListener;
@@ -89,12 +90,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 send_massage(&mut socket, &response).await;
                             }
                             Message::SendMessage { content } => {
-                                println!("Получено сообщениеЖ {}", content);
-                                let response = Message::ReceiveMessage {
-                                    sender: "Echo".to_string(),
-                                    content: content,
-                                };
-                                send_massage(&mut socket, &response).await;
+                                if let Some(sender) = &username {
+                                    println!("Получено сообщение от {}: {}", sender, content);
+                                    let response = serde_json::to_string(&Message::ReceiveMessage {
+                                        sender: sender.clone(),
+                                        content: content.clone(),
+                                    })
+                                    .unwrap();
+
+                                }
                             }
                             _ => {}
                         }
