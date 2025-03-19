@@ -118,10 +118,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                             Err(e) => {
                                 eprintln!("Ошибка получения из каналаЖ {}", e);
+                                break;
                             }
                         }
                     }
                 }
+            }
+
+            if let Some(username) = username {
+                let mut clients_lock = clients.lock().await;
+                clients_lock.remove(&username);
+                println!("Клиент {} отключился", username);
             }
         });
     }
