@@ -38,6 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             loop {
                 tokio::select! {
+                    // чтение данных от клиента
                     result = socket.read(&mut buffer) => {
                         // Читаем данные из сокета
                         let n = match result {
@@ -108,7 +109,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
 
                     result = rx.recv() => {
-
+                        match result {
+                            Ok(msg) => {
+                                if let Err(e) = socket.write_all(msg.as_bytes()).await {
+                                    eprintln!("Ошибка записи: {}", e);
+                                    break;
+                                } 
+                            }
+                            Err(e) => {
+                                eprintln!("Ошибка получения из каналаЖ {}", e);
+                            }
+                        }
                     }
                 }
             }
