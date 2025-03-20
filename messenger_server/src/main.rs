@@ -108,11 +108,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 if let Some(sender) = &username {
                                     println!("Клиент {} покидает чат", sender);
 
+                                    // оповещаем других участников о выходе клиента
                                     let notification = Message::ReceiveMessage {
                                         sender: "Server".to_string(),
                                         content: format!("{} покинул чат", sender),
                                     };
-                                    
+                                    let notification_json = serde_json::to_string(&notification).unwrap();
+                                    tx.send(notification_json).unwrap();
+
+                                    // удаляем клиента из списка
+                                    let mut clients_lock = clients.lock().await;
+                                    clients_lock.remove(sender);
+                                    drop(clients_lock);
+
+                                    // завершение задачи для этого клиента
+                                    break;
                                 }
                             }
                             _ => {}
