@@ -104,6 +104,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     }
                                 }
                             }
+                            Message::Leave => {
+                                if let Some(sender) = &username {
+                                    println!("Клиент {} покидает чат", sender);
+
+                                    let notification = Message::ReceiveMessage {
+                                        sender: "Server".to_string(),
+                                        content: format!("{} покинул чат", sender),
+                                    };
+                                    
+                                }
+                            }
                             _ => {}
                         }
                     }
