@@ -75,10 +75,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         // Обрабатываем сообщение
                         match message {
                             Message::Join { username: new_username } => {
-                                println!("Клиент {} присоединился", new_username);
+                                println!("Клиент {} клиент пытается присоединиться", new_username);
+
+                                // Проверяем свободно ли имя
+                                let mut clients_lock = clients.lock().await;
+                                if clients_lock.contains_key(&new_username) {
+                                    drop(clients_lock);
+
+                                    let error_message = Message::ErrorMessage {
+                                        error: format!("Имя {} уже занято", new_username),
+                                    };
+                                    send_massage(&mut socket, &error_message).await;
+                                    break;
+                                }
 
                                 // добавляем клиента в список
-                                let mut clients_lock = clients.lock().await;
                                 clients_lock.insert(new_username.clone(), tx.clone());
                                 drop(clients_lock);
 
