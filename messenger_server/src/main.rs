@@ -162,7 +162,8 @@ enum Message {
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
-    Leave,
+    Leave, // выход пользователя
+    ErrorMessage { error: String }, // Ответ об ошибке
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
