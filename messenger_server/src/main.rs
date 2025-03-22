@@ -6,12 +6,18 @@ use tokio::sync::{broadcast, Mutex};
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
+use tracing::{info, error};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // настройка логирования
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
     // Создаем TCP-слушатель на порту 8080
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
-    println!("Сервер запущен на 127.0.0.1:8080");
+    info!("Сервер запущен на 127.0.0.1:8080");
 
     // создаем канал для рассылки сообщений
     let (tx, _) = broadcast::channel(32);
@@ -22,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         // Принимаем входящее подключение
         let (mut socket, addr) = listener.accept().await?;
-        println!("Новое подключение: {}", addr);
+        info!("Новое подключение: {}", addr);
 
         // Клонируем состояние для каждой задачи
         let clients = clients.clone();
@@ -144,12 +150,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         match result {
                             Ok(msg) => {
                                 if let Err(e) = socket.write_all(msg.as_bytes()).await {
-                                    eprintln!("Ошибка записи: {}", e);
+                                    error!("Ошибка записи: {}", e);
                                     break;
                                 } 
                             }
                             Err(e) => {
-                                eprintln!("Ошибка получения из каналаЖ {}", e);
+                                error!("Ошибка получения из канала: {}", e);
                                 break;
                             }
                         }
@@ -160,7 +166,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some(username) = username {
                 let mut clients_lock = clients.lock().await;
                 clients_lock.remove(&username);
-                println!("Клиент {} отключился", username);
+                info!("Клиент {} отключился", username);
             }
         });
     }
@@ -182,6 +188,6 @@ type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
 async fn send_massage(socket: &mut tokio::net::TcpStream, message: &Message) {
     let json_message = serde_json::to_string(message).unwrap();
     if let Err(e) = socket.write_all(json_message.as_bytes()).await {
-        eprintln!("Ошибка записи {}", e);
+        error!("Ошибка записи {}", e);
     }
 }
