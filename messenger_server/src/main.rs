@@ -15,6 +15,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
+    // Загрузка сертификата и ключа для TLS
+    let cert = std::fs::read("cert.pem");
+    let key = std::fs::read("key.pem");
+
     // Создаем TCP-слушатель на порту 8080
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
     info!("Сервер запущен на 127.0.0.1:8080");
@@ -176,6 +180,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")] // Указываем поле `type` для различения типов сообщений
 enum Message {
+    Authenticate { username: String, password: String }, // сообщение на авторизацию
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
