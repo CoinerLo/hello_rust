@@ -6,7 +6,7 @@ use tokio::sync::{broadcast, Mutex};
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
-use tracing::{info, error};
+use tracing::{debug, error, info, warn};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -51,11 +51,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Ok(n) if n == 0 => break,
                             // Успешно прочитано n байт
                             Ok(n) => {
+                                debug!("Получено {} байт данных от клиента", n);
                                 // Преобразуем байты в строку
                                 let message_str = match String::from_utf8(buffer[..n].to_vec()) {
                                     Ok(s) => s,
                                     Err(_) => {
-                                        eprintln!("Ошибка декодирования utf-8");
+                                        error!("Ошибка декодирования utf-8");
                                         continue;
                                     }
                                 };
@@ -64,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 let message: Message = match serde_json::from_str(&message_str) {
                                     Ok(msg) => msg,
                                     Err(e) => {
-                                        eprintln!("Ошибка десериализации JSON: {}", e);
+                                        error!("Ошибка десериализации JSON: {}", e);
                                         continue;
                                     }
                                 };
@@ -72,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 // Обрабатываем сообщение
                                 match message {
                                     Message::Join { username: new_username } => {
-                                        println!("Клиент {} клиент пытается присоединиться", new_username);
+                                        info!("Клиент {} клиент пытается присоединиться", new_username);
 
                                         // Проверяем свободно ли имя
                                         let mut clients_lock = clients.lock().await;
@@ -83,6 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 error: format!("Имя {} уже занято", new_username),
                                             };
                                             send_massage(&mut socket, &error_message).await;
+                                            warn!("Клиент {} попытался присоединиться с занятым именем", new_username);
                                             break;
                                         }
 
@@ -100,7 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     }
                                     Message::SendMessage { content } => {
                                         if let Some(sender) = &username {
-                                            println!("Получено сообщение от {}: {}", sender, content);
+                                            info!("Получено сообщение от {}: {}", sender, content);
                                             let message = serde_json::to_string(&Message::ReceiveMessage {
                                                 sender: sender.clone(),
                                                 content: content.clone(),
@@ -108,13 +110,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             .unwrap();
 
                                             if let Err(e) = tx.send(message) {
-                                                eprintln!("Ошибка отправки в канал: {}", e);
+                                                error!("Ошибка отправки в канал: {}", e);
                                             }
                                         }
                                     }
                                     Message::Leave => {
                                         if let Some(sender) = &username {
-                                            println!("Клиент {} покидает чат", sender);
+                                            info!("Клиент {} покидает чат", sender);
 
                                             // оповещаем других участников о выходе клиента
                                             let notification = Message::ReceiveMessage {
@@ -137,7 +139,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }
                             }
                             Err(e) => {
-                                eprintln!("Ошибка чтения от клиента {}: {}", addr, e);
+                                error!("Ошибка чтения от клиента {}: {}", addr, e);
                                 break;
                             }
                         }
