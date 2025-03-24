@@ -39,6 +39,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Закрытый ключ не найден".into());
     }
 
+    // Создаём конфигурацию сервера
+    let config = ServerConfig::builder()
+        .with_no_client_auth() // не требуем аутентификации клиента
+        .with_single_cert(certs, keys[0].clone())?; // Используем первый закрытый ключ
+
     let acceptor = TlsAcceptor::from(Arc::new(config));
 
     // Создаем TCP-слушатель на порту 8080
