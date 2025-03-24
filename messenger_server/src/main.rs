@@ -1,11 +1,16 @@
 use std::collections::HashMap;
+use std::fs;
+use std::io::BufReader;
 use std::sync::Arc;
+use rustls::{ServerConfig, NoClientAuth, Certificate, PrivateKey};
+use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
 use tokio::sync::{broadcast, Mutex};
 
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
+use tokio_rustls::TlsAcceptor;
 use tracing::{debug, error, info, warn};
 
 #[tokio::main]
@@ -16,8 +21,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // Загрузка сертификата и ключа для TLS
-    let cert = std::fs::read("cert.pem");
-    let key = std::fs::read("key.pem");
+    let cert_file = &mut BufReader::new(fs::File::open("cert.pem")?);
+    let key_file = &mut BufReader::new(fs::File::open("key.pem")?);
+    
+    let certs: Vec<Certificate> = certs(cert_file)?
+        .into_iter()
+        .map(Certificate)
+        .collect();
+
+    let keys: Vec<PrivateKey> = pkcs8_private_keys(key_file)?
+        .into_iter()
+        .map(PrivateKey)
+        .collect();
+
+    if keys.is_empty() {
+        error!("Закрытый ключ не найден");
+        return Err("Закрытый ключ не найден".into());
+    }
+
+    let acceptor = TlsAcceptor::from(Arc::new(config));
 
     // Создаем TCP-слушатель на порту 8080
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
