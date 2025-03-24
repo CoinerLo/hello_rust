@@ -2,15 +2,16 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
-use rustls::{ServerConfig, NoClientAuth, Certificate, PrivateKey};
+use rustls::{
+    ServerConfig, server::NoClientAuth, pki_types::{CertificateDer, PrivateKeyDer},
+};
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
 use tokio::sync::{broadcast, Mutex};
-
+use tokio_rustls::TlsAcceptor;
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
-use tokio_rustls::TlsAcceptor;
 use tracing::{debug, error, info, warn};
 
 #[tokio::main]
@@ -24,15 +25,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cert_file = &mut BufReader::new(fs::File::open("cert.pem")?);
     let key_file = &mut BufReader::new(fs::File::open("key.pem")?);
     
-    let certs: Vec<Certificate> = certs(cert_file)?
+    let certs: Vec<CertificateDer<'_>> = certs(cert_file)?
         .into_iter()
-        .map(Certificate)
+        .map(|v| CertificateDer::from(v))
         .collect();
 
-    let keys: Vec<PrivateKey> = pkcs8_private_keys(key_file)?
-        .into_iter()
-        .map(PrivateKey)
-        .collect();
+    let keys: Vec<PrivateKeyDer<'_>> = pkcs8_private_keys(key_file)?
+        .map(|result| {
+            result.map(|key| PrivateKeyDer::from_pkcs8_der(&key).unwrap())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
 
     if keys.is_empty() {
         error!("Закрытый ключ не найден");
