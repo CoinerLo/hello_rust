@@ -3,7 +3,7 @@ use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
 use rustls::{
-    ServerConfig, server::NoClientAuth, pki_types::{CertificateDer, PrivateKeyDer},
+    ServerConfig, pki_types::{CertificateDer, PrivateKeyDer},
 };
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
@@ -25,14 +25,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cert_file = &mut BufReader::new(fs::File::open("cert.pem")?);
     let key_file = &mut BufReader::new(fs::File::open("key.pem")?);
     
-    let certs: Vec<CertificateDer<'_>> = certs(cert_file)?
-        .into_iter()
-        .map(|v| CertificateDer::from(v))
-        .collect();
+    // парсим сертификаты
+    let certs: Vec<CertificateDer<'_>> = certs(cert_file)
+        .map(|result| result.map(CertificateDer::from))
+        .collect::<Result<Vec<_>, _>>()?;
 
-    let keys: Vec<PrivateKeyDer<'_>> = pkcs8_private_keys(key_file)?
+    // парсим закрытый ключ
+    let keys: Vec<PrivateKeyDer<'_>> = pkcs8_private_keys(key_file)
         .map(|result| {
-            result.map(|key| PrivateKeyDer::from_pkcs8_der(&key).unwrap())
+            result.map(|key| PrivateKeyDer::from(PrivateKeyDer::Pkcs8(key)))
         })
         .collect::<Result<Vec<_>, _>>()?;
 
@@ -44,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Создаём конфигурацию сервера
     let config = ServerConfig::builder()
         .with_no_client_auth() // не требуем аутентификации клиента
-        .with_single_cert(certs, keys[0].clone())?; // Используем первый закрытый ключ
+        .with_single_cert(certs, keys[0].clone_key())?; // Используем первый закрытый ключ
 
     let acceptor = TlsAcceptor::from(Arc::new(config));
 
