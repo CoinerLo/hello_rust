@@ -61,8 +61,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         // Принимаем входящее подключение
-        let (mut socket, addr) = listener.accept().await?;
+        let (stream, addr) = listener.accept().await?;
         info!("Новое подключение: {}", addr);
+
+        // Принимаем TLS соединение
+        let acceptor = acceptor.clone();
+        let tls_stream = match acceptor.accept(stream).await {
+            Ok(stream) => stream,
+            Err(e) => {
+                error!("Ошибка при установке TLS-соединения: {}", e);
+                continue;
+            }
+        };
 
         // Клонируем состояние для каждой задачи
         let clients = clients.clone();
