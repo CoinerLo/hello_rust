@@ -86,6 +86,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // подписываемся на получение сообщений
             let mut rx = tx.subscribe();
 
+            // авторизация клиента
+            let authenticated = autentificate_client(&mut tls_stream).await;
+
             loop {
                 tokio::select! {
                     // чтение данных от клиента
@@ -235,4 +238,23 @@ async fn send_massage(socket: &mut tokio::net::TcpStream, message: &Message) {
     if let Err(e) = socket.write_all(json_message.as_bytes()).await {
         error!("Ошибка записи {}", e);
     }
+}
+
+// функция для авторизации клиента
+async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>) -> bool {
+    let mut buffer = [0; 1024];
+
+    // читаем данные от клиента
+    let n = match stream.read(&buffer).await {
+        Ok(n) if n == 0 => return false, // клиент отключился
+        Ok(n) => n,
+        Err(_) => return false,
+    };
+
+    // преобразуем байты в строку
+    let message_str = match String::from_utf8(buffer[..n].to_vec()) {
+        Ok(s) => s,
+        Err(_) => false,
+    };
+    
 }
