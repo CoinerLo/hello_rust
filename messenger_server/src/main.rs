@@ -88,11 +88,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // авторизация клиента
             let authenticated = autentificate_client(&mut tls_stream).await;
+            if !authenticated {
+                warn!("Клиент {} не прошел авторизацию", addr);
+                return;
+            }
 
             loop {
                 tokio::select! {
                     // чтение данных от клиента
-                    result = socket.read(&mut buffer) => {
+                    result = tls_stream.read(&mut buffer) => {
                         match result {
                             // клиент отключился
                             Ok(n) if n == 0 => break,
