@@ -245,7 +245,7 @@ async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio
     let mut buffer = [0; 1024];
 
     // читаем данные от клиента
-    let n = match stream.read(&buffer).await {
+    let n = match stream.read(&mut buffer).await {
         Ok(n) if n == 0 => return false, // клиент отключился
         Ok(n) => n,
         Err(_) => return false,
@@ -254,7 +254,24 @@ async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio
     // преобразуем байты в строку
     let message_str = match String::from_utf8(buffer[..n].to_vec()) {
         Ok(s) => s,
-        Err(_) => false,
+        Err(_) => return false,
     };
     
+    // десереализуем JSON в структуру Message
+    let message: Message = match serde_json::from_str(&message_str) {
+        Ok(msg) => msg,
+        Err(_) => return false,
+    };
+
+    // проверяем учетные данные
+    match message {
+        Message::Authenticate { username, password } => {
+            if username == "admin" && password == "password" {
+                true
+            } else {
+                false
+            }
+        }
+        _ => false,
+    }
 }
