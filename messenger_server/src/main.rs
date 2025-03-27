@@ -246,9 +246,9 @@ enum Message {
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
 
-async fn send_massage(socket: &mut tokio::net::TcpStream, message: &Message) {
+async fn send_massage(stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>, message: &Message) {
     let json_message = serde_json::to_string(message).unwrap();
-    if let Err(e) = socket.write_all(json_message.as_bytes()).await {
+    if let Err(e) = stream.write_all(json_message.as_bytes()).await {
         error!("Ошибка записи {}", e);
     }
 }
