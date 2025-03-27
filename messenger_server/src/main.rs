@@ -66,7 +66,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Принимаем TLS соединение
         let acceptor = acceptor.clone();
-        let tls_stream = match acceptor.accept(stream).await {
+        let mut tls_stream = match acceptor.accept(stream).await {
             Ok(stream) => stream,
             Err(e) => {
                 error!("Ошибка при установке TLS-соединения: {}", e);
@@ -163,13 +163,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     Message::SendMessage { content } => {
                                         if let Some(sender) = &username {
                                             info!("Получено сообщение от {}: {}", sender, content);
-                                            let message = serde_json::to_string(&Message::ReceiveMessage {
+                                            let message = Message::ReceiveMessage {
                                                 sender: sender.clone(),
                                                 content: content.clone(),
-                                            })
-                                            .unwrap();
+                                            };
+                                            let message_json = serde_json::to_string(&message).unwrap();
 
-                                            if let Err(e) = tx.send(message) {
+                                            if let Err(e) = tx.send(message_json) {
                                                 error!("Ошибка отправки в канал: {}", e);
                                             }
                                         }
@@ -209,7 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     result = rx.recv() => {
                         match result {
                             Ok(msg) => {
-                                if let Err(e) = socket.write_all(msg.as_bytes()).await {
+                                if let Err(e) = tls_stream.write_all(msg.as_bytes()).await {
                                     error!("Ошибка записи: {}", e);
                                     break;
                                 } 
