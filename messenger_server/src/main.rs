@@ -134,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             let error_message = Message::ErrorMessage {
                                                 error: format!("Имя {} уже занято", new_username),
                                             };
-                                            send_massage(&mut socket, &error_message).await;
+                                            send_massage(&mut tls_stream, &error_message).await;
                                             warn!("Клиент {} попытался присоединиться с занятым именем", new_username);
                                             break;
                                         }
@@ -145,11 +145,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                                         username = Some(new_username.clone());
 
+                                        // отправляем приветственное сообщение
                                         let response = Message::ReceiveMessage {
                                             sender: "Server".to_string(),
                                             content: format!("Добро пожаловать {}!", new_username),
                                         };
-                                        send_massage(&mut socket, &response).await;
+                                        send_massage(&mut tls_stream, &response).await;
+
+                                        // уведомляем других участников о новом клиенте
+                                        let notification = Message::ReceiveMessage {
+                                            sender: "Server".to_string(),
+                                            content: format!("{} присоединился к чату", new_username),
+                                        };
+                                        let notification_json = serde_json::to_string(&notification).unwrap();
+                                        tx.send(notification_json).unwrap();
                                     }
                                     Message::SendMessage { content } => {
                                         if let Some(sender) = &username {
