@@ -239,7 +239,8 @@ enum Message {
     Authenticate { username: String, password: String }, // сообщение на авторизацию
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
-    ReceiveMessage { sender: String, content: String }, // Сообщение для клиента
+    ReceiveMessage { sender: String, content: String }, // Сообщение для клиента,
+    PrivateMessage { to: String, content: String }, // Приватное сообщение
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
 }
