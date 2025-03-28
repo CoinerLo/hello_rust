@@ -195,6 +195,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             break;
                                         }
                                     }
+                                    Message::PrivateMessage { to, content } => {
+                                        let Some(sender) = &username {
+                                            info!("Приватное сообщение от {} для {}: {}", sender, to, content);
+                                        };
+
+                                        // находим получателя
+                                    }
                                     _ => {}
                                 }
                             }
