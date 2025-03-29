@@ -197,29 +197,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     }
                                     Message::SendPrivateMessage { recipient, content } => {
                                         if let Some(sender) = &username {
-                                            info!("Приватное сообщение от {} для {}: {}", sender, to, content);
-                                        };
+                                            info!("Приватное сообщение от {} для {}: {}", sender, recipient, content);
 
-                                        // находим получателя
-                                        let clients_lock = clients.lock().await;
-                                        if let Some(recipient_sender) => clients_lock.get(&recipient) {
-                                            // отправляем сообщение получателю
-                                            let private_message = Message::ReceivePrivateMessage {
-                                                sender: sender.clone(),
-                                                content: format!("[Приватно] {}", content),
+                                            // находим получателя
+                                            let clients_lock = clients.lock().await;
+                                            if let Some(recipient_sender) = clients_lock.get(&recipient) {
+                                                // отправляем сообщение получателю
+                                                let private_message = Message::ReceivePrivateMessage {
+                                                    sender: sender.clone(),
+                                                    content: format!("[Приватно] {}", content),
+                                                };
+                                                let private_message_json = serde_json::to_string(&private_message).unwrap();
+                                                if let Err(e) = recipient_sender.send(private_message_json) {
+                                                    error!("Ошибка отправки приватного сообщения клиенту {}: {}", recipient, e);
+                                                }
+                                            } else {
+                                                // отправитель не найден
+                                                drop(clients_lock);
+                                                let error_message = Message::ErrorMessage {
+                                                    error: format!("Пользователь {} не найден", recipient),
+                                                };
+                                                send_massage(&mut tls_stream, &error_message).await;
+                                                warn!("Клиент {} попытался отправить сообщение не существующему пользователю {}", sender, recipient);
                                             };
-                                            let private_message_json = serde_json::to_string(&private_message).unwrap();
-                                            if let Err(e) = recipient_sender.send(private_message_json) {
-                                                error!("Ошибка отправки приватного сообщения клиенту {}: {}", recipient, e);
-                                            }
-                                        } else {
-                                            // отправитель не найден
-                                            drop(clients_lock);
-                                            let error_message = Message::error_message {
-                                                error: format!("Пользователь {} не найден", recipient),
-                                            };
-                                            send_massage(&mut tls_stream, &error_message).await;
-                                            warn!("Клиент {} попытался отправить сообщение не существующему пользователю {}", sender, recipient);
                                         };
 
                                     }
