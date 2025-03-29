@@ -195,12 +195,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             break;
                                         }
                                     }
-                                    Message::PrivateMessage { to, content } => {
-                                        let Some(sender) = &username {
+                                    Message::SendPrivateMessage { recipient, content } => {
+                                        if let Some(sender) = &username {
                                             info!("Приватное сообщение от {} для {}: {}", sender, to, content);
                                         };
 
                                         // находим получателя
+                                        let clients_lock = clients.lock().await;
+                                        if let Some(recipient_sender) => clients_lock.get(&recipient) {
+                                            // отправляем сообщение получателю
+                                            let private_message = Message::ReceivePrivateMessage {
+                                                sender: sender.clone(),
+                                                content: format!("[Приватно] {}", content),
+                                            };
+                                            let private_message_json = serde_json::to_string(&private_message).unwrap();
+                                            if let Err(e) = recipient_sender.send(private_message_json) {
+                                                error!("Ошибка отправки приватного сообщения клиенту {}: {}", recipient, e);
+                                            }
+                                        } else {
+                                            // отправитель не найден
+                                            drop(clients_lock);
+                                            let error_message = Message::error_message {
+                                                error: format!("Пользователь {} не найден", recipient),
+                                            };
+                                            send_massage(&mut tls_stream, &error_message).await;
+                                            warn!("Клиент {} попытался отправить сообщение не существующему пользователю {}", sender, recipient);
+                                        };
+
                                     }
                                     _ => {}
                                 }
@@ -247,7 +268,8 @@ enum Message {
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента,
-    PrivateMessage { to: String, content: String }, // Приватное сообщение
+    SendPrivateMessage { recipient: String, content: String }, // Отправка приватных сообщений
+    ReceivePrivateMessage { sender: String, content: String }, // Получение приватных сообщений
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
 }
