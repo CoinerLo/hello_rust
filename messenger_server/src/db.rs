@@ -19,7 +19,7 @@ pub async fn create_db_pool() -> Result<DbPool, RunError<Error>> {
 }
 
 // сохранение сообщения
-pub async fn save_message(pool: DbPool, sender: &str, content: &str) -> Result<(), RunError<Error>> {
+pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<(), RunError<Error>> {
     let client = pool.get().await?;
     client
         .execute(
@@ -31,7 +31,7 @@ pub async fn save_message(pool: DbPool, sender: &str, content: &str) -> Result<(
 }
 
 // Загрузка истории
-pub async fn load_history(pool: DbPool, limit: i64) -> Result<Vec<(String, String)>, RunError<Error>> {
+pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, String)>, RunError<Error>> {
     let client = pool.get().await?;
     let rows = client
         .query(
