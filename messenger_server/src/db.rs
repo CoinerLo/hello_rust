@@ -28,26 +28,36 @@ pub async fn create_db_pool() -> Result<DbPool, Box<dyn std::error::Error>> {
 }
 
 // сохранение сообщения
-pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<(), RunError<Error>> {
-    let client = pool.get().await?;
+pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let client = pool
+        .get()
+        .await
+        .map_err(|e| format!("Ошибка получения соединения из пула: {}", e))?;
+
     client
         .execute(
             "INSERT INTO messages (sender, content) VALUES ($1, $2)",
             &[&sender, &content],
         )
-        .await?;
+        .await
+        .map_err(|e| format!("Ошибка выполнения запроса INSERT: {}", e))?;
     Ok(())
 }
 
 // Загрузка истории
-pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, String)>, RunError<Error>> {
-    let client = pool.get().await?;
+pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, String)>, Box<dyn std::error::Error>> {
+    let client = pool
+        .get()
+        .await
+        .map_err(|e| format!("Ошибка получения соединения из пула: {}", e))?;
+
     let rows = client
         .query(
             "SELECT sender, content FROM messages ORDER BY timestamp DESC LIMIT $1",
             &[&limit],
         )
-        .await?;
+        .await
+        .map_err(|e| format!("Ошибка выполнения запроса SELECT: {}", e))?;
 
     let history: Vec<(String, String)> = rows
         .iter()
