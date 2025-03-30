@@ -14,12 +14,18 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 
+mod db;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // настройка логирования
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
+
+    // подключаемся к базе
+    let db_pool = db::create_db_pool().await?;
+    info!("Подключение к базе данных успешно");
 
     // Загрузка сертификата и ключа для TLS
     let cert_file = &mut BufReader::new(fs::File::open("cert.pem")?);
@@ -76,6 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Клонируем состояние для каждой задачи
         let clients = clients.clone();
+        let db_pool = db_pool.clone();
         let tx = tx.clone();
 
         // Обрабатываем подключение в отдельной задаче
