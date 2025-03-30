@@ -100,6 +100,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return;
             }
 
+            // отправляем историю сообщений новому клиенту
+            let history = db::load_history(db_pool, 10).await.unwrap_or_default();
+            for (sender, content) in history {
+                let message = Message::ReceiveMessage {
+                    sender: sender.clone(),
+                    content: content.clone(),
+                };
+                send_massage(&mut tls_stream, &message).await;
+            }
+
             loop {
                 tokio::select! {
                     // чтение данных от клиента
