@@ -1,19 +1,28 @@
+use std::env;
+
 use bb8_postgres::PostgresConnectionManager;
 use bb8::{Pool, RunError};
 use tokio_postgres::{NoTls, Error};
-use tracing::{error};
+use dotenv::dotenv;
+use tracing::{warn, info};
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
 
 // подключение
-pub async fn create_db_pool() -> Result<DbPool, RunError<Error>> {
-    let manager = PostgresConnectionManager::new_from_stringlike(
-        "host=localhost dbname=chat_server user=postgres password=111",
-        NoTls,
-    )
-    .unwrap();
+pub async fn create_db_pool() -> Result<DbPool, Box<dyn std::error::Error>> {
+    dotenv().ok();
 
-    let pool = Pool::builder().build(manager).await?;
+    let database_url = env::var("DATABASE_URL").map_err(|_| "DATABASE_URL is not sen in .env file")?;
+    info!("Подключение к базе данных: {}", database_url);
+
+    
+    let manager = PostgresConnectionManager::new_from_stringlike(database_url,NoTls)
+        .map_err(|e| format!("Ошибка создания менеджера соединений: {}", e))?;
+
+    let pool = Pool::builder()
+        .build(manager)
+        .await
+        .map_err(|e| format!("Ошибка создания пула соединений: {}", e))?;
 
     Ok(pool)
 }
