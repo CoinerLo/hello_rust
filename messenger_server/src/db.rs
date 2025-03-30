@@ -25,3 +25,23 @@ pub async fn save_message(client: &tokio_postgres::Client, sender: &str, content
         .await?;
     Ok(())
 }
+
+// Загрузка истории
+pub async fn load_history(client: &tokio_postgres::Client, limit: i64) -> Result<Vec<String, String>, Error> {
+    let rows = client
+        .execute(
+            "SELECT sender, content FROM messages ORDER BY timestamp DESC LIMIT $1",
+            &[&limit],
+        )
+        .await?;
+
+    let history: Vec<String, String> = rows
+        .iter()
+        .map(|row| {
+            let sender = row.get(0);
+            let content = row.get(1);
+            (sender, content)
+        })
+        .collect();
+    Ok(hostory)
+}
