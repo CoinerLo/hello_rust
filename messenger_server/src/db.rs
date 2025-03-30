@@ -16,4 +16,12 @@ pub async fn connecto_to_db() -> Result<tokio_postgres::Client, Error> {
 }
 
 // сохранение сообщения
-
+pub async fn save_message(client: &tokio_postgres::Client, sender: &str, content: &str) -> Result<(), Error> {
+    client
+        .execute(
+            "INSERT INTO messages (sender, content) VALUES ($1, $2)",
+            &[&sender, &content],
+        )
+        .await?;
+    Ok(())
+}
