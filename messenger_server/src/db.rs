@@ -1,8 +1,8 @@
 use std::env;
 
 use bb8_postgres::PostgresConnectionManager;
-use bb8::{Pool, RunError};
-use tokio_postgres::{NoTls, Error};
+use bb8::Pool;
+use tokio_postgres::NoTls;
 use dotenv::dotenv;
 use tracing::{warn, info, error};
 
@@ -36,18 +36,33 @@ pub async fn create_db_pool() -> Result<DbPool, Box<dyn std::error::Error>> {
 
 // сохранение сообщения
 pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<(), Box<dyn std::error::Error>> {
+    info!("Сохранение в базу данных сообщения: sender={}, content={}", sender, content);
+
     let client = pool
         .get()
         .await
-        .map_err(|e| format!("Ошибка получения соединения из пула: {}", e))?;
+        .map_err(|e| {
+            error!("Ошибка получения соединения из пула: {}", e);
+            format!("Ошибка получения соединения из пула: {}", e)
+        })?;
 
-    client
+    let rows_affected = client
         .execute(
             "INSERT INTO messages (sender, content) VALUES ($1, $2)",
             &[&sender, &content],
         )
         .await
-        .map_err(|e| format!("Ошибка выполнения запроса INSERT: {}", e))?;
+        .map_err(|e| {
+            error!("Ошибка выполнения запроса INSERT: {}", e);
+            format!("Ошибка выполнения запроса INSERT: {}", e)
+        })?;
+
+    if rows_affected == 0 {
+        warn!("Сообщение не было сохранено в базе данных");
+    } else {
+        info!("Сообщение было сохранено в базе данных");
+    }
+
     Ok(())
 }
 
