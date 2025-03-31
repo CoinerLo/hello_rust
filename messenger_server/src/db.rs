@@ -4,7 +4,7 @@ use bb8_postgres::PostgresConnectionManager;
 use bb8::{Pool, RunError};
 use tokio_postgres::{NoTls, Error};
 use dotenv::dotenv;
-use tracing::{warn, info};
+use tracing::{warn, info, error};
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
 
@@ -17,13 +17,20 @@ pub async fn create_db_pool() -> Result<DbPool, Box<dyn std::error::Error>> {
 
     
     let manager = PostgresConnectionManager::new_from_stringlike(database_url,NoTls)
-        .map_err(|e| format!("Ошибка создания менеджера соединений: {}", e))?;
+        .map_err(|e| {
+            error!("Ошибка создания менеджера соединений: {}", e);
+            format!("Ошибка создания менеджера соединений: {}", e)
+        })?;
 
     let pool = Pool::builder()
         .build(manager)
         .await
-        .map_err(|e| format!("Ошибка создания пула соединений: {}", e))?;
+        .map_err(|e| {
+            error!("Ошибка создания пула соединений: {}", e);
+            format!("Ошибка создания пула соединений: {}", e)
+        })?;
 
+    info!("Пул соединений успешно создан");
     Ok(pool)
 }
 
