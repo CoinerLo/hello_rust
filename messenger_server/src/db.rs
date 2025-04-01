@@ -2,6 +2,7 @@ use std::env;
 
 use bb8_postgres::PostgresConnectionManager;
 use bb8::Pool;
+use bcrypt::{hash, DEFAULT_COST};
 use tokio_postgres::NoTls;
 use dotenv::dotenv;
 use tracing::{warn, info, error};
@@ -107,6 +108,36 @@ pub async fn register_user(
     username: &str,
     password: &str
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let client = pool
+        .get()
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения соединения из пула: {}", e);
+            format!("Ошибка получения соединения из пула: {}", e)
+        })?;
+
+    let password_hash = hash(password, DEFAULT_COST).map_err(|e| {
+        error!("Ошибка хэширования пароля: {}", e);
+        format!("Ошибка хэширования пароля: {}", e)
+    })?;
+
+    // Проверяем, что пользователь с таким именем не существует
+    let rows = client
+        .query("SELECT COUNT(*) FROM users WHERE username = $1", &[&username])
+        .await
+        .map_err(|e| {
+            error!("Ошибка выполнения запроса SELECT для записи пользователя: {}", e);
+            format!("Ошибка выполнения запроса SELECT для записи пользователя: {}", e)
+        })?;
+
+    let count: i64 = rows[0].get(0);
+    if count > 0 {
+        warn!("Пользователь с именем {} уже существует", username);
+        return Err("Пользователь с таким именем уже существует".into());
+    }
+
+    // записываем пользователя в базу
+    
 
     Ok(())
 }
