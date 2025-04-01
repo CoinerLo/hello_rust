@@ -101,3 +101,12 @@ pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, Stri
     info!("Загружено {} сообщений из базы данных", history.len());
     Ok(history)
 }
+
+pub async fn register_user(
+    pool: &DbPool,
+    username: &str,
+    password: &str
+) -> Result<(), Box<dyn std::error::Error>> {
+
+    Ok(())
+}
