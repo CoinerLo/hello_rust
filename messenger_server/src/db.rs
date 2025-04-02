@@ -151,3 +151,14 @@ pub async fn register_user(
     info!("Пользователь {} успешно зарегистрирован", username);
     Ok(())
 }
+
+// авторизация пользователя
+pub async fn authenticate_user(
+    pool: &DbPool,
+    username: &str,
+    password: &str,
+) -> Result<bool, Box<dyn std::error::Error>> {
+    
+
+    Ok(true)
+}
