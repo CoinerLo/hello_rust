@@ -158,7 +158,27 @@ pub async fn authenticate_user(
     username: &str,
     password: &str,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-    
+    let client = pool
+    .get()
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения соединения из пула: {}", e);
+        format!("Ошибка получения соединения из пула: {}", e)
+    })?;
+
+    // Получаем хеш пароля и базы
+    let rows = client
+        .query("SELECT password_hash FROM users WHERE username = $1", &[&username])
+        .await
+        .map_err(|e| {
+            error!("Ошибка поиска пользователя в базе данных: {}", e);
+            format!("Ошибка поиска пользователя в базе данных: {}", e)
+        })?;
+
+    if rows[0].is_empty() {
+        warn!("Пользователь {} не найден", username);
+        return Ok(false);
+    }
 
     Ok(true)
 }
