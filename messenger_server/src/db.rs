@@ -137,7 +137,17 @@ pub async fn register_user(
     }
 
     // записываем пользователя в базу
-    
+    client
+        .execute(
+            "INSERT INTO users (username, password_hash) VALUES ($1, $1)",
+            &[&username, &password_hash],
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка выполнения запроса записи в базу пользователя: {}", e);
+            format!("Ошибка выполнения запроса записи в базу пользователя: {}", e)
+        })?;
 
+    info!("Пользователь {} успешно зарегистрирован", username);
     Ok(())
 }
