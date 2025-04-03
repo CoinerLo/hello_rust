@@ -2,7 +2,7 @@ use std::env;
 
 use bb8_postgres::PostgresConnectionManager;
 use bb8::Pool;
-use bcrypt::{hash, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use tokio_postgres::NoTls;
 use dotenv::dotenv;
 use tracing::{warn, info, error};
@@ -179,6 +179,13 @@ pub async fn authenticate_user(
         warn!("Пользователь {} не найден", username);
         return Ok(false);
     }
+
+    let password_hash: String = rows[0].get(0);
+    let is_valid = verify(password, &password_hash)
+        .map_err(|e| {
+            error!("Ошибка проверки пароля: {}", e);
+            format!("Ошибка проверки пароля: {}", e)
+        })?;
 
     Ok(true)
 }
