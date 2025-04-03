@@ -186,6 +186,11 @@ pub async fn authenticate_user(
             error!("Ошибка проверки пароля: {}", e);
             format!("Ошибка проверки пароля: {}", e)
         })?;
+    if !is_valid {
+        warn!("Не верный пароль для пользователя {}", username);
+        return Ok(false);
+    }
 
+    info!("Пользователь {} успешно авторизован", username);
     Ok(true)
 }
