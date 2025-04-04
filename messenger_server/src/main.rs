@@ -159,7 +159,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     }
                                     Message::Authenticate { username, password } => {
                                         match db::authenticate_user(&db_pool, &username, &password).await {
-                                            Ok(true) => {}
+                                            Ok(true) => {
+                                                let response = Message::ReceiveMessage {
+                                                    sender: "Server".to_string(),
+                                                    content: "Авторизация успешна".to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
                                             Ok(false) => {}
                                             Err(e) => {}
                                         }
