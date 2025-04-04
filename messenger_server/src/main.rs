@@ -140,6 +140,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                                 // Обрабатываем сообщение
                                 match message {
+                                    Message::Register { username, password } => {
+                                        match db::register_user(&db_pool, &username, &password).await {
+                                            Ok(_) => {
+                                                let response = Message::ReceiveMessage {
+                                                    sender: "Server".to_string(),
+                                                    content: "Регистрация успешна".to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
+                                            Err(e) => {
+                                                let response = Message::ErrorMessage {
+                                                    error: e.to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
+                                        }
+                                    }
                                     Message::Join { username: new_username } => {
                                         info!("Клиент {} клиент пытается присоединиться", new_username);
 
@@ -293,6 +310,7 @@ enum Message {
     ReceivePrivateMessage { sender: String, content: String }, // Получение приватных сообщений
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
+    Register { username: String, password: String }, // регистрация
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
