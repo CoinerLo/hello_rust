@@ -157,6 +157,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             }
                                         }
                                     }
+                                    Message::Authenticate { username, password } => {
+                                        match db::authenticate_user(&db_pool, &username, &password).await {
+                                            Ok(true) => {}
+                                            Ok(false) => {}
+                                            Err(e) => {}
+                                        }
+                                    }
                                     Message::Join { username: new_username } => {
                                         info!("Клиент {} клиент пытается присоединиться", new_username);
 
