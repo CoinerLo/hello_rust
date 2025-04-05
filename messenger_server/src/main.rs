@@ -173,7 +173,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 };
                                                 send_massage(&mut tls_stream, &response).await;
                                             }
-                                            Err(e) => {}
+                                            Err(e) => {
+                                                let response = Message::ErrorMessage {
+                                                    error: e.to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
                                         }
                                     }
                                     Message::Join { username: new_username } => {
