@@ -8,6 +8,7 @@ use rustls::{
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
 use tokio::sync::{broadcast, Mutex};
+use tokio_postgres::tls;
 use tokio_rustls::TlsAcceptor;
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -166,7 +167,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 };
                                                 send_massage(&mut tls_stream, &response).await;
                                             }
-                                            Ok(false) => {}
+                                            Ok(false) => {
+                                                let response = Message::ErrorMessage {
+                                                    error: "Неверный логин или пароль".to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
                                             Err(e) => {}
                                         }
                                     }
