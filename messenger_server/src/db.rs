@@ -2,7 +2,7 @@ use std::env;
 use anyhow::{Context, Result};
 use thiserror::Error;
 use bb8_postgres::PostgresConnectionManager;
-use bb8::Pool;
+use bb8::{Pool, RunError};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use tokio_postgres::NoTls;
 use dotenv::dotenv;
@@ -11,7 +11,15 @@ use tracing::{warn, info, error};
 #[derive(Error, Debug)]
 pub enum ServerError {
     #[error("Ошибка базы данных: {0}")]
-    DatabaseError(#[from] tokio_postgres::Error),
+    DatabaseError(#[from] RunError<tokio_postgres::Error>),
+    #[error("Ошибка хэширования пароля: {0}")]
+    BcryptError(#[from] bcrypt::BcryptError),
+    #[error("Ошибка отправки сообщения: {0}")]
+    MessageSendError(#[from] std::io::Error),
+    #[error("Пользователь с таким именем уже существует")]
+    UserExists,
+    #[error("Неверный логин или пароль")]
+    InvalidCredentials,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -35,6 +43,7 @@ pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>
     let pool = Pool::builder()
         .build(manager)
         .await
+        .context("Ошибка создания пула соединений")
         .map_err(|e| {
             error!("Ошибка создания пула соединений: {}", e);
             format!("Ошибка создания пула соединений: {}", e)
@@ -116,19 +125,20 @@ pub async fn register_user(
     pool: &DbPool,
     username: &str,
     password: &str
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> AppResult<()> {
     let client = pool
         .get()
         .await
         .map_err(|e| {
             error!("Ошибка получения соединения из пула: {}", e);
-            format!("Ошибка получения соединения из пула: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
-    let password_hash = hash(password, DEFAULT_COST).map_err(|e| {
-        error!("Ошибка хэширования пароля: {}", e);
-        format!("Ошибка хэширования пароля: {}", e)
-    })?;
+    let password_hash = hash(password, DEFAULT_COST)
+        .map_err(|e| {
+            error!("Ошибка хэширования пароля: {}", e);
+            ServerError::BcryptError(e.into())
+        })?;
 
     // Проверяем, что пользователь с таким именем не существует
     let rows = client
@@ -136,13 +146,13 @@ pub async fn register_user(
         .await
         .map_err(|e| {
             error!("Ошибка выполнения запроса SELECT для записи пользователя: {}", e);
-            format!("Ошибка выполнения запроса SELECT для записи пользователя: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
     let count: i64 = rows[0].get(0);
     if count > 0 {
         warn!("Пользователь с именем {} уже существует", username);
-        return Err("Пользователь с таким именем уже существует".into());
+        return Err(ServerError::UserExists);
     }
 
     // записываем пользователя в базу
@@ -154,7 +164,7 @@ pub async fn register_user(
         .await
         .map_err(|e| {
             error!("Ошибка выполнения запроса записи в базу пользователя: {}", e);
-            format!("Ошибка выполнения запроса записи в базу пользователя: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
     info!("Пользователь {} успешно зарегистрирован", username);
@@ -166,13 +176,13 @@ pub async fn authenticate_user(
     pool: &DbPool,
     username: &str,
     password: &str,
-) -> Result<bool, Box<dyn std::error::Error>> {
+) -> AppResult<bool> {
     let client = pool
     .get()
     .await
     .map_err(|e| {
         error!("Ошибка получения соединения из пула: {}", e);
-        format!("Ошибка получения соединения из пула: {}", e)
+        ServerError::DatabaseError(e.into())
     })?;
 
     // Получаем хеш пароля и базы
@@ -181,7 +191,7 @@ pub async fn authenticate_user(
         .await
         .map_err(|e| {
             error!("Ошибка поиска пользователя в базе данных: {}", e);
-            format!("Ошибка поиска пользователя в базе данных: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
     if rows[0].is_empty() {
@@ -193,7 +203,7 @@ pub async fn authenticate_user(
     let is_valid = verify(password, &password_hash)
         .map_err(|e| {
             error!("Ошибка проверки пароля: {}", e);
-            format!("Ошибка проверки пароля: {}", e)
+            ServerError::BcryptError(e.into())
         })?;
     if !is_valid {
         warn!("Не верный пароль для пользователя {}", username);
