@@ -1,5 +1,6 @@
 use std::env;
-
+use anyhow::{Context, Result};
+use thiserror::Error;
 use bb8_postgres::PostgresConnectionManager;
 use bb8::Pool;
 use bcrypt::{hash, verify, DEFAULT_COST};
@@ -7,10 +8,18 @@ use tokio_postgres::NoTls;
 use dotenv::dotenv;
 use tracing::{warn, info, error};
 
+#[derive(Error, Debug)]
+pub enum ServerError {
+    #[error("Ошибка базы данных: {0}")]
+    DatabaseError(#[from] tokio_postgres::Error),
+}
+
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
 
+type AppResult<T> = Result<T, ServerError>;
+
 // подключение
-pub async fn create_db_pool() -> Result<DbPool, Box<dyn std::error::Error>> {
+pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>>> {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").map_err(|_| "DATABASE_URL is not sen in .env file")?;
