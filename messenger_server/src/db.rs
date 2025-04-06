@@ -1,4 +1,4 @@
-use std::env;
+use std::env::{self, VarError};
 use anyhow::{Context, Result};
 use thiserror::Error;
 use bb8_postgres::PostgresConnectionManager;
@@ -18,8 +18,12 @@ pub enum ServerError {
     MessageSendError(#[from] std::io::Error),
     #[error("Пользователь с таким именем уже существует")]
     UserExists,
-    #[error("Неверный логин или пароль")]
-    InvalidCredentials,
+    #[error("Ошибка создания менеджера соединений")]
+    CreateManagerError,
+    #[error("DATABASE_URL is not sen in .env file")]
+    VarError(#[from] VarError),
+    #[error("Ошибка создания пула соединений")]
+    PoolError,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -30,14 +34,18 @@ type AppResult<T> = Result<T, ServerError>;
 pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>>> {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").map_err(|_| "DATABASE_URL is not sen in .env file")?;
+    let database_url = env::var("DATABASE_URL")
+        .map_err(|e| {
+            error!("DATABASE_URL is not sen in .env file: {}", e);
+            ServerError::VarError(e.into())
+        })?;
     info!("Подключение к базе данных: {}", database_url);
 
     
     let manager = PostgresConnectionManager::new_from_stringlike(database_url,NoTls)
         .map_err(|e| {
             error!("Ошибка создания менеджера соединений: {}", e);
-            format!("Ошибка создания менеджера соединений: {}", e)
+            ServerError::CreateManagerError
         })?;
 
     let pool = Pool::builder()
@@ -46,7 +54,7 @@ pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>
         .context("Ошибка создания пула соединений")
         .map_err(|e| {
             error!("Ошибка создания пула соединений: {}", e);
-            format!("Ошибка создания пула соединений: {}", e)
+            ServerError::PoolError
         })?;
 
     info!("Пул соединений успешно создан");
