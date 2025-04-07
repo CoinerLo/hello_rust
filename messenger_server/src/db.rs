@@ -186,12 +186,12 @@ pub async fn authenticate_user(
     password: &str,
 ) -> AppResult<bool> {
     let client = pool
-    .get()
-    .await
-    .map_err(|e| {
-        error!("Ошибка получения соединения из пула: {}", e);
-        ServerError::DatabaseError(e.into())
-    })?;
+        .get()
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения соединения из пула: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
 
     // Получаем хеш пароля и базы
     let rows = client
@@ -227,5 +227,23 @@ pub async fn create_group_chat(
     pool: &DbPool,
     name: &str
 ) -> AppResult<i32> {
-    
+    let client = pool
+        .get()
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения соединения из пула: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
+    info!("Попытка создания группового чата: {}", name);
+
+    let rows = client
+        .query(
+    "SELECT COUNT(*) FROM group_chats WHERE name = $1",
+        &[&name])
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения списка чатов из БД: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
+        
 }
