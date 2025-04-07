@@ -221,3 +221,11 @@ pub async fn authenticate_user(
     info!("Пользователь {} успешно авторизован", username);
     Ok(true)
 }
+
+// создание нового группового чата
+pub async fn create_group_chat(
+    pool: &DbPool,
+    name: &str
+) -> AppResult<i32> {
+    
+}
