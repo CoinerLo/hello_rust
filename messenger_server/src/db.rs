@@ -253,6 +253,15 @@ pub async fn create_group_chat(
         warn!("Групповой чат с именем {} уже существуют", name);
         return Err(ServerError::GroupChatExist);
     }
-    
 
+    let row = client
+        .query_one(
+            "INSERT INTO group_chats (name) VALUES ($1) RETURNING id",
+            &[&name],
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка записи группового чата в БД: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
 }
