@@ -264,4 +264,7 @@ pub async fn create_group_chat(
             error!("Ошибка записи группового чата в БД: {}", e);
             ServerError::DatabaseError(e.into())
         })?;
+    let chat_id = row.get(0);
+    info!("групповой чат {} успешно создан (ID: {})", name, chat_id);
+    Ok(chat_id)
 }
