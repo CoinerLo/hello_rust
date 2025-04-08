@@ -24,6 +24,8 @@ pub enum ServerError {
     VarError(#[from] VarError),
     #[error("Ошибка создания пула соединений")]
     PoolError,
+    #[error("Групповой чат с таким именем уже существует")]
+    GroupChatExist,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -245,5 +247,12 @@ pub async fn create_group_chat(
             error!("Ошибка получения списка чатов из БД: {}", e);
             ServerError::DatabaseError(e.into())
         })?;
-        
+    
+    let count: i64 = rows[0].get(0);
+    if count > 0 {
+        warn!("Групповой чат с именем {} уже существуют", name);
+        return Err(ServerError::GroupChatExist);
+    }
+    
+
 }
