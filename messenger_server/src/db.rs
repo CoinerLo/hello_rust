@@ -268,3 +268,14 @@ pub async fn create_group_chat(
     info!("групповой чат {} успешно создан (ID: {})", name, chat_id);
     Ok(chat_id)
 }
+
+// Добавление участника в групповой чат
+pub async fn add_member_to_froup_chat(
+    pool: &DbPool,
+    chat_id: i32,
+    username: &str,
+) -> AppResult<()> {
+    
+    
+    Ok(())
+}
