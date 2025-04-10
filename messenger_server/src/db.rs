@@ -313,7 +313,19 @@ pub async fn get_group_chat_members(
         })?;
     info!("Попытка получения списка участников группового чата ID: {}", chat_id);
 
-    
+    let rows = client
+        .query(
+            "SELECT username FROM group_chat_members WHERE chat_id = $1", 
+            &[&chat_id],
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
+            ServerError::DatabaseError(e.into())
+        })?;
 
-    Ok(())
+    let members: Vec<String> = rows.iter().map(|row| row.get(0)).collect();
+    info!("Найдено {} участников в групповом чате ID: {}", members.len(), chat_id);
+
+    Ok(members)
 }
