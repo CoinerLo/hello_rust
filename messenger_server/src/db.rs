@@ -270,7 +270,7 @@ pub async fn create_group_chat(
 }
 
 // Добавление участника в групповой чат
-pub async fn add_member_to_froup_chat(
+pub async fn add_member_to_group_chat(
     pool: &DbPool,
     chat_id: i32,
     username: &str,

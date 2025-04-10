@@ -334,6 +334,10 @@ enum Message {
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
     Register { username: String, password: String }, // регистрация
+    CreateGroupChat { name: String }, // создание группового чата
+    AddMemberToGroupChat { chat_id: i32, username: String }, // добавить пользователя в групповой чат
+    SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
+    ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
