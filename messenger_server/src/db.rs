@@ -298,3 +298,22 @@ pub async fn add_member_to_froup_chat(
     info!("Участник {} успешно добавлен в групповой чат ID: {}", username, chat_id);
     Ok(())
 }
+
+// получение списка участников группового чата
+pub async fn get_group_chat_members(
+    pool: &DbPool,
+    chat_id: i32,
+) -> AppResult<Vec<String>> {
+    let client = pool
+        .get()
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения соединения из пула: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
+    info!("Попытка получения списка участников группового чата ID: {}", chat_id);
+
+    
+
+    Ok(())
+}
