@@ -304,7 +304,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     Message::AddMemberToGroupChat { chat_id, username } => {
                                         match  db::add_member_to_group_chat(&db_pool, chat_id, &username).await {
                                             Ok(_) => {
-                                                
+                                                let response = Message::ReceiveMessage {
+                                                    sender: "Server".to_string(),
+                                                    content: format!("Участник '{}' успешно добавлен в групповой чат ID: {}", username, chat_id),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
                                             }
                                             Err(e) => {
                                                 let response = Message::ErrorMessage {
