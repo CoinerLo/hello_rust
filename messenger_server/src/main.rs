@@ -284,6 +284,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         };
 
                                     }
+                                    Message::CreateGroupChat { name } => {
+                                        match db::create_group_chat(&db_pool, &name).await {                                           
+                                            Ok(chat_id) => {
+                                                let response = Message::ReceiveMessage {
+                                                    sender: "Server".to_string(),
+                                                    content: format!("Групповой чат '{}' успешно создан (ID: {})", name, chat_id),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
+                                            Err(e) => {
+                                                let response = Message::ErrorMessage {
+                                                    error: e.to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 }
                             }
