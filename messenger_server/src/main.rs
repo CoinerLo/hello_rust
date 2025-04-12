@@ -319,7 +319,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             }
                                         }
                                     }
+                                    Message::SendMessageToGroupChat { chat_id, content } => {
+                                        if let Some(sender_username) = &username {
+                                            match send_message_to_group_chat(&mut tls_stream, &db_pool, chat_id, sender_username, &content).await {
+                                                Ok(_) => {
 
+                                                }
+                                                Err(e) => {
+
+                                                }
+                                            }
+                                        } else {
+
+                                        }
+                                    }
                                     _ => {}
                                 }
                             }
