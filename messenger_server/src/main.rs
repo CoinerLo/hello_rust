@@ -323,10 +323,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         if let Some(sender_username) = &username {
                                             match send_message_to_group_chat(&mut tls_stream, &db_pool, chat_id, sender_username, &content).await {
                                                 Ok(_) => {
-
+                                                    info!("Сообщение '{}' успешно отправлено в групповой чат ID: {}", content, chat_id);
                                                 }
                                                 Err(e) => {
-
+                                                    error!("Ошибка отправки сообщения в групповой чат {}", e);
+                                                    let response = Message::ErrorMessage {
+                                                        error: e.to_string(),
+                                                    };
+                                                    send_massage(&mut tls_stream, &response).await;
                                                 }
                                             }
                                         } else {
