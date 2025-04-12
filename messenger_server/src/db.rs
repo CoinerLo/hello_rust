@@ -30,7 +30,7 @@ pub enum ServerError {
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
 
-type AppResult<T> = Result<T, ServerError>;
+pub type AppResult<T> = Result<T, ServerError>;
 
 // подключение
 pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>>> {

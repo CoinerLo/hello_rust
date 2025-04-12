@@ -2,8 +2,9 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
+use db::DbPool;
 use rustls::{
-    ServerConfig, pki_types::{CertificateDer, PrivateKeyDer},
+    client, pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
 };
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
@@ -318,6 +319,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             }
                                         }
                                     }
+
                                     _ => {}
                                 }
                             }
@@ -417,4 +419,28 @@ async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio
         }
         _ => false,
     }
+}
+
+async fn send_message_to_group_chat(
+    clients: &Clients,
+    db_pool: &DbPool,
+    chat_id: i32,
+    sender: &str,
+    content: &str,
+) -> db::AppResult<()> {
+    let members = db::get_group_chat_members(db_pool, chat_id).await?;
+    let message = Message::ReceiveGroupChatMessage {
+        chat_id, sender: sender.to_string(), content: content.to_string(),
+    };
+
+    for member in members {
+        if let Some(client) = clients.lock().await.get(&member) {
+            let message_json = serde_json::to_string(&message)?;
+            client.send(message_json).unwrap_or_else(|e| {
+                error!("Ошибка отправки сообщения клиенту {}: {}", member, e);
+            });
+        }
+    }
+
+    Ok(())
 }
