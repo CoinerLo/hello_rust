@@ -4,7 +4,7 @@ use std::io::BufReader;
 use std::sync::Arc;
 use db::DbPool;
 use rustls::{
-    client, pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
+    pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
 };
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
@@ -422,7 +422,7 @@ async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio
 }
 
 async fn send_message_to_group_chat(
-    clients: &Clients,
+    stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
     db_pool: &DbPool,
     chat_id: i32,
     sender: &str,
@@ -433,13 +433,8 @@ async fn send_message_to_group_chat(
         chat_id, sender: sender.to_string(), content: content.to_string(),
     };
 
-    for member in members {
-        if let Some(client) = clients.lock().await.get(&member) {
-            let message_json = serde_json::to_string(&message)?;
-            client.send(message_json).unwrap_or_else(|e| {
-                error!("Ошибка отправки сообщения клиенту {}: {}", member, e);
-            });
-        }
+    for _ in members {
+        send_massage(stream, &message).await;
     }
 
     Ok(())
