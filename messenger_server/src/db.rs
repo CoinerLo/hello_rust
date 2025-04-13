@@ -227,7 +227,8 @@ pub async fn authenticate_user(
 // создание нового группового чата
 pub async fn create_group_chat(
     pool: &DbPool,
-    name: &str
+    name: &str,
+    creator: &str,
 ) -> AppResult<i32> {
     let client = pool
         .get()
@@ -236,7 +237,7 @@ pub async fn create_group_chat(
             error!("Ошибка получения соединения из пула: {}", e);
             ServerError::DatabaseError(e.into())
         })?;
-    info!("Попытка создания группового чата: {}", name);
+    info!("Попытка создания группового чата: {} (создатель: {})", name, creator);
 
     let rows = client
         .query(
@@ -256,8 +257,8 @@ pub async fn create_group_chat(
 
     let row = client
         .query_one(
-            "INSERT INTO group_chats (name) VALUES ($1) RETURNING id",
-            &[&name],
+            "INSERT INTO group_chats (name, creator) VALUES ($1, &2) RETURNING id",
+            &[&name, &creator],
         )
         .await
         .map_err(|e| {
@@ -265,7 +266,7 @@ pub async fn create_group_chat(
             ServerError::DatabaseError(e.into())
         })?;
     let chat_id = row.get(0);
-    info!("групповой чат {} успешно создан (ID: {})", name, chat_id);
+    info!("групповой чат {} успешно создан (ID: {}, создатель: {})", name, chat_id, creator);
     Ok(chat_id)
 }
 
