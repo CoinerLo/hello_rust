@@ -334,7 +334,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 }
                                             }
                                         } else {
-
+                                            warn!("Попытка отправить сообщение без авторизации");
                                         }
                                     }
                                     _ => {}
