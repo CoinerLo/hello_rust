@@ -330,3 +330,15 @@ pub async fn get_group_chat_members(
 
     Ok(members)
 }
+
+// удаление участника из группового чата
+pub async fn remove_member_from_froup_chat(
+    pool: &DbPool,
+    chat_id: i32,
+    username: &str,
+    requester: &str,
+) -> AppResult<()> {
+    
+
+    Ok(())
+}
