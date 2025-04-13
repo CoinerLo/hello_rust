@@ -28,6 +28,8 @@ pub enum ServerError {
     GroupChatExist,
     #[error("Для выполнения действия не хватает прав")]
     PermissionDenied,
+    #[error("Пользователь не найден")]
+    MemberNotFound,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -382,7 +384,22 @@ pub async fn remove_member_from_froup_chat(
         return Err(ServerError::PermissionDenied);
     }
 
+    let rows_affected = client
+        .execute(
+            "DELETE FROM group_chat_members WHERE chat_id = $1 AND username = $2", 
+            &[&chat_id, &username],
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка (БД) удаления из группового чата: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
     
+    if rows_affected == 0 {
+        warn!("Пользователь {} не является создателем чата ID: {}", requester, chat_id);
+        return Err(ServerError::MemberNotFound);
+    }
 
+    info!("Участник {} успешно удален из группового чата ID: {}", username, chat_id);
     Ok(())
 }

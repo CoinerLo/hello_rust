@@ -285,8 +285,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         };
 
                                     }
-                                    Message::CreateGroupChat { name } => {
-                                        match db::create_group_chat(&db_pool, &name).await {                                           
+                                    Message::CreateGroupChat { name, requester } => {
+                                        match db::create_group_chat(&db_pool, &name, &requester).await {                                           
                                             Ok(chat_id) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -387,7 +387,7 @@ enum Message {
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
     Register { username: String, password: String }, // регистрация
-    CreateGroupChat { name: String }, // создание группового чата
+    CreateGroupChat { name: String, requester: String }, // создание группового чата
     AddMemberToGroupChat { chat_id: i32, username: String }, // добавить пользователя в групповой чат
     SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
     ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
