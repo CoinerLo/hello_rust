@@ -26,6 +26,8 @@ pub enum ServerError {
     PoolError,
     #[error("Групповой чат с таким именем уже существует")]
     GroupChatExist,
+    #[error("Для выполнения действия не хватает прав")]
+    PermissionDenied,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -374,7 +376,13 @@ pub async fn remove_member_from_froup_chat(
     })?;
     info!("Попытка удаления участника {} из шруппового чата ID: {} (запросил: {})", username, chat_id, requester);
 
+    let is_creator = check_if_creator(pool, chat_id, requester).await?;
+    if !is_creator {
+        warn!("Пользователь {} не является создателем чата ID: {}", requester, chat_id);
+        return Err(ServerError::PermissionDenied);
+    }
 
+    
 
     Ok(())
 }
