@@ -331,6 +331,33 @@ pub async fn get_group_chat_members(
     Ok(members)
 }
 
+async fn check_if_creator(
+    pool: &DbPool,
+    chat_id: i32,
+    username: &str
+) -> AppResult<bool> {
+    let client = pool
+    .get()
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения соединения из пула: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
+    let row = client
+        .query_one(
+            "SELECT creator FROM group_chats WHERE id = $1",
+            &[&chat_id]
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка получения создателя чата из БД: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
+
+    let creator: String = row.get(0);
+    Ok(creator == username)
+}
+
 // удаление участника из группового чата
 pub async fn remove_member_from_froup_chat(
     pool: &DbPool,
@@ -338,7 +365,16 @@ pub async fn remove_member_from_froup_chat(
     username: &str,
     requester: &str,
 ) -> AppResult<()> {
-    
+    let client = pool
+    .get()
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения соединения из пула: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
+    info!("Попытка удаления участника {} из шруппового чата ID: {} (запросил: {})", username, chat_id, requester);
+
+
 
     Ok(())
 }
