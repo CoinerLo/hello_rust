@@ -376,7 +376,7 @@ pub async fn remove_member_from_froup_chat(
         error!("Ошибка получения соединения из пула: {}", e);
         ServerError::DatabaseError(e.into())
     })?;
-    info!("Попытка удаления участника {} из шруппового чата ID: {} (запросил: {})", username, chat_id, requester);
+    info!("Попытка удаления участника {} из группового чата ID: {} (запросил: {})", username, chat_id, requester);
 
     let is_creator = check_if_creator(pool, chat_id, requester).await?;
     if !is_creator {
@@ -410,6 +410,22 @@ pub async fn delete_group_chat(
     chat_id: i32,
     requester: &str,
 ) -> AppResult<()> {
+    let client = pool
+    .get()
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения соединения из пула: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
+    info!("Попытка удаления группвого чата ID: {} (запросил: {})", chat_id, requester);
+
+    let is_creator = check_if_creator(pool, chat_id, requester).await?;
+    if !is_creator {
+        warn!("Пользователь {} не является создателем чата ID: {}", requester, chat_id);
+        return Err(ServerError::PermissionDenied);
+    }
+
     
+
     Ok(())
 }
