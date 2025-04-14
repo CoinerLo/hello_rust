@@ -425,7 +425,17 @@ pub async fn delete_group_chat(
         return Err(ServerError::PermissionDenied);
     }
 
-    
+    client
+        .execute(
+            "DELETE FROM group_chats WHERE id = $1", 
+            &[&chat_id],
+        )
+        .await
+        .map_err(|e| {
+            error!("Ошибка (БД) удаления группового чата: {}", e);
+            ServerError::DatabaseError(e.into())
+        })?;
 
+    info!("Групповой чат (ID = {}) успешно удален", chat_id);
     Ok(())
 }
