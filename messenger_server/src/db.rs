@@ -1,5 +1,5 @@
 use std::env::{self, VarError};
-use anyhow::{Context, Result};
+use anyhow::{Context, Ok, Result};
 use thiserror::Error;
 use bb8_postgres::PostgresConnectionManager;
 use bb8::{Pool, RunError};
@@ -401,5 +401,15 @@ pub async fn remove_member_from_froup_chat(
     }
 
     info!("Участник {} успешно удален из группового чата ID: {}", username, chat_id);
+    Ok(())
+}
+
+// удаление группового чата
+pub async fn delete_group_chat(
+    pool: &DbPool,
+    chat_id: i32,
+    requester: &str,
+) -> AppResult<()> {
+    
     Ok(())
 }
