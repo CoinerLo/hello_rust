@@ -363,7 +363,7 @@ async fn check_if_creator(
 }
 
 // удаление участника из группового чата
-pub async fn remove_member_from_froup_chat(
+pub async fn remove_member_from_group_chat(
     pool: &DbPool,
     chat_id: i32,
     username: &str,

@@ -337,6 +337,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             warn!("Попытка отправить сообщение без авторизации");
                                         }
                                     }
+                                    // Message
                                     _ => {}
                                 }
                             }
@@ -391,6 +392,8 @@ enum Message {
     AddMemberToGroupChat { chat_id: i32, username: String }, // добавить пользователя в групповой чат
     SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
     ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
+    RemoveMemberFromGroupChat { chat_id: i32, username: String }, // удалить пользователя из чата
+    DeleteGroupChat { chat_id: i32 }, // удалить групповой чат
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
