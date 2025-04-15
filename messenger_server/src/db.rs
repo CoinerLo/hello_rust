@@ -30,6 +30,8 @@ pub enum ServerError {
     PermissionDenied,
     #[error("Пользователь не найден")]
     MemberNotFound,
+    #[error("Недопустимая операция")]
+    InvalidOperation,
 }
 
 pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
@@ -382,6 +384,11 @@ pub async fn remove_member_from_group_chat(
     if !is_creator {
         warn!("Пользователь {} не является создателем чата ID: {}", requester, chat_id);
         return Err(ServerError::PermissionDenied);
+    }
+
+    if requester == username {
+        warn!("Создатель чата не может удалить самого себя");
+        return Err(ServerError::InvalidOperation);
     }
 
     let rows_affected = client

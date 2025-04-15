@@ -338,9 +338,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::RemoveMemberFromGroupChat { chat_id, username, requester } => {
-                                    match db::remove_member_from_group_chat(&db_pool, chat_id, &username, &requester).await {
-                                            Ok(_) => {}
-                                            Err(e) => {}
+                                        match db::remove_member_from_group_chat(&db_pool, chat_id, &username, &requester).await {
+                                            Ok(_) => {
+                                                let response = Message::ReceiveMessage {
+                                                    sender: "Server".to_string(),
+                                                    content: format!("Участник {} удален из группового чата ID: {}", username, chat_id),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
+                                            Err(e) => {
+                                                error!("Ошибка удаления пользователя из группового чата {}", e);
+                                                let response = Message::ErrorMessage {
+                                                    error: e.to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
                                         }
                                     }
                                     _ => {}
