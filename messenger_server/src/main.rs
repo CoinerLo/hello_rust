@@ -337,7 +337,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             warn!("Попытка отправить сообщение без авторизации");
                                         }
                                     }
-                                    // Message
+                                    Message::RemoveMemberFromGroupChat { chat_id, username, requester } => {
+                                    match db::remove_member_from_group_chat(&db_pool, chat_id, &username, &requester).await {
+                                            Ok(_) => {}
+                                            Err(e) => {}
+                                        }
+                                    }
                                     _ => {}
                                 }
                             }
@@ -392,7 +397,7 @@ enum Message {
     AddMemberToGroupChat { chat_id: i32, username: String }, // добавить пользователя в групповой чат
     SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
     ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
-    RemoveMemberFromGroupChat { chat_id: i32, username: String }, // удалить пользователя из чата
+    RemoveMemberFromGroupChat { chat_id: i32, username: String, requester: String }, // удалить пользователя из чата
     DeleteGroupChat { chat_id: i32 }, // удалить групповой чат
 }
 
