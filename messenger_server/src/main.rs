@@ -355,6 +355,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             }
                                         }
                                     }
+                                    Message::DeleteGroupChat { chat_id, requester } => {
+                                        match db::delete_group_chat(&db_pool, chat_id, &requester) {
+                                            Ok(_) => {}
+                                            Err(e) => {}
+                                        }
+                                    }
                                     _ => {}
                                 }
                             }
@@ -410,7 +416,7 @@ enum Message {
     SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
     ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
     RemoveMemberFromGroupChat { chat_id: i32, username: String, requester: String }, // удалить пользователя из чата
-    DeleteGroupChat { chat_id: i32 }, // удалить групповой чат
+    DeleteGroupChat { chat_id: i32, requester: String }, // удалить групповой чат
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
