@@ -356,9 +356,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::DeleteGroupChat { chat_id, requester } => {
-                                        match db::delete_group_chat(&db_pool, chat_id, &requester) {
-                                            Ok(_) => {}
-                                            Err(e) => {}
+                                        match db::delete_group_chat(&db_pool, chat_id, &requester).await {
+                                            Ok(_) => {
+
+                                            }
+                                            Err(e) => {
+                                                error!("Ошибка удаления группового чата {}", e);
+                                                let response = Message::ErrorMessage {
+                                                    error: e.to_string(),
+                                                };
+                                                send_massage(&mut tls_stream, &response).await;
+                                            }
                                         }
                                     }
                                     _ => {}
