@@ -1,5 +1,4 @@
 use std::env::{self, VarError};
-use anyhow::{Context, Ok, Result};
 use thiserror::Error;
 use bb8_postgres::PostgresConnectionManager;
 use bb8::{Pool, RunError};
@@ -59,7 +58,6 @@ pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>
     let pool = Pool::builder()
         .build(manager)
         .await
-        .context("Ошибка создания пула соединений")
         .map_err(|e| {
             error!("Ошибка создания пула соединений: {}", e);
             ServerError::PoolError
@@ -210,7 +208,7 @@ pub async fn authenticate_user(
             ServerError::DatabaseError(e.into())
         })?;
 
-    if rows[0].is_empty() {
+    if rows.is_empty() {
         warn!("Пользователь {} не найден", username);
         return Ok(false);
     }
@@ -219,10 +217,10 @@ pub async fn authenticate_user(
     let is_valid = verify(password, &password_hash)
         .map_err(|e| {
             error!("Ошибка проверки пароля: {}", e);
-            ServerError::BcryptError(e.into())
+            ServerError::BcryptError(e)
         })?;
     if !is_valid {
-        warn!("Не верный пароль для пользователя {}", username);
+        warn!("Неверный пароль для пользователя {}", username);
         return Ok(false);
     }
 
