@@ -26,6 +26,13 @@ export default createStore({
     },
   },
   actions: {
-
+    async register({ commit }, { username, password }) {
+      await api.register(username, password);
+    },
+    async login({ commit }, { username, password }) {
+      const response = await api.login(username, password);
+      commit('setUser', username);
+      commit('setToken', response.data.token);
+    },
   },
 });
