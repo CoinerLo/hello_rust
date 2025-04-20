@@ -10,7 +10,7 @@
 </template>
 
 <script>
-  import api from "@/services/api"
+  import { mapActions } from 'vuex';
 
   export default {
     data() {
@@ -20,9 +20,10 @@
       };
     },
     methods: {
+      ...mapActions(['register']),
       async register() {
         try {
-          await api.register(this.username, this.password);
+          await thid.register({ username: this.username, password: this.password });
           this.$router.push('/login');
         } catch (e) {
           alert('Ошибка регистрации');
