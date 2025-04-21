@@ -38,6 +38,14 @@ export default createStore({
       const response = await api.getGroupChats();
       commit('setChats', response.data);
     },
+    async sendMessage({commit}, { chatId, content }) {
+      const response = await api.sendMessage(chatId, content);
+      commit('addMessage', { chatId, message: response.data });
+    },
+    async createGroupChat({ commit }, name) {
+      const response = await api.createGroupChat(name);
+      commit('setChats', [ ...this.state.chats, response.data ]);
+    },
     
   },
 });
