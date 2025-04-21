@@ -24,4 +24,7 @@ export default {
   deleteGroupChat(chatId) {
     return axios.delete(`${API_URL}/delete-group-chat`, { chatId });
   },
+  getGroupChats() {
+    return axios.get(`${API_URL}/group-chats`);
+  },
 }

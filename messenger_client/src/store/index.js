@@ -34,5 +34,10 @@ export default createStore({
       commit('setUser', username);
       commit('setToken', response.data.token);
     },
+    async fetchChats({ commit }) {
+      const response = await api.getGroupChats();
+      commit('setChats', response.data);
+    },
+    
   },
 });
