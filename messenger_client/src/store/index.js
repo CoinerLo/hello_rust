@@ -46,6 +46,15 @@ export default createStore({
       const response = await api.createGroupChat(name);
       commit('setChats', [ ...this.state.chats, response.data ]);
     },
-    
+    async addMemberToGroupChat({ commit }, { chatId, username }) {
+      await api.addMemberToGroupChat(chatId, username);
+    },
+    async removeMemberFromGroupChat({ commit }, { chatId, username }) {
+      await api.removeMemberFroumGroupChat(chatId, username);
+    },
+    async deleteGroupChat({ commit }, chatId) {
+      await api.deleteGroupChat(chatId);
+      commit('setChats', this.state.chats.filter((chat) => chat.id !== chatId));
+    },
   },
 });
