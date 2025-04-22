@@ -12,5 +12,21 @@
 <script>
   import { mapActions } from 'vuex';
 
-  
+  export default {
+    data: {
+      username: '',
+      password: '',
+    },
+    methods: {
+      ...mapActions(['login']),
+      async login() {
+        try {
+          await this.login({ username: this.username, password: this.password });
+          this.$router.push('/chat');
+        } catch (e) {
+          alert('Ошибка авторизации')
+        }
+      },
+    }
+  };
 </script>
