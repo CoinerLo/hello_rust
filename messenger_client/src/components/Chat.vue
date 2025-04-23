@@ -11,4 +11,29 @@
   </div>
 </template>
 
+<script>
+  import { mapState, mapActions } from 'vuex';
 
+  export default {
+    data() {
+      return {
+        newMessage: '',
+      }
+    },
+    computed: {
+      ...mapState(['messages']),
+    },
+    methods: {
+      ...mapActions(['sendMessage']),
+      async sendMessage() {
+        if (this.newMessage.trim()) {
+          await this.sendMessage({
+            chatId: this.$route.params.chatId,
+            content: this.newMessage,
+          });
+          this.newMessage = '';
+        }
+      },
+    },
+  };
+</script>
