@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import RegisterForm from "@/components/RegisterForm.vue";
-import RegisterForm from "@/components/Login.vue";
+import LoginPage from "@/components/LoginPage.vue";
 import ChatPage from "@/components/ChatPage.vue";
 
 const routes = [
   { path: '/register', component: RegisterForm },
-  { path: '/login', component: Login },
+  { path: '/login', component: LoginPage },
   { path: '/chat/:chatId', component: ChatPage },
 ];
 
