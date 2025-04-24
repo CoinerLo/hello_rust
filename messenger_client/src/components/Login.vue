@@ -13,9 +13,11 @@
   import { mapActions } from 'vuex';
 
   export default {
-    data: {
-      username: '',
-      password: '',
+    data: function() {
+      return {
+        username: '',
+        password: '',
+      };
     },
     methods: {
       ...mapActions(['login']),

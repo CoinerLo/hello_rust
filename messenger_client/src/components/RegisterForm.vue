@@ -23,7 +23,7 @@
       ...mapActions(['register']),
       async register() {
         try {
-          await thid.register({ username: this.username, password: this.password });
+          await this.register({ username: this.username, password: this.password });
           this.$router.push('/login');
         } catch (e) {
           alert('Ошибка регистрации');
