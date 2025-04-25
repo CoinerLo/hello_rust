@@ -1,13 +1,7 @@
-use std::env::{self, VarError};
-use bb8_postgres::PostgresConnectionManager;
-use bb8::{Pool, RunError};
 use bcrypt::{hash, verify, DEFAULT_COST};
-use tokio_postgres::NoTls;
-use dotenv::dotenv;
 use tracing::{warn, info, error};
 
 use crate::types::{AppResult, DbPool, ServerError};
-
 
 pub async fn register(
     pool: &DbPool,
@@ -100,4 +94,3 @@ pub async fn authenticate(
     info!("Пользователь {} успешно авторизован", username);
     Ok(true)
 }
-
