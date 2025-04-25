@@ -1,20 +1,13 @@
 use std::env::{self};
 use bb8_postgres::PostgresConnectionManager;
 use bb8::Pool;
-use bcrypt::verify;
 use tokio_postgres::NoTls;
 use dotenv::dotenv;
 use tracing::{warn, info, error};
 
-use crate::types::ServerError;
+use crate::types::{AppResult, DbPool, ServerError};
 
 pub mod user;
-
-
-
-pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
-
-pub type AppResult<T> = Result<T, ServerError>;
 
 // подключение
 pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>>> {
@@ -112,50 +105,6 @@ pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, Stri
 
     info!("Загружено {} сообщений из базы данных", history.len());
     Ok(history)
-}
-
-
-// авторизация пользователя
-pub async fn authenticate_user(
-    pool: &DbPool,
-    username: &str,
-    password: &str,
-) -> AppResult<bool> {
-    let client = pool
-        .get()
-        .await
-        .map_err(|e| {
-            error!("Ошибка получения соединения из пула: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
-
-    // Получаем хеш пароля и базы
-    let rows = client
-        .query("SELECT password_hash FROM users WHERE username = $1", &[&username])
-        .await
-        .map_err(|e| {
-            error!("Ошибка поиска пользователя в базе данных: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
-
-    if rows.is_empty() {
-        warn!("Пользователь {} не найден", username);
-        return Ok(false);
-    }
-
-    let password_hash: String = rows[0].get(0);
-    let is_valid = verify(password, &password_hash)
-        .map_err(|e| {
-            error!("Ошибка проверки пароля: {}", e);
-            ServerError::BcryptError(e)
-        })?;
-    if !is_valid {
-        warn!("Неверный пароль для пользователя {}", username);
-        return Ok(false);
-    }
-
-    info!("Пользователь {} успешно авторизован", username);
-    Ok(true)
 }
 
 // создание нового группового чата

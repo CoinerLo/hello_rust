@@ -1,4 +1,8 @@
 use thiserror::Error;
+use std::env::VarError;
+use bb8::{Pool, RunError};
+use bb8_postgres::PostgresConnectionManager;
+use tokio_postgres::NoTls;
 
 #[derive(Error, Debug)]
 pub enum ServerError {
@@ -25,5 +29,9 @@ pub enum ServerError {
     #[error("Недопустимая операция")]
     InvalidOperation,
 }
+
+pub type AppResult<T> = Result<T, ServerError>;
+
+pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
 
 

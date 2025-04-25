@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
-use db::DbPool;
 use rustls::{
     pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
 };
@@ -14,6 +13,7 @@ use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
+use types::{AppResult, DbPool};
 use crate::db::user;
 
 mod db;
@@ -161,7 +161,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::Authenticate { username, password } => {
-                                        match db::authenticate_user(&db_pool, &username, &password).await {
+                                        match user::authenticate(&db_pool, &username, &password).await {
                                             Ok(true) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -484,7 +484,7 @@ async fn send_message_to_group_chat(
     chat_id: i32,
     sender: &str,
     content: &str,
-) -> db::AppResult<()> {
+) -> AppResult<()> {
     let members = db::get_group_chat_members(db_pool, chat_id).await?;
     let message = Message::ReceiveGroupChatMessage {
         chat_id, sender: sender.to_string(), content: content.to_string(),
