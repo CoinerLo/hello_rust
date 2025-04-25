@@ -14,8 +14,10 @@ use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
+use crate::db::user;
 
 mod db;
+mod types;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -142,7 +144,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 // Обрабатываем сообщение
                                 match message {
                                     Message::Register { username, password } => {
-                                        match db::register_user(&db_pool, &username, &password).await {
+                                        match user::register(&db_pool, &username, &password).await {
                                             Ok(_) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
