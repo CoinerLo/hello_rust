@@ -73,7 +73,7 @@ pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<
 }
 
 // Загрузка истории
-pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, String)>, Box<dyn std::error::Error>> {
+pub async fn load_history(pool: &DbPool, limit: i64) -> AppResult<Vec<(String, String)>> {
     info!("Загрузка истории сообщений (limit={})", limit);
 
     let client = pool
@@ -81,7 +81,7 @@ pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, Stri
         .await
         .map_err(|e| {
             error!("Ошибка получения соединения из пула: {}", e);
-            format!("Ошибка получения соединения из пула: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
     let rows = client
@@ -91,8 +91,8 @@ pub async fn load_history(pool: &DbPool, limit: i64) -> Result<Vec<(String, Stri
         )
         .await
         .map_err(|e| {
-            error!("Ошибка выполнения запроса SELECT: {}", e);
-            format!("Ошибка выполнения запроса SELECT: {}", e)
+            error!("Ошибка получения сообщений из БД: {}", e);
+            ServerError::DatabaseError(e.into())
         })?;
 
     let history: Vec<(String, String)> = rows
