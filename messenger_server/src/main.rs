@@ -14,7 +14,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 use types::{AppResult, DbPool};
-use crate::db::user;
+use crate::db::{user, group_chat};
 
 mod db;
 mod types;
@@ -288,7 +288,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                                     }
                                     Message::CreateGroupChat { name, requester } => {
-                                        match db::create_group_chat(&db_pool, &name, &requester).await {                                           
+                                        match group_chat::create(&db_pool, &name, &requester).await {                                           
                                             Ok(chat_id) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -305,7 +305,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::AddMemberToGroupChat { chat_id, username } => {
-                                        match  db::add_member_to_group_chat(&db_pool, chat_id, &username).await {
+                                        match  group_chat::add_member(&db_pool, chat_id, &username).await {
                                             Ok(_) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -340,7 +340,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::RemoveMemberFromGroupChat { chat_id, username, requester } => {
-                                        match db::remove_member_from_group_chat(&db_pool, chat_id, &username, &requester).await {
+                                        match group_chat::remove_member(&db_pool, chat_id, &username, &requester).await {
                                             Ok(_) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -358,7 +358,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         }
                                     }
                                     Message::DeleteGroupChat { chat_id, requester } => {
-                                        match db::delete_group_chat(&db_pool, chat_id, &requester).await {
+                                        match group_chat::delete(&db_pool, chat_id, &requester).await {
                                             Ok(_) => {
                                                 let response = Message::ReceiveMessage {
                                                     sender: "Server".to_string(),
@@ -485,7 +485,7 @@ async fn send_message_to_group_chat(
     sender: &str,
     content: &str,
 ) -> AppResult<()> {
-    let members = db::get_group_chat_members(db_pool, chat_id).await?;
+    let members = group_chat::get_members(db_pool, chat_id).await?;
     let message = Message::ReceiveGroupChatMessage {
         chat_id, sender: sender.to_string(), content: content.to_string(),
     };
