@@ -14,7 +14,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 use types::{AppResult, DbPool};
-use crate::db::{user, group_chat};
+use crate::db::{db_main, user, group_chat};
 
 mod db;
 mod types;
@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // подключаемся к базе
-    let db_pool = db::create_db_pool().await?;
+    let db_pool = db_main::create_db_pool().await?;
     info!("Подключение к базе данных успешно");
 
     // Загрузка сертификата и ключа для TLS
