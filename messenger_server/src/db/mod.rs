@@ -41,7 +41,7 @@ pub async fn create_db_pool() -> AppResult<Pool<PostgresConnectionManager<NoTls>
 }
 
 // сохранение сообщения
-pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> AppResult<()> {
     info!("Сохранение в базу данных сообщения: sender={}, content={}", sender, content);
 
     let client = pool
@@ -49,7 +49,7 @@ pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<
         .await
         .map_err(|e| {
             error!("Ошибка получения соединения из пула: {}", e);
-            format!("Ошибка получения соединения из пула: {}", e)
+            ServerError::DatabaseError(e.into())
         })?;
 
     let rows_affected = client
@@ -59,8 +59,8 @@ pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> Result<
         )
         .await
         .map_err(|e| {
-            error!("Ошибка выполнения запроса INSERT: {}", e);
-            format!("Ошибка выполнения запроса INSERT: {}", e)
+            error!("Ошибка записи сообщения в БД: {}", e);
+            ServerError::DatabaseError(e.into())
         })?;
 
     if rows_affected == 0 {
