@@ -14,7 +14,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 use types::{AppResult, DbPool};
-use crate::db::{db_main, user, group_chat};
+use crate::db::{db_main, user, group_chat, messages};
 
 mod db;
 mod types;
@@ -104,7 +104,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             // отправляем историю сообщений новому клиенту
-            let history = db::load_history(&db_pool, 10).await.unwrap_or_default();
+            let history = messages::load_history(&db_pool, 10).await.unwrap_or_default();
             for (sender, content) in history {
                 let message = Message::ReceiveMessage {
                     sender: sender.clone(),
@@ -224,7 +224,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         if let Some(sender) = &username {
                                             info!("Получено сообщение от {}: {}", sender, content);
                                             // сохраняем сообщение в базу данных
-                                            if let Err(e) = db::save_message(&db_pool, sender, &content).await {
+                                            if let Err(e) = messages::save_message(&db_pool, sender, &content).await {
                                                 error!("Ошибка загрузки сообщения в базу данных: {}", e);
                                             };
                                             let message = Message::ReceiveMessage {
