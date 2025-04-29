@@ -1,15 +1,14 @@
 use thiserror::Error;
 use std::env::VarError;
-use bb8::{Pool, RunError};
-use bb8_postgres::PostgresConnectionManager;
-use tokio_postgres::NoTls;
+use sqlx::{PgPool, Error as SqlxError};
+use bcrypt::BcryptError;
 
 #[derive(Error, Debug)]
 pub enum ServerError {
     #[error("Ошибка базы данных: {0}")]
-    DatabaseError(#[from] RunError<tokio_postgres::Error>),
+    DatabaseError(#[from] SqlxError),
     #[error("Ошибка хэширования пароля: {0}")]
-    BcryptError(#[from] bcrypt::BcryptError),
+    BcryptError(#[from] BcryptError),
     #[error("Ошибка отправки сообщения: {0}")]
     MessageSendError(#[from] std::io::Error),
     #[error("Пользователь с таким именем уже существует")]
@@ -19,7 +18,7 @@ pub enum ServerError {
     #[error("DATABASE_URL is not sen in .env file")]
     VarError(#[from] VarError),
     #[error("Ошибка создания пула соединений")]
-    PoolError,
+    PoolError(#[from] SqlxError),
     #[error("Групповой чат с таким именем уже существует")]
     GroupChatExist,
     #[error("Для выполнения действия не хватает прав")]
@@ -32,6 +31,6 @@ pub enum ServerError {
 
 pub type AppResult<T> = Result<T, ServerError>;
 
-pub type DbPool = Pool<PostgresConnectionManager<NoTls>>;
+pub type DbPool = PgPool;
 
 
