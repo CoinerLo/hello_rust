@@ -49,25 +49,19 @@ pub async fn add_member(
     chat_id: i32,
     username: &str,
 ) -> AppResult<()> {
-    let client = pool
-        .get()
-        .await
-        .map_err(|e| {
-            error!("Ошибка получения соединения из пула: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
     info!("Попытка добавления участника {} в групповой чат ID: {}", username, chat_id);
 
-    client
-        .execute(
-            "INSERT INTO group_chat_members (chat_id, username) VALUES ($1, $2)",
-            &[&chat_id, &username],
-        )
-        .await
-        .map_err(|e| {
-            error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
-            ServerError::DatabaseError(e.into())
-        })?;
+    sqlx::query!(
+        "INSERT INTO group_chat_members (chat_id, username) VALUES ($1, $2)",
+        chat_id,
+        username,
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
+        ServerError::DatabaseError(e.into())
+    })?;
 
     info!("Участник {} успешно добавлен в групповой чат ID: {}", username, chat_id);
     Ok(())
