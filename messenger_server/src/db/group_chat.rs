@@ -10,33 +10,35 @@ pub async fn create(
 ) -> AppResult<i32> {
     info!("Попытка создания группового чата: {} (создатель: {})", name, creator);
 
-    let rows = sqlx::query!(
-            "SELECT COUNT(*) FROM group_chats WHERE name = $1",
-            name)
-        .fetch_optional(pool)
-        .await
-        .map_err(|e| {
-            error!("Ошибка получения списка чатов из БД: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
+    let count = sqlx::query_scalar!(
+        "SELECT COUNT(*) FROM group_chats WHERE name = $1",
+        name
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения списка чатов из БД: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
     
-    let count: i64 = rows[0].get(0);
+    let count = count.unwrap_or(0);
     if count > 0 {
         warn!("Групповой чат с именем {} уже существуют", name);
         return Err(ServerError::GroupChatExist);
     }
 
-    let row = client
-        .query_one(
-            "INSERT INTO group_chats (name, creator) VALUES ($1, &2) RETURNING id",
-            &[&name, &creator],
-        )
-        .await
-        .map_err(|e| {
-            error!("Ошибка записи группового чата в БД: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
-    let chat_id = row.get(0);
+    let row = sqlx::query!(
+        "INSERT INTO group_chats (name, creator) VALUES ($1, $2) RETURNING id",
+        name,
+        creator,
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка записи группового чата в БД: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
+    let chat_id = row.id;
     info!("групповой чат {} успешно создан (ID: {}, создатель: {})", name, chat_id, creator);
     Ok(chat_id)
 }
