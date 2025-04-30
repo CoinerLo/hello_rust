@@ -72,27 +72,20 @@ pub async fn get_members(
     pool: &DbPool,
     chat_id: i32,
 ) -> AppResult<Vec<String>> {
-    let client = pool
-        .get()
-        .await
-        .map_err(|e| {
-            error!("Ошибка получения соединения из пула: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
     info!("Попытка получения списка участников группового чата ID: {}", chat_id);
 
-    let rows = client
-        .query(
-            "SELECT username FROM group_chat_members WHERE chat_id = $1", 
-            &[&chat_id],
-        )
-        .await
-        .map_err(|e| {
-            error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
-            ServerError::DatabaseError(e.into())
-        })?;
+    let rows = sqlx::query!(
+        "SELECT username FROM group_chat_members WHERE chat_id = $1", 
+        chat_id,
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
+        ServerError::DatabaseError(e.into())
+    })?;
 
-    let members: Vec<String> = rows.iter().map(|row| row.get(0)).collect();
+    let members: Vec<String> = rows.into_iter().map(|row| row.username).collect();
     info!("Найдено {} участников в групповом чате ID: {}", members.len(), chat_id);
 
     Ok(members)
