@@ -96,26 +96,18 @@ async fn check_if_creator(
     chat_id: i32,
     username: &str
 ) -> AppResult<bool> {
-    let client = pool
-    .get()
-    .await
-    .map_err(|e| {
-        error!("Ошибка получения соединения из пула: {}", e);
-        ServerError::DatabaseError(e.into())
-    })?;
-    let row = client
-        .query_one(
+    let row = sqlx::query!(
             "SELECT creator FROM group_chats WHERE id = $1",
-            &[&chat_id]
+            chat_id
         )
+        .fetch_one(pool)
         .await
         .map_err(|e| {
             error!("Ошибка получения создателя чата из БД: {}", e);
             ServerError::DatabaseError(e.into())
         })?;
 
-    let creator: String = row.get(0);
-    Ok(creator == username)
+    Ok(row.creator == username)
 }
 
 // удаление участника из группового чата
@@ -125,13 +117,6 @@ pub async fn remove_member(
     username: &str,
     requester: &str,
 ) -> AppResult<()> {
-    let client = pool
-    .get()
-    .await
-    .map_err(|e| {
-        error!("Ошибка получения соединения из пула: {}", e);
-        ServerError::DatabaseError(e.into())
-    })?;
     info!("Попытка удаления участника {} из группового чата ID: {} (запросил: {})", username, chat_id, requester);
 
     let is_creator = check_if_creator(pool, chat_id, requester).await?;
@@ -145,17 +130,19 @@ pub async fn remove_member(
         return Err(ServerError::InvalidOperation);
     }
 
-    let rows_affected = client
-        .execute(
-            "DELETE FROM group_chat_members WHERE chat_id = $1 AND username = $2", 
-            &[&chat_id, &username],
-        )
-        .await
-        .map_err(|e| {
-            error!("Ошибка (БД) удаления из группового чата: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
-    
+    let rows_affected = sqlx::query!(
+        "DELETE FROM group_chat_members WHERE chat_id = $1 AND username = $2", 
+        chat_id,
+        username,
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка (БД) удаления из группового чата: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?
+    .rows_affected();
+
     if rows_affected == 0 {
         warn!("Пользователь {} не является создателем чата ID: {}", requester, chat_id);
         return Err(ServerError::MemberNotFound);
