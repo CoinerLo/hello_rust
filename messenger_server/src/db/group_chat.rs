@@ -158,13 +158,6 @@ pub async fn delete(
     chat_id: i32,
     requester: &str,
 ) -> AppResult<()> {
-    let client = pool
-    .get()
-    .await
-    .map_err(|e| {
-        error!("Ошибка получения соединения из пула: {}", e);
-        ServerError::DatabaseError(e.into())
-    })?;
     info!("Попытка удаления группвого чата ID: {} (запросил: {})", chat_id, requester);
 
     let is_creator = check_if_creator(pool, chat_id, requester).await?;
@@ -173,16 +166,16 @@ pub async fn delete(
         return Err(ServerError::PermissionDenied);
     }
 
-    client
-        .execute(
-            "DELETE FROM group_chats WHERE id = $1", 
-            &[&chat_id],
-        )
-        .await
-        .map_err(|e| {
-            error!("Ошибка (БД) удаления группового чата: {}", e);
-            ServerError::DatabaseError(e.into())
-        })?;
+    sqlx::query!(
+        "DELETE FROM group_chats WHERE id = $1", 
+        chat_id,
+    )
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка (БД) удаления группового чата: {}", e);
+        ServerError::DatabaseError(e.into())
+    })?;
 
     info!("Групповой чат (ID = {}) успешно удален", chat_id);
     Ok(())
