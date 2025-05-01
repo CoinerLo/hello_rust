@@ -18,7 +18,7 @@ pub async fn create(
     .await
     .map_err(|e| {
         error!("Ошибка получения списка чатов из БД: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка получения списка чатов из БД".to_string(), source: e }
     })?;
     
     let count = count.unwrap_or(0);
@@ -36,7 +36,7 @@ pub async fn create(
     .await
     .map_err(|e| {
         error!("Ошибка записи группового чата в БД: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка записи группового чата в БД".to_string(), source: e }
     })?;
     let chat_id = row.id;
     info!("групповой чат {} успешно создан (ID: {}, создатель: {})", name, chat_id, creator);
@@ -60,7 +60,7 @@ pub async fn add_member(
     .await
     .map_err(|e| {
         error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка добавления пользователя в групповой чат".to_string(), source: e }
     })?;
 
     info!("Участник {} успешно добавлен в групповой чат ID: {}", username, chat_id);
@@ -82,7 +82,7 @@ pub async fn get_members(
     .await
     .map_err(|e| {
         error!("Ошибка добавления пользователя в групповой чат (chat_id={}) в БД: {}", chat_id, e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка добавления пользователя в групповой чат".to_string(), source: e }
     })?;
 
     let members: Vec<String> = rows.into_iter().map(|row| row.username).collect();
@@ -104,7 +104,7 @@ async fn check_if_creator(
         .await
         .map_err(|e| {
             error!("Ошибка получения создателя чата из БД: {}", e);
-            ServerError::DatabaseError(e.into())
+            ServerError::DatabaseError { context: "Ошибка получения создателя чата из БД".to_string(), source: e }
         })?;
 
     Ok(row.creator == username)
@@ -139,7 +139,7 @@ pub async fn remove_member(
     .await
     .map_err(|e| {
         error!("Ошибка (БД) удаления из группового чата: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка (БД) удаления из группового чата".to_string(), source: e }
     })?
     .rows_affected();
 
@@ -174,7 +174,7 @@ pub async fn delete(
     .await
     .map_err(|e| {
         error!("Ошибка (БД) удаления группового чата: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка (БД) удаления группового чата".to_string(), source: e }
     })?;
 
     info!("Групповой чат (ID = {}) успешно удален", chat_id);
