@@ -20,7 +20,7 @@ pub async fn create_db_pool() -> AppResult<PgPool> {
         .await
         .map_err(|e| {
             error!("Ошибка создания пула соединений: {}", e);
-            ServerError::PoolError(e)
+            ServerError::DatabaseError { context: "Ошибка создания пула соединений".to_string(), source: e }
         })?;
 
     info!("Пул соединений успешно создан");
