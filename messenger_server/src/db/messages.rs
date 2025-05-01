@@ -15,7 +15,7 @@ pub async fn save_message(pool: &DbPool, sender: &str, content: &str) -> AppResu
     .await
     .map_err(|e| {
         error!("Ошибка записи сообщения в БД: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError { context: "Ошибка записи сообщения в БД".to_string(), source: e }
     })?
     .rows_affected();
 
@@ -40,7 +40,10 @@ pub async fn load_history(pool: &DbPool, limit: i64) -> AppResult<Vec<(String, S
     .await
     .map_err(|e| {
         error!("Ошибка получения сообщений из БД: {}", e);
-        ServerError::DatabaseError(e.into())
+        ServerError::DatabaseError {
+            context: "Ошибка получения сообщений из БД".to_string(),
+            source: e,
+        }
     })?;
 
     let history: Vec<(String, String)> = rows
