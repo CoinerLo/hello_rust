@@ -22,7 +22,21 @@ pub async fn register(
         Ok(_) => HttpResponse::Ok().body("Пользователь успешно зарегистрирован"),
         Err(e) => {
             error!("Ошибка регистрации пользователя: {}", e);
-            HttpResponse::BadRequest().body(format!("Ошибка регистрации"))
+            HttpResponse::BadRequest().body("Ошибка регистрации")
+        },
+    }
+}
+
+pub async fn login(
+    pool: web::Data<DbPool>,
+    form: web::Json<LoginUser>,
+) -> impl Responder {
+    match auth_service::authenticate_user(&pool, &form.username, &form.password).await {
+        Ok(true) => HttpResponse::Ok().body("Пользователь успешно вошел"),
+        Ok(false) => HttpResponse::Unauthorized().body("Неверный логин или пароль"),
+        Err(e) => {
+            error!("Ошибка входа пользователя: {}", e);
+            HttpResponse::InternalServerError().body("Ошибка авторизации")
         },
     }
 }
