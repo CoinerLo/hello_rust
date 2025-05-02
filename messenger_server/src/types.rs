@@ -29,6 +29,8 @@ pub enum ServerError {
     MemberNotFound,
     #[error("Недопустимая операция")]
     InvalidOperation,
+    #[error("Ошибка создания группового чата")]
+    CreateGroupChatError,
 }
 
 pub type AppResult<T> = Result<T, ServerError>;
