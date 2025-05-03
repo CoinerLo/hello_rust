@@ -3,13 +3,13 @@ use actix_web::{web, HttpResponse, Responder};
 use tracing::error;
 
 #[derive(serde::Deserialize)]
-struct RegisterUser {
+pub struct RegisterUser {
     username: String,
     password: String,
 }
 
 #[derive(serde::Deserialize)]
-struct LoginUser {
+pub struct LoginUser {
     username: String,
     password: String,
 }

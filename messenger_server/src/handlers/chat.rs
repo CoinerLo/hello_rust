@@ -5,7 +5,7 @@ use crate::{services::chat_service, types::DbPool};
 
 
 #[derive(serde::Deserialize)]
-struct CreateChat {
+pub struct CreateChat {
     name: String,
     creator: String,
 }
