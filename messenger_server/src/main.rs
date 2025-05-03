@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
+use actix_web::{web, App, HttpServer};
+use handlers::{auth, chat};
 use rustls::{
     pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
 };
@@ -14,9 +16,11 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 use types::{AppResult, DbPool};
-use crate::db::{db_main, user, group_chat, messages};
+use crate::db::{db_main, group_chat, messages};
 
 mod db;
+mod services;
+mod handlers;
 mod types;
 
 #[tokio::main]
@@ -29,6 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // подключаемся к базе
     let db_pool = db_main::create_db_pool().await?;
     info!("Подключение к базе данных успешно");
+    let db_pool = Arc::new(db_pool);
 
     // Загрузка сертификата и ключа для TLS
     let cert_file = &mut BufReader::new(fs::File::open("cert.pem")?);
@@ -57,6 +62,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_single_cert(certs, keys[0].clone_key())?; // Используем первый закрытый ключ
 
     let acceptor = TlsAcceptor::from(Arc::new(config));
+
+    let http_db_pool = Arc::clone(&db_pool);
+    tokio::spawn(async move {
+        HttpServer::new(move || {
+            App::new()
+                .app_data(web::Data::new(http_db_pool.clone()))
+                .route("/register", web::post().to(auth::register))
+                .route("/login", web::post().to(auth::login))
+                .route("/chats", web::post().to(chat::create))
+                .route("/chats", web::delete().to(chat::delete))
+        })
+        .bind("127.0.0.1:8081")
+        .unwrap()
+        .run()
+        .await
+        .unwrap();
+    });
 
     // Создаем TCP-слушатель на порту 8080
     let listener = TcpListener::bind("127.0.0.1:8080").await?;
@@ -97,11 +119,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut rx = tx.subscribe();
 
             // авторизация клиента
-            let authenticated = autentificate_client(&mut tls_stream).await;
-            if !authenticated {
-                warn!("Клиент {} не прошел авторизацию", addr);
-                return;
-            }
+            // let authenticated = autentificate_client(&mut tls_stream).await;
+            // if !authenticated {
+            //     warn!("Клиент {} не прошел авторизацию", addr);
+            //     return;
+            // }
 
             // отправляем историю сообщений новому клиенту
             let history = messages::load_history(&db_pool, 10).await.unwrap_or_default();
@@ -143,46 +165,46 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                                 // Обрабатываем сообщение
                                 match message {
-                                    Message::Register { username, password } => {
-                                        match user::register(&db_pool, &username, &password).await {
-                                            Ok(_) => {
-                                                let response = Message::ReceiveMessage {
-                                                    sender: "Server".to_string(),
-                                                    content: "Регистрация успешна".to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                            Err(e) => {
-                                                let response = Message::ErrorMessage {
-                                                    error: e.to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                        }
-                                    }
-                                    Message::Authenticate { username, password } => {
-                                        match user::authenticate(&db_pool, &username, &password).await {
-                                            Ok(true) => {
-                                                let response = Message::ReceiveMessage {
-                                                    sender: "Server".to_string(),
-                                                    content: "Авторизация успешна".to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                            Ok(false) => {
-                                                let response = Message::ErrorMessage {
-                                                    error: "Неверный логин или пароль".to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                            Err(e) => {
-                                                let response = Message::ErrorMessage {
-                                                    error: e.to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                        }
-                                    }
+                                    // Message::Register { username, password } => {
+                                    //     match user::register(&db_pool, &username, &password).await {
+                                    //         Ok(_) => {
+                                    //             let response = Message::ReceiveMessage {
+                                    //                 sender: "Server".to_string(),
+                                    //                 content: "Регистрация успешна".to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //         Err(e) => {
+                                    //             let response = Message::ErrorMessage {
+                                    //                 error: e.to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //     }
+                                    // }
+                                    // Message::Authenticate { username, password } => {
+                                    //     match user::authenticate(&db_pool, &username, &password).await {
+                                    //         Ok(true) => {
+                                    //             let response = Message::ReceiveMessage {
+                                    //                 sender: "Server".to_string(),
+                                    //                 content: "Авторизация успешна".to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //         Ok(false) => {
+                                    //             let response = Message::ErrorMessage {
+                                    //                 error: "Неверный логин или пароль".to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //         Err(e) => {
+                                    //             let response = Message::ErrorMessage {
+                                    //                 error: e.to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //     }
+                                    // }
                                     Message::Join { username: new_username } => {
                                         info!("Клиент {} клиент пытается присоединиться", new_username);
 
@@ -287,23 +309,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         };
 
                                     }
-                                    Message::CreateGroupChat { name, requester } => {
-                                        match group_chat::create(&db_pool, &name, &requester).await {                                           
-                                            Ok(chat_id) => {
-                                                let response = Message::ReceiveMessage {
-                                                    sender: "Server".to_string(),
-                                                    content: format!("Групповой чат '{}' успешно создан (ID: {})", name, chat_id),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                            Err(e) => {
-                                                let response = Message::ErrorMessage {
-                                                    error: e.to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                        }
-                                    }
+                                    // Message::CreateGroupChat { name, requester } => {
+                                    //     match group_chat::create(&db_pool, &name, &requester).await {                                           
+                                    //         Ok(chat_id) => {
+                                    //             let response = Message::ReceiveMessage {
+                                    //                 sender: "Server".to_string(),
+                                    //                 content: format!("Групповой чат '{}' успешно создан (ID: {})", name, chat_id),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //         Err(e) => {
+                                    //             let response = Message::ErrorMessage {
+                                    //                 error: e.to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //     }
+                                    // }
                                     Message::AddMemberToGroupChat { chat_id, username } => {
                                         match  group_chat::add_member(&db_pool, chat_id, &username).await {
                                             Ok(_) => {
@@ -357,24 +379,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             }
                                         }
                                     }
-                                    Message::DeleteGroupChat { chat_id, requester } => {
-                                        match group_chat::delete(&db_pool, chat_id, &requester).await {
-                                            Ok(_) => {
-                                                let response = Message::ReceiveMessage {
-                                                    sender: "Server".to_string(),
-                                                    content: format!("Групповой чат ID: {} удален пользователем {}", chat_id, requester),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                            Err(e) => {
-                                                error!("Ошибка удаления группового чата {}", e);
-                                                let response = Message::ErrorMessage {
-                                                    error: e.to_string(),
-                                                };
-                                                send_massage(&mut tls_stream, &response).await;
-                                            }
-                                        }
-                                    }
+                                    // Message::DeleteGroupChat { chat_id, requester } => {
+                                    //     match group_chat::delete(&db_pool, chat_id, &requester).await {
+                                    //         Ok(_) => {
+                                    //             let response = Message::ReceiveMessage {
+                                    //                 sender: "Server".to_string(),
+                                    //                 content: format!("Групповой чат ID: {} удален пользователем {}", chat_id, requester),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //         Err(e) => {
+                                    //             error!("Ошибка удаления группового чата {}", e);
+                                    //             let response = Message::ErrorMessage {
+                                    //                 error: e.to_string(),
+                                    //             };
+                                    //             send_massage(&mut tls_stream, &response).await;
+                                    //         }
+                                    //     }
+                                    // }
                                     _ => {}
                                 }
                             }
@@ -416,7 +438,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")] // Указываем поле `type` для различения типов сообщений
 enum Message {
-    Authenticate { username: String, password: String }, // сообщение на авторизацию
+    // Authenticate { username: String, password: String }, // сообщение на авторизацию
     Join { username: String }, // Клиент присоединяется к чату
     SendMessage { content: String }, // Клиент отправляет сообщение
     ReceiveMessage { sender: String, content: String }, // Сообщение для клиента,
@@ -424,13 +446,13 @@ enum Message {
     ReceivePrivateMessage { sender: String, content: String }, // Получение приватных сообщений
     Leave, // выход пользователя
     ErrorMessage { error: String }, // Ответ об ошибке
-    Register { username: String, password: String }, // регистрация
-    CreateGroupChat { name: String, requester: String }, // создание группового чата
+    // Register { username: String, password: String }, // регистрация
+    // CreateGroupChat { name: String, requester: String }, // создание группового чата
     AddMemberToGroupChat { chat_id: i32, username: String }, // добавить пользователя в групповой чат
     SendMessageToGroupChat { chat_id: i32, content: String }, // отправить сообщение в группвой чат
     ReceiveGroupChatMessage { chat_id: i32, sender: String, content: String }, // получение соощения из группового чата
     RemoveMemberFromGroupChat { chat_id: i32, username: String, requester: String }, // удалить пользователя из чата
-    DeleteGroupChat { chat_id: i32, requester: String }, // удалить групповой чат
+    // DeleteGroupChat { chat_id: i32, requester: String }, // удалить групповой чат
 }
 
 type Clients = Arc<Mutex<HashMap<String, broadcast::Sender<String>>>>;
@@ -443,40 +465,40 @@ async fn send_massage(stream: &mut tokio_rustls::server::TlsStream<tokio::net::T
 }
 
 // функция для авторизации клиента
-async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>) -> bool {
-    let mut buffer = [0; 1024];
+// async fn autentificate_client(stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>) -> bool {
+//     let mut buffer = [0; 1024];
 
-    // читаем данные от клиента
-    let n = match stream.read(&mut buffer).await {
-        Ok(n) if n == 0 => return false, // клиент отключился
-        Ok(n) => n,
-        Err(_) => return false,
-    };
+//     // читаем данные от клиента
+//     let n = match stream.read(&mut buffer).await {
+//         Ok(n) if n == 0 => return false, // клиент отключился
+//         Ok(n) => n,
+//         Err(_) => return false,
+//     };
 
-    // преобразуем байты в строку
-    let message_str = match String::from_utf8(buffer[..n].to_vec()) {
-        Ok(s) => s,
-        Err(_) => return false,
-    };
+//     // преобразуем байты в строку
+//     let message_str = match String::from_utf8(buffer[..n].to_vec()) {
+//         Ok(s) => s,
+//         Err(_) => return false,
+//     };
     
-    // десереализуем JSON в структуру Message
-    let message: Message = match serde_json::from_str(&message_str) {
-        Ok(msg) => msg,
-        Err(_) => return false,
-    };
+//     // десереализуем JSON в структуру Message
+//     let message: Message = match serde_json::from_str(&message_str) {
+//         Ok(msg) => msg,
+//         Err(_) => return false,
+//     };
 
-    // проверяем учетные данные
-    match message {
-        Message::Authenticate { username, password } => {
-            if username == "admin" && password == "password" {
-                true
-            } else {
-                false
-            }
-        }
-        _ => false,
-    }
-}
+//     // проверяем учетные данные
+//     match message {
+//         Message::Authenticate { username, password } => {
+//             if username == "admin" && password == "password" {
+//                 true
+//             } else {
+//                 false
+//             }
+//         }
+//         _ => false,
+//     }
+// }
 
 async fn send_message_to_group_chat(
     stream: &mut tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
