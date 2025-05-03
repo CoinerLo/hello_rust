@@ -17,8 +17,6 @@ pub enum ServerError {
     MessageSendError(#[from] std::io::Error),
     #[error("Пользователь с таким именем уже существует")]
     UserExists,
-    #[error("Ошибка создания менеджера соединений")]
-    CreateManagerError,
     #[error("DATABASE_URL is not sen in .env file")]
     VarError(#[from] VarError),
     #[error("Групповой чат с таким именем уже существует")]
