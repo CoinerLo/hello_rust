@@ -26,7 +26,7 @@ export default createStore({
     },
   },
   actions: {
-    async register({ commit }, { username, password }) {
+    async register(_, { username, password }) {
       await api.register(username, password);
     },
     async login({ commit }, { username, password }) {
@@ -46,10 +46,10 @@ export default createStore({
       const response = await api.createGroupChat(name);
       commit('setChats', [ ...this.state.chats, response.data ]);
     },
-    async addMemberToGroupChat({ commit }, { chatId, username }) {
+    async addMemberToGroupChat(_, { chatId, username }) {
       await api.addMemberToGroupChat(chatId, username);
     },
-    async removeMemberFromGroupChat({ commit }, { chatId, username }) {
+    async removeMemberFromGroupChat(_, { chatId, username }) {
       await api.removeMemberFroumGroupChat(chatId, username);
     },
     async deleteGroupChat({ commit }, chatId) {
