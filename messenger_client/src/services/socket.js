@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const SOCKET_URL = '';
+const SOCKET_URL = '127.0.0.1:8080';
 
 const socket = io(SOCKET_URL);
 
