@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import socket from "./services/socket.js";
+    // import socket from "./services/socket.js";
 
     // socket.connect();
 
