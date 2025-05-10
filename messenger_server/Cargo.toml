@@ -21,3 +21,4 @@ bcrypt = "0.17"
 thiserror = "2.0.12"
 sqlx = { version = "0.8.5", features = ["postgres", "runtime-tokio-native-tls"] }
 actix-web = "4.10"
+tokio-tungstenite = "0.26"
