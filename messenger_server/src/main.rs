@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::fs;
-use std::io::BufReader;
 use futures_util::StreamExt;
 use tokio_tungstenite::{accept_async, WebSocketStream};
 use tokio_tungstenite::tungstenite::Message as WsMessage;
@@ -8,15 +6,9 @@ use futures_util::sink::SinkExt;
 use std::sync::Arc;
 use actix_web::{web, App, HttpServer};
 use handlers::{auth, chat};
-use rustls::{
-    pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig
-};
-use rustls_pemfile::{certs, pkcs8_private_keys};
 use serde_json;
 use tokio::sync::{broadcast, Mutex};
-use tokio_rustls::TlsAcceptor;
 use tokio::net::TcpListener;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde::{Serialize, Deserialize};
 use tracing::{debug, error, info, warn};
 use types::{AppResult, DbPool};
