@@ -110,7 +110,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // };
 
         // Принимаем WebSocket-соединение
-        let ws_stream = match accept_async(stream).await {
+        let mut ws_stream = match accept_async(stream).await {
             Ok(ws_stream) => ws_stream,
             Err(e) => {
                 error!("Ошибка при установке WebSocket-соединения: {}", e);
@@ -349,7 +349,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     result = rx.recv() => {
                         match result {
                             Ok(msg) => {
-                                if let Err(e) = ws_stream.send(WsMessage::Text(msg)).await {
+                                if let Err(e) = ws_stream.send(WsMessage::Text(msg.into())).await {
                                     error!("Ошибка записи: {}", e);
                                     break;
                                 } 
