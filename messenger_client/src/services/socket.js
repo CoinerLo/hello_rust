@@ -1,23 +1,39 @@
-import io from 'socket.io-client';
+const SOCKET_URL = 'ws://127.0.0.1:8080';
 
-const SOCKET_URL = 'https://127.0.0.1:8080';
-
-const socket = io(SOCKET_URL);
+const socket = new WebSocket(SOCKET_URL);
 
 export default {
   connect() {
-    socket.connect();
+    socket.onopen = () => {
+      console.log('Соединение установлено');
+      // Отправляем сообщение о присоединении
+      socket.send(JSON.stringify({ type: 'Join', username: 'example_user' }));
+    };
+
+    socket.onmessage = (event) => {
+      console.log('Получено сообщение:', event.data);
+    };
+
+    socket.onclose = () => {
+      console.log('Соединение закрыто');
+    };
+
+    socket.onerror = (error) => {
+      console.error('Ошибка WebSocket:', error);
+    };
   },
 
   disconnect() {
-    socket.disconnect();
+    socket.close();
   },
 
   onMessage(callback) {
-    socket.on('message', callback);
+    socket.onmessage = (event) => {
+      callback(JSON.parse(event.data));
+    };
   },
 
   sendMessage(message) {
-    socket.emit('message', message);
+    socket.send(JSON.stringify(message));
   },
 };
