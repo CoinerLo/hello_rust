@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'https://127.0.0.1:8080'
+const API_URL = 'https://127.0.0.1:8081'
 
 export default {
   register(username, password) {
@@ -25,6 +25,6 @@ export default {
     return axios.delete(`${API_URL}/delete-group-chat`, { chatId });
   },
   getGroupChats() {
-    return axios.get(`${API_URL}/group-chats`);
+    return axios.get(`${API_URL}/chats`);
   },
 }
