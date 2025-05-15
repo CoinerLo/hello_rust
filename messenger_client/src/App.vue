@@ -5,12 +5,19 @@
 </template>
 
 <script>
-    import socket from "./services/socket.js";
+    import { mapActions } from "vuex";
+import socket from "./services/socket.js";
 
     socket.connect();
 
     export default {
         name: 'App',
+        methods: {
+            ...mapActions(['fetchChats']),
+        },
+        mounted() {
+            this.fetchChats();
+        },
     }
 </script>
 
