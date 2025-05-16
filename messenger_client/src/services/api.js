@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'https://127.0.0.1:8081'
+const API_URL = 'http://127.0.0.1:8081'
 
 export default {
   register(username, password) {
