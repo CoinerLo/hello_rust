@@ -2,6 +2,28 @@ use tracing::{warn, info, error};
 
 use crate::types::{AppResult, DbPool, ServerError};
 
+#[derive(Debug, serde::Deserialize)]
+pub struct Chat {
+    pub id: i32,
+    pub name: String,
+    pub creator: String,
+}
+
+pub async fn get_all(pool: &DbPool) -> AppResult<Vec<Chat>> {
+    let chats = sqlx::query_as!(
+        Chat,
+        "SELECT id, name, creator FROM group_chats",
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| {
+        error!("Ошибка получения списка чатов из БД: {}", e);
+        ServerError::DatabaseError { context: "Ошибка получения списка чатов из БД".to_string(), source: e }
+    })?;
+
+    Ok(chats)
+}
+
 // создание нового группового чата
 pub async fn create(
     pool: &DbPool,
