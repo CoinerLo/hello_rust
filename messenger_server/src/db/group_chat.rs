@@ -1,13 +1,7 @@
 use tracing::{warn, info, error};
 
-use crate::types::{AppResult, DbPool, ServerError};
+use crate::{types::{AppResult, DbPool, ServerError}, structs::Chat};
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Chat {
-    pub id: i32,
-    pub name: String,
-    pub creator: String,
-}
 
 pub async fn get_all(pool: &DbPool) -> AppResult<Vec<Chat>> {
     let chats = sqlx::query_as!(

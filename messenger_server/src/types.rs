@@ -29,6 +29,10 @@ pub enum ServerError {
     InvalidOperation,
     #[error("Ошибка создания группового чата")]
     CreateGroupChatError,
+    #[error("Ошибка удаления группового чата")]
+    DeleteGroupChatError,
+    #[error("Ошибка загрузки списка чатов")]
+    GetAllGroupChatsError,
 }
 
 pub type AppResult<T> = Result<T, ServerError>;
