@@ -39,3 +39,13 @@ pub async fn delete(
         },
     }
 }
+
+pub async fn get_all(pool: web::Data<DbPool>) -> impl Responder {
+    match chat_service::get_all_group_chats(&pool).await {
+        Ok(chats) => HttpResponse::Ok().json(chats),
+        Err(e) => {
+            error!("Ошибка загрузки списка чатов {}", e);
+            HttpResponse::BadRequest().body("Ошибка загрузки списка чатов")
+        }
+    }
+}
