@@ -69,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .route("/login", web::post().to(auth::login))
                 .route("/chats", web::post().to(chat::create))
                 .route("/chats", web::delete().to(chat::delete))
-                .route("/chats", web::get().to(chat::delete))
+                .route("/chats", web::get().to(chat::get_all))
         })
         .bind("127.0.0.1:8081")
         .unwrap()
