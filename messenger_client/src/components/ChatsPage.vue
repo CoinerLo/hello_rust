@@ -3,7 +3,10 @@
         <h1>Список чатов</h1>
     </div>
     <div>
-        
+        <form @submit.prevent="createChat">
+            <input v-model="chatName" placeholder="Название чата" required />
+            <button>Создать чат</button>
+        </form>
     </div>
 </template>
 
@@ -12,8 +15,23 @@
 
     export default {
         name: 'ChatsPage',
+        data() {
+            return {
+                username: '',
+                chatName: '',
+            };
+        },
         methods: {
-            ...mapActions(['fetchChats']),
+            ...mapActions(['fetchChats', 'createGroupChat']),
+            async createChat() {
+                try {
+                    await this.createGroupChat({ name: this.chatName, creator: this.username });
+                    // this.$router.push('/login');
+                } catch (e) {
+                    console.log(e);
+                    alert('Ошибка создания чата');
+                }
+            },
         },
         mounted() {
             this.fetchChats();
