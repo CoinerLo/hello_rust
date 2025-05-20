@@ -4,7 +4,8 @@ use tokio_tungstenite::{accept_async, WebSocketStream};
 use tokio_tungstenite::tungstenite::Message as WsMessage;
 use futures_util::sink::SinkExt;
 use std::sync::Arc;
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpServer, HttpResponse};
+use actix_cors::Cors;
 use handlers::{auth, chat};
 use serde_json;
 use tokio::sync::{broadcast, Mutex};
@@ -63,13 +64,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let http_db_pool = Arc::clone(&db_pool);
     tokio::spawn(async move {
         HttpServer::new(move || {
+            let cors = Cors::default()
+                .send_wildcard()
+                // .allowed_origin("http://localhost:8082")
+                .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
+                .allowed_headers(vec![
+                    actix_web::http::header::AUTHORIZATION,
+                    actix_web::http::header::ACCEPT,
+                    actix_web::http::header::CONTENT_TYPE,
+                ])
+                .max_age(3600); // Время жизни предварительного запроса (preflight)
+
             App::new()
+                .wrap(cors)
                 .app_data(web::Data::new(http_db_pool.clone()))
                 .route("/register", web::post().to(auth::register))
                 .route("/login", web::post().to(auth::login))
                 .route("/chats", web::post().to(chat::create))
                 .route("/chats", web::delete().to(chat::delete))
                 .route("/chats", web::get().to(chat::get_all))
+                .route("/chats", web::route().guard(actix_web::guard::Options()).to(|| async {
+                    info!("Предварительный запрос OPTIONS обработан");
+                    HttpResponse::Ok()
+                }))
         })
         .bind("127.0.0.1:8081")
         .unwrap()
