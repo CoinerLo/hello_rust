@@ -65,14 +65,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(async move {
         HttpServer::new(move || {
             let cors = Cors::default()
-                .send_wildcard()
-                // .allowed_origin("http://localhost:8082")
-                .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
+                // .send_wildcard()
+                .allowed_origin("http://localhost:8082")
+                .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
                 .allowed_headers(vec![
                     actix_web::http::header::AUTHORIZATION,
                     actix_web::http::header::ACCEPT,
                     actix_web::http::header::CONTENT_TYPE,
                 ])
+                .supports_credentials()
                 .max_age(3600); // Время жизни предварительного запроса (preflight)
 
             App::new()
@@ -86,6 +87,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .route("/chats", web::route().guard(actix_web::guard::Options()).to(|| async {
                     info!("Предварительный запрос OPTIONS обработан");
                     HttpResponse::Ok()
+                        .append_header(("Access-Control-Allow-Origin", "*"))
+                        .append_header(("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"))
+                        .append_header(("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type"))
+                        .finish()
                 }))
         })
         .bind("127.0.0.1:8081")
