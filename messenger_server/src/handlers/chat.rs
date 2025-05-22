@@ -1,6 +1,7 @@
 use actix_web::{web, HttpResponse, Responder};
 use tracing::error;
 use crate::{services::chat_service, types::DbPool};
+use std::sync::Arc;
 
 #[derive(serde::Deserialize)]
 pub struct CreateChat {
@@ -40,8 +41,8 @@ pub async fn delete(
     }
 }
 
-pub async fn get_all(pool: web::Data<DbPool>) -> impl Responder {
-    match chat_service::get_all_group_chats(&pool).await {
+pub async fn get_all(pool: web::Data<Arc<DbPool>>) -> impl Responder {
+    match chat_service::get_all_group_chats(pool.get_ref()).await {
         Ok(chats) => HttpResponse::Ok().json(chats),
         Err(e) => {
             error!("Ошибка загрузки списка чатов {}", e);
