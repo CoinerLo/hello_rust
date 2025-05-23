@@ -29,10 +29,10 @@ pub async fn create(
 }
 
 pub async fn delete(
-    pool: web::Data<DbPool>,
+    pool: web::Data<Arc<DbPool>>,
     data: web::Json<DeleteChat>,
 ) -> impl Responder {
-    match chat_service::delete_group_chat(&pool, data.chat_id, &data.requester).await {
+    match chat_service::delete_group_chat(pool.get_ref(), data.chat_id, &data.requester).await {
         Ok(_) => HttpResponse::Ok().body("Чат удален"),
         Err(e) => {
             error!("Ошибка удаления чата {}", e);
