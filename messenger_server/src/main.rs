@@ -4,7 +4,7 @@ use tokio_tungstenite::{accept_async, WebSocketStream};
 use tokio_tungstenite::tungstenite::Message as WsMessage;
 use futures_util::sink::SinkExt;
 use std::sync::Arc;
-use actix_web::{web, App, HttpServer, HttpResponse};
+use actix_web::{web, App, HttpServer};
 use actix_cors::Cors;
 use handlers::{auth, chat};
 use serde_json;
@@ -72,6 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     actix_web::http::header::AUTHORIZATION,
                     actix_web::http::header::ACCEPT,
                     actix_web::http::header::CONTENT_TYPE,
+                    actix_web::http::header::ACCESS_CONTROL_ALLOW_ORIGIN,
                 ])
                 .supports_credentials()
                 .max_age(3600); // Время жизни предварительного запроса (preflight)
@@ -84,14 +85,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .route("/chats", web::post().to(chat::create))
                 .route("/chats", web::delete().to(chat::delete))
                 .route("/chats", web::get().to(chat::get_all))
-                .route("/chats", web::route().guard(actix_web::guard::Options()).to(|| async {
-                    info!("Предварительный запрос OPTIONS обработан");
-                    HttpResponse::Ok()
-                        .append_header(("Access-Control-Allow-Origin", "*"))
-                        .append_header(("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"))
-                        .append_header(("Access-Control-Allow-Headers", "Authorization, Accept, Content-Type"))
-                        .finish()
-                }))
         })
         .bind("127.0.0.1:8081")
         .unwrap()
