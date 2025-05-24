@@ -8,6 +8,9 @@
             <button>Создать чат</button>
         </form>
     </div>
+    <div>
+        
+    </div>
 </template>
 
 <script>
@@ -25,8 +28,7 @@
             ...mapActions(['fetchChats', 'createGroupChat']),
             async createChat() {
                 try {
-                    await this.createGroupChat({ name: this.chatName, creator: this.username });
-                    // this.$router.push('/login');
+                    await this.createGroupChat(this.chatName);
                 } catch (e) {
                     console.log(e);
                     alert('Ошибка создания чата');
