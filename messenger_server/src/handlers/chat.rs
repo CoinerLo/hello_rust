@@ -16,10 +16,10 @@ pub struct DeleteChat {
 }
 
 pub async fn create(
-    pool: web::Data<DbPool>,
+    pool: web::Data<Arc<DbPool>>,
     form: web::Json<CreateChat>,
 ) -> impl Responder {
-    match chat_service::create_group_chat(&pool, &form.name, &form.creator).await {
+    match chat_service::create_group_chat(pool.get_ref(), &form.name, &form.creator).await {
         Ok(chat_id) => HttpResponse::Ok().body(format!("Чат создан с ID: {}", chat_id)),
         Err(e) => {
             error!("Ошибка создания чата {}", e);
