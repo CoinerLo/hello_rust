@@ -10,10 +10,15 @@
     </div>
     <div>
         <ol v-if="chats.length" class="chat-list">
+            <li class="chat-item">
+                <span>Название</span>
+                <span>Автор</span>
+                <span class="chat-header-title">Вход</span>
+            </li>
             <li v-for="chat in chats" :key="chat.id" class="chat-item">
                 <span>{{chat.name}}</span>
+                <span>{{ chat.creator }}</span>
                 <button @click="openChat(chat.id)">Перейти в чат</button>
-                
             </li>
         </ol>
         <p v-else>Нет доступных чатов.</p>
@@ -44,6 +49,9 @@
                     alert('Ошибка создания чата');
                 }
             },
+            openChat(chatId) {
+                this.$router.push(`/chat/${chatId}`);
+            }
         },
         mounted() {
             this.fetchChats();
@@ -55,6 +63,10 @@
     .chat-list {
         max-width: 600px;
         margin: 0 auto;
+    }
+
+    .chat-header-title {
+        width: 107px;
     }
 
     .chat-item {
