@@ -3,7 +3,7 @@ import api from "@/services/api"
 
 export default createStore({
   state: {
-    user: "example_user",
+    user: "",
     token: null,
     chatName: null,
     chats: [],
@@ -44,8 +44,12 @@ export default createStore({
       commit('addMessage', { chatId, message: response.data });
     },
     async createGroupChat({ commit }, name) {
-      const response = await api.createGroupChat(name, this.state.user);
-      commit('setChats', [ ...this.state.chats, response.data ]);
+      if (this.state.user) {
+        const response = await api.createGroupChat(name, this.state.user);
+        commit('setChats', [ ...this.state.chats, response.data ]);
+      } else {
+        alert("Вы не авторизованы");
+      }
     },
     async addMemberToGroupChat(_, { chatId, username }) {
       await api.addMemberToGroupChat(chatId, username);
