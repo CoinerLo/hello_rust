@@ -11,7 +11,7 @@ export default {
     return instance.post(`/register`, { username, password });
   },
   login(username, password) {
-    return instance.post(`/authenticate`, { username, password });
+    return instance.post(`/login`, { username, password });
   },
   sendMessage(chatId, content) {
     return instance.post(`/send-message`, { chatId, content });
