@@ -1,10 +1,10 @@
 <template>
   <div>
     <h2>Регистрация</h2>
-    <form @submit.prevent="register">
+    <form @submit.prevent="userRegister">
       <input v-model="username" placeholder="Имя пользователя" required />
       <input v-model="password" type="password" placeholder="Пароль" required />
-      <button>Зарегистрироваться</button>
+      <button type="submit">Зарегистрироваться</button>
     </form>
   </div>
 </template>
@@ -21,7 +21,7 @@
     },
     methods: {
       ...mapActions(['register']),
-      async register() {
+      async userRegister() {
         try {
           await this.register({ username: this.username, password: this.password });
           this.$router.push('/login');
