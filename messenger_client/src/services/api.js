@@ -13,15 +13,6 @@ export default {
   login(username, password) {
     return instance.post(`/login`, { username, password });
   },
-  sendMessage(chatId, content) {
-    return instance.post(`/send-message`, { chatId, content });
-  },
-  addMemberToGroupChat(chatId, username) {
-    return instance.post(`/add-member-to-group-chat`, { chatId, username });
-  },
-  removeMemberFroumGroupChat(chatId, username) {
-    return instance.delete(`/remove-member-from-group-chat`, { chatId, username });
-  },
   getGroupChats() {
     return instance.get(`/chats`);
   },
