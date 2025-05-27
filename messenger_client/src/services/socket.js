@@ -3,11 +3,11 @@ const SOCKET_URL = 'ws://127.0.0.1:8080';
 const socket = new WebSocket(SOCKET_URL);
 
 export default {
-  connect() {
+  connect(username) {
     socket.onopen = () => {
       console.log('Соединение установлено');
       // Отправляем сообщение о присоединении
-      socket.send(JSON.stringify({ type: 'Join', username: 'example_user' }));
+      socket.send(JSON.stringify({ type: 'Join', username }));
     };
 
     socket.onmessage = (event) => {
