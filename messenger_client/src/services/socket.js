@@ -1,9 +1,10 @@
 const SOCKET_URL = 'ws://127.0.0.1:8080';
 
-const socket = new WebSocket(SOCKET_URL);
+let socket = null;
 
 export default {
   connect(username) {
+    socket = new WebSocket(SOCKET_URL);
     socket.onopen = () => {
       console.log('Соединение установлено');
       // Отправляем сообщение о присоединении

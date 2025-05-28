@@ -11,6 +11,7 @@
 
 <script>
   import { mapActions } from 'vuex';
+  import socket from "../services/socket.js";
 
   export default {
     data: function() {
@@ -24,6 +25,7 @@
       async userLogin() {
         try {
           await this.login({ username: this.username, password: this.password });
+          socket.connect(this.username);
           this.$router.push('/chat');
         } catch (e) {
           alert('Ошибка авторизации')

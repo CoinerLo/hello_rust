@@ -5,10 +5,6 @@
 </template>
 
 <script>
-    import socket from "./services/socket.js";
-
-    socket.connect();
-
     export default {
         name: 'App',
     }
