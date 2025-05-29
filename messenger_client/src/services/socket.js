@@ -1,7 +1,5 @@
 const SOCKET_URL = 'ws://127.0.0.1:8080';
 
-let socket = null;
-
 class WebSocketManager {
   constructor(store) {
     this.socket = null;
@@ -14,7 +12,7 @@ class WebSocketManager {
     this.socket.onopen = () => {
       console.log('Соединение установлено');
       // Отправляем сообщение о присоединении
-      socket.send(JSON.stringify({ type: 'Join', username }));
+      this.socket.send(JSON.stringify({ type: 'Join', username }));
     };
 
     this.socket.onmessage = (event) => {
@@ -53,6 +51,7 @@ class WebSocketManager {
         break;
       case 'ErrorMessage':
         console.error('Ошибка: ', message.error);
+        break;
       default:
         console.warn("Неизвестный тип сообщения:", message.type);
     }
