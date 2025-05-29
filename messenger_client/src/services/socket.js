@@ -20,6 +20,7 @@ class WebSocketManager {
     this.socket.onmessage = (event) => {
       console.log('Получено сообщение:', event.data);
       const message = JSON.parse(event.data);
+      this.handleIncomingMessage(message);
     };
 
     this.socket.onclose = () => {
@@ -29,6 +30,20 @@ class WebSocketManager {
     this.socket.onerror = (error) => {
       console.error('Ошибка WebSocket:', error);
     };
+  }
+
+  disconnect() {
+    if (this.socket) {
+      this.socket.close();
+    }
+  }
+
+  sendMessage(message) {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message));
+    } else {
+      console.error("WebSocket не подключен");
+    }
   }
 
   handleIncomingMessage(message) {
@@ -44,24 +59,6 @@ class WebSocketManager {
   }
 }
 
-export default {
-  connect(username) {
-
-
-
-  },
-
-  disconnect() {
-    socket.close();
-  },
-
-  onMessage(callback) {
-    socket.onmessage = (event) => {
-      callback(JSON.parse(event.data));
-    };
-  },
-
-  sendMessage(message) {
-    socket.send(JSON.stringify(message));
-  },
-};
+export default function createWebSocketManager(store) {
+  return new WebSocketManager(store);
+}
