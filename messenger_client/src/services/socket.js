@@ -2,26 +2,53 @@ const SOCKET_URL = 'ws://127.0.0.1:8080';
 
 let socket = null;
 
-export default {
+class WebSocketManager {
+  constructor(store) {
+    this.socket = null;
+    this.store = store;
+  }
+
   connect(username) {
-    socket = new WebSocket(SOCKET_URL);
-    socket.onopen = () => {
+    this.socket = new WebSocket(SOCKET_URL);
+
+    this.socket.onopen = () => {
       console.log('Соединение установлено');
       // Отправляем сообщение о присоединении
       socket.send(JSON.stringify({ type: 'Join', username }));
     };
 
-    socket.onmessage = (event) => {
+    this.socket.onmessage = (event) => {
       console.log('Получено сообщение:', event.data);
+      const message = JSON.parse(event.data);
     };
 
-    socket.onclose = () => {
+    this.socket.onclose = () => {
       console.log('Соединение закрыто');
     };
 
-    socket.onerror = (error) => {
+    this.socket.onerror = (error) => {
       console.error('Ошибка WebSocket:', error);
     };
+  }
+
+  handleIncomingMessage(message) {
+    switch (message.type) {
+      case 'ReceiveMessage':
+        this.store.dispatch('addMessage', message);
+        break;
+      case 'ErrorMessage':
+        console.error('Ошибка: ', message.error);
+      default:
+        console.warn("Неизвестный тип сообщения:", message.type);
+    }
+  }
+}
+
+export default {
+  connect(username) {
+
+
+
   },
 
   disconnect() {
