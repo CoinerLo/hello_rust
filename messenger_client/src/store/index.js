@@ -8,6 +8,7 @@ export default createStore({
     chatName: null,
     chats: [],
     messanges: {},
+    isConnected: false,
   },
   mutations: {
     setUser(state, user) {
@@ -24,6 +25,9 @@ export default createStore({
         state.messanges[chatId] = [];
       }
       state.messanges[chatId].push(message);
+    },
+    setConnectionStatus(state, status) {
+      state.isConnected = status;
     },
   },
   actions: {
@@ -60,6 +64,9 @@ export default createStore({
     async deleteGroupChat({ commit }, chatId) {
       await api.deleteGroupChat(chatId);
       commit('setChats', this.state.chats.filter((chat) => chat.id !== chatId));
+    },
+    async addMessage({ commit }, message) {
+      commit('addMessage', message);
     },
   },
 });
