@@ -47,7 +47,7 @@ class WebSocketManager {
   handleIncomingMessage(message) {
     switch (message.type) {
       case 'ReceiveMessage':
-        this.store.dispatch('addMessage', message);
+        this.store.dispatch('addMessage', { chatId: 'general', message });
         break;
       case 'ErrorMessage':
         console.error('Ошибка: ', message.error);

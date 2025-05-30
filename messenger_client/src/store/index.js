@@ -7,7 +7,9 @@ export default createStore({
     token: null,
     chatName: null,
     chats: [],
-    messanges: {},
+    messanges: {
+      general: [],
+    },
     isConnected: false,
   },
   mutations: {
