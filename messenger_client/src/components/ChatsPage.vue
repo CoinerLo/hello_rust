@@ -23,6 +23,14 @@
         </ol>
         <p v-else>Нет доступных чатов.</p>
     </div>
+    <div>
+        <h2>Общий чат</h2>
+        <ul>
+            <li v-for="(message, index) in messanges.general" :key="index">
+                <strong>{{ message.sender }}:</strong> {{ message.content }}
+            </li>
+        </ul>
+    </div>
 </template>
 
 <script>
@@ -37,7 +45,7 @@
             };
         },
         computed: {
-            ...mapState(['chats']),
+            ...mapState(['chats', 'messanges']),
         },
         methods: {
             ...mapActions(['fetchChats', 'createGroupChat']),
