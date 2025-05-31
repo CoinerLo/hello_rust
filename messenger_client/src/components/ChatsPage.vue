@@ -30,11 +30,16 @@
                 <strong>{{ message.sender }}:</strong> {{ message.content }}
             </li>
         </ul>
+        <form @submit.prevent="sendNewMessage">
+            <input v-model="newMessage" placeholder="Введите сообщение" required />
+            <button type="submit">Отправить</button>
+        </form>
     </div>
 </template>
 
 <script>
     import { mapActions, mapState } from "vuex";
+    import { webSocketManager } from '../main';
 
     export default {
         name: 'ChatsPage',
@@ -42,6 +47,7 @@
             return {
                 username: '',
                 chatName: '',
+                newMessage: '',
             };
         },
         computed: {
@@ -59,7 +65,13 @@
             },
             openChat(chatId) {
                 this.$router.push(`/chat/${chatId}`);
-            }
+            },
+            sendNewMessage() {
+                if (this.newMessage.trim()) {
+                    webSocketManager.sendMessage({ type: 'SendMessage', content:  this.newMessage });
+                    this.newMessage = '';
+                }
+            },
         },
         mounted() {
             this.fetchChats();
