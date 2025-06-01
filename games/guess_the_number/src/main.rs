@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::io;
+use std::cmp::Ordering;
 
 fn main() {
     println!("Добро пожаловать в игру 'Угадай число'!");
@@ -23,5 +24,14 @@ fn main() {
         };
 
         println!("Вы ввели: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Слишком маленькое!"),
+            Ordering::Greater => println!("Слишком большое!"),
+            Ordering::Equal => {
+                println!("Вы угадали!");
+                break;
+            }
+        }
     }
 }
