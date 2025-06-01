@@ -13,5 +13,15 @@ fn main() {
         io::stdin()
             .read_line(&mut guess)
             .expect("Неудалось прочитать строку!");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(e) => {
+                println!("Ошибка ввода: {}", e);
+                continue;
+            },
+        };
+
+        println!("Вы ввели: {}", guess);
     }
 }
