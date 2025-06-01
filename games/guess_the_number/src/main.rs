@@ -21,12 +21,33 @@ fn main() {
             println!("Необходимо выбрать 1, 2 или 3");
             return;
         }
-    }
+    };
 
-    let secret_number = rand::rng().random_range(1..=100);
+    let (range, max_attempts) = match difficulty {
+        1 => (50, 10),
+        2 => (100, 7),
+        3 => (200, 5),
+        _ => {
+            println!("Неверный выбор уровня сложности!");
+            return;
+        }
+    };
+
+    println!(
+        "Вы выбрали уровень {}. Загадано число от 1 до {}. У вас {} попыток.",
+        difficulty, range, max_attempts
+    );
+
+    let secret_number = rand::rng().random_range(1..=range);
+    let mut attempts = 0;
 
     loop {
-        println!("Пожалуйста, введите ваше предположение:");
+        if attempts >= max_attempts {
+            println!("Вы исчерпали все попытки! Загаданное число было: {}", secret_number);
+            break;
+        }
+
+        println!("Попытка {}/{}. Введите ваше предположение:", attempts + 1, max_attempts);
 
         let mut guess = String::new();
         io::stdin()
@@ -51,5 +72,6 @@ fn main() {
                 break;
             }
         }
+        attempts += 1;
     }
 }
