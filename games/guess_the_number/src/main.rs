@@ -12,7 +12,7 @@ fn main() {
         range, max_attempts
     );
 
-    let secret_number = rand::rng().random_range(1..=range);
+    let secret_number = generate_random_number(range);
     let mut attempts = 0;
 
     loop {
@@ -70,4 +70,8 @@ fn choose_difficulty() -> (u32, u32) {
             std::process::exit(1);
         }
     }
+}
+
+fn generate_random_number(range: u32) -> u32 {
+    rand::rng().random_range(1..=range)
 }
