@@ -5,37 +5,11 @@ use std::cmp::Ordering;
 fn main() {
     println!("Добро пожаловать в игру 'Угадай число'!");
 
-    println!("Выберите уровень сложности:");
-    println!("1. Легкий (Диапазон 1-50 включительно, 10 попыток)");
-    println!("2. Средний (Диапазон 1-100 включительно, 7 попыток)");
-    println!("3. Сложный (Диапазон 1-200 включительно, 5 попыток)");
-
-    let mut difficulty = String::new();
-    io::stdin()
-        .read_line(&mut difficulty)
-        .expect("Выберите 1, 2 или 3");
-
-    let difficulty: u32 = match difficulty.trim().parse() {
-        Ok(num) => num,
-        Err(_) => {
-            println!("Необходимо выбрать 1, 2 или 3");
-            return;
-        }
-    };
-
-    let (range, max_attempts) = match difficulty {
-        1 => (50, 10),
-        2 => (100, 7),
-        3 => (200, 5),
-        _ => {
-            println!("Неверный выбор уровня сложности!");
-            return;
-        }
-    };
+    let (range, max_attempts) = choose_difficulty();
 
     println!(
-        "Вы выбрали уровень {}. Загадано число от 1 до {}. У вас {} попыток.",
-        difficulty, range, max_attempts
+        "Загадано число от 1 до {}. У вас {} попыток.",
+        range, max_attempts
     );
 
     let secret_number = rand::rng().random_range(1..=range);
@@ -73,5 +47,27 @@ fn main() {
             }
         }
         attempts += 1;
+    }
+}
+
+fn choose_difficulty() -> (u32, u32) {
+    println!("Выберите уровень сложности:");
+    println!("1. Легкий (Диапазон 1-50 включительно, 10 попыток)");
+    println!("2. Средний (Диапазон 1-100 включительно, 7 попыток)");
+    println!("3. Сложный (Диапазон 1-200 включительно, 5 попыток)");
+
+    let mut difficulty = String::new();
+    io::stdin()
+        .read_line(&mut difficulty)
+        .expect("Выберите 1, 2 или 3");
+
+    match difficulty.trim().parse::<u32>() {
+        Ok(1) => (50, 10),
+        Ok(2) => (100, 7),
+        Ok(3) => (200, 5),
+        _ => {
+            println!("Неверный выбор уровня сложности!");
+            std::process::exit(1);
+        }
     }
 }
