@@ -13,41 +13,8 @@ fn main() {
     );
 
     let secret_number = generate_random_number(range);
-    let mut attempts = 0;
 
-    loop {
-        if attempts >= max_attempts {
-            println!("Вы исчерпали все попытки! Загаданное число было: {}", secret_number);
-            break;
-        }
-
-        println!("Попытка {}/{}. Введите ваше предположение:", attempts + 1, max_attempts);
-
-        let mut guess = String::new();
-        io::stdin()
-            .read_line(&mut guess)
-            .expect("Неудалось прочитать строку!");
-
-        let guess: u32 = match guess.trim().parse() {
-            Ok(num) => num,
-            Err(e) => {
-                println!("Ошибка ввода: {}", e);
-                continue;
-            },
-        };
-
-        println!("Вы ввели: {}", guess);
-
-        match guess.cmp(&secret_number) {
-            Ordering::Less => println!("Слишком маленькое!"),
-            Ordering::Greater => println!("Слишком большое!"),
-            Ordering::Equal => {
-                println!("Вы угадали!");
-                break;
-            }
-        }
-        attempts += 1;
-    }
+    play_game(secret_number, max_attempts);
 }
 
 fn choose_difficulty() -> (u32, u32) {
@@ -74,4 +41,47 @@ fn choose_difficulty() -> (u32, u32) {
 
 fn generate_random_number(range: u32) -> u32 {
     rand::rng().random_range(1..=range)
+}
+
+fn play_game(secret_number: u32, max_attempts: u32) {
+    let mut attempts = 0;
+
+    loop {
+        if attempts >= max_attempts {
+            println!("Вы исчерпали все попытки! Загаданное число было: {}", secret_number);
+            break;
+        }
+
+        println!("Попытка {}/{}. Введите ваше предположение:", attempts + 1, max_attempts);
+
+        let guess = read_user_input();
+
+        println!("Вы ввели: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Слишком маленькое!"),
+            Ordering::Greater => println!("Слишком большое!"),
+            Ordering::Equal => {
+                println!("Вы угадали!");
+                break;
+            }
+        }
+        attempts += 1;
+    }
+}
+
+fn read_user_input() -> u32 {
+    loop {
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Неудалось прочитать строку!");
+
+        match input.trim().parse::<u32>() {
+            Ok(num) => return num,
+            Err(e) => {
+                println!("Ошибка ввода: {}", e);
+            },
+        }
+    }
 }
