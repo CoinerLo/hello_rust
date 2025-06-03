@@ -89,3 +89,15 @@ fn read_user_input() -> u32 {
 fn compare_numbers(guess: u32, secret_number: u32) -> Ordering {
     guess.cmp(&secret_number)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compare_numbers() {
+        assert_eq!(compare_numbers(10, 20), Ordering::Less);
+        assert_eq!(compare_numbers(30, 20), Ordering::Greater);
+        assert_eq!(compare_numbers(25, 25), Ordering::Equal);
+    }
+}
