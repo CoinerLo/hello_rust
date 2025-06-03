@@ -58,7 +58,7 @@ fn play_game(secret_number: u32, max_attempts: u32) {
 
         println!("Вы ввели: {}", guess);
 
-        match guess.cmp(&secret_number) {
+        match compare_numbers(guess, secret_number) {
             Ordering::Less => println!("Слишком маленькое!"),
             Ordering::Greater => println!("Слишком большое!"),
             Ordering::Equal => {
@@ -84,4 +84,8 @@ fn read_user_input() -> u32 {
             },
         }
     }
+}
+
+fn compare_numbers(guess: u32, secret_number: u32) -> Ordering {
+    guess.cmp(&secret_number)
 }
