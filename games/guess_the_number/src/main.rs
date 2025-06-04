@@ -100,4 +100,30 @@ mod tests {
         assert_eq!(compare_numbers(30, 20), Ordering::Greater);
         assert_eq!(compare_numbers(25, 25), Ordering::Equal);
     }
+
+    #[test]
+    fn test_generate_random_number() {
+        let range = 100;
+        let number = generate_random_number(range);
+        assert!(number >= 1 && number <= range);
+    }
+
+    #[test]
+    fn test_read_user_input_valid() {
+        let input = "42\n";
+        let mut mock_input = input.as_bytes();
+        let result = resd_user_input_from_mock(&mut mock_input);
+        assert_eq!(result, 42);
+    }
+
+    fn resd_user_input_from_mock(input: &mut dyn io::BufRead) -> u32 {
+        loop {
+            let mut buffer = String::new();
+            input.read_line(&mut buffer).unwrap();
+            match buffer.trim().parse::<u32>() {
+                Ok(num) => return num,
+                Err(_) => continue,
+            }
+        }
+    }
 }
