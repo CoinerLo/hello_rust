@@ -116,6 +116,14 @@ mod tests {
         assert_eq!(result, 42);
     }
 
+    #[test]
+    fn test_read_user_input_invalid_then_valid() {
+        let input = "abc\n47\n";
+        let mut mock_input = input.as_bytes();
+        let result = resd_user_input_from_mock(&mut mock_input);
+        assert_eq!(result, 47);
+    }
+
     fn resd_user_input_from_mock(input: &mut dyn io::BufRead) -> u32 {
         loop {
             let mut buffer = String::new();
