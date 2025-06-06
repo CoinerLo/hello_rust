@@ -18,6 +18,32 @@ struct Universe {
     cells: Vec<Cell>,
 }
 
+impl Universe {
+    fn new(width: usize, height: usize) -> Universe {
+
+    }
+
+    fn set_cell(&mut self, row: usize, col: usize, state: Cell) {
+        
+    }
+
+    fn get_index(&self, row: usize, col: usize) -> usize {
+
+    }
+
+    fn live_neighbor_count(&self, row: usize, col: usize) -> u8 {
+
+    }
+
+    fn tick(&mut self) {
+
+    }
+
+    fn render(&self) -> String {
+        
+    }
+}
+
 fn main() {
     println!("Hello, world!");
 }
