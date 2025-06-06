@@ -20,7 +20,12 @@ struct Universe {
 
 impl Universe {
     fn new(width: usize, height: usize) -> Universe {
-
+        let cells = vec![Cell::Dead; width * height];
+        Universe {
+            width,
+            height,
+            cells,
+        }
     }
 
     fn set_cell(&mut self, row: usize, col: usize, state: Cell) {
@@ -40,7 +45,7 @@ impl Universe {
     }
 
     fn render(&self) -> String {
-        
+
     }
 }
 
