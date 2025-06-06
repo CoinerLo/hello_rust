@@ -29,11 +29,12 @@ impl Universe {
     }
 
     fn set_cell(&mut self, row: usize, col: usize, state: Cell) {
-        
+        let idx = self.get_index(row, col);
+        self.cells[idx] = state;
     }
 
     fn get_index(&self, row: usize, col: usize) -> usize {
-
+        row * self.width + col
     }
 
     fn live_neighbor_count(&self, row: usize, col: usize) -> u8 {
