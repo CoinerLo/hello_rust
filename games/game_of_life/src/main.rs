@@ -38,7 +38,23 @@ impl Universe {
     }
 
     fn live_neighbor_count(&self, row: usize, col: usize) -> u8 {
+        let mut count = 0;
+        for delta_row in [self.height - 1, 0, 1].iter().cloned() {
+            for delta_col in [self.width - , 0, 1].iter().cloned() {
+                if delta_row == 0 && delta_col == 0 {
+                    continue;
+                }
+                let neighbor_row = (row + delta_row) % self.height;
+                let neighbor_col = (col + delta_col) % self.width;
+                let idx = self.get_index(neighbor_row, neighbor_col);
+                count += match self.cells[idx] {
+                    Cell::Alive => 1,
+                    Cell::Dead => 0,
+                }
 
+            }
+        }
+        count
     }
 
     fn tick(&mut self) {
