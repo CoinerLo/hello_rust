@@ -92,5 +92,21 @@ impl Universe {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let mut universe = Universe::new(10, 5);
+
+    universe.set_cell(2, 3, Cell::Alive);
+    universe.set_cell(2, 4, Cell::Alive);
+    universe.set_cell(2, 5, Cell::Alive);
+    universe.set_cell(3, 3, Cell::Alive);
+    universe.set_cell(3, 4, Cell::Alive);
+    universe.set_cell(3, 5, Cell::Alive);
+    universe.set_cell(4, 4, Cell::Alive);
+    universe.set_cell(1, 3, Cell::Alive);
+    universe.set_cell(1, 5, Cell::Alive);
+
+    for state in 0..5 {
+        println!("{} -----------------------", state);
+        println!("{}", universe.render());
+        universe.tick();
+    }
 }
