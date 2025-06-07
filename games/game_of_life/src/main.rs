@@ -40,7 +40,7 @@ impl Universe {
     fn live_neighbor_count(&self, row: usize, col: usize) -> u8 {
         let mut count = 0;
         for delta_row in [self.height - 1, 0, 1].iter().cloned() {
-            for delta_col in [self.width - , 0, 1].iter().cloned() {
+            for delta_col in [self.width - 1, 0, 1].iter().cloned() {
                 if delta_row == 0 && delta_col == 0 {
                     continue;
                 }
@@ -71,8 +71,7 @@ impl Universe {
                     (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, 3) => Cell::Alive,
                     (otherwisw, _) => otherwisw,
-                }
-
+                };
                 next[idx] = next_cell;
             }
         }
@@ -80,7 +79,15 @@ impl Universe {
     }
 
     fn render(&self) -> String {
-
+        self.cells
+            .chunks(self.width)
+            .map(|row| {
+                row.iter()
+                    .map(|cell| format!("{}", cell))
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
     }
 }
 
