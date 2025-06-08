@@ -70,7 +70,7 @@ impl Universe {
                     (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
                     (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, 3) => Cell::Alive,
-                    (otherwisw, _) => otherwisw,
+                    (otherwise, _) => otherwise,
                 };
                 next[idx] = next_cell;
             }
@@ -108,5 +108,23 @@ fn main() {
         println!("{} -----------------------", state);
         println!("{}", universe.render());
         universe.tick();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_live_neighbor_count() {
+        let mut universe = Universe::new(3, 3);
+        universe.set_cell(0, 1, Cell::Alive);
+        universe.set_cell(1, 2, Cell::Alive);
+        universe.set_cell(2, 0, Cell::Alive);
+
+        assert_eq!(universe.live_neighbor_count(1, 1), 3);
+        assert_eq!(universe.live_neighbor_count(2, 0), 0);
+        assert_eq!(universe.live_neighbor_count(0, 0), 1);
+        assert_eq!(universe.live_neighbor_count(2, 2), 1);
     }
 }
