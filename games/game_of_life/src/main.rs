@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Cell {
     Alive,
     Dead,
@@ -127,5 +127,31 @@ mod tests {
         assert_eq!(universe.live_neighbor_count(2, 0), 0);
         assert_eq!(universe.live_neighbor_count(0, 0), 1);
         assert_eq!(universe.live_neighbor_count(2, 2), 1);
+    }
+
+    #[test]
+    fn test_tick_rules() {
+        let mut universe = Universe::new(3, 3);
+
+        universe.set_cell(0, 1, Cell::Alive);
+        universe.set_cell(1, 2, Cell::Alive);
+        universe.set_cell(2, 0, Cell::Alive);
+
+        universe.tick();
+        assert_eq!(universe.cells[universe.get_index(1, 1)], Cell::Alive);
+
+        let mut universe = Universe::new(3, 3);
+
+        universe.set_cell(0, 1, Cell::Alive);
+        universe.set_cell(1, 2, Cell::Alive);
+        universe.set_cell(2, 0, Cell::Alive);
+
+        universe.tick();
+        assert_eq!(universe.cells[universe.get_index(0, 1)], Cell::Dead);
+
+        let mut universe = Universe::new(3, 3);
+        universe.set_cell(1, 1, Cell::Alive);
+        universe.tick();
+        assert_eq!(universe.cells[universe.get_index(1, 1)], Cell::Dead);
     }
 }
