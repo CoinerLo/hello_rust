@@ -39,19 +39,20 @@ impl Universe {
 
     fn live_neighbor_count(&self, row: usize, col: usize) -> u8 {
         let mut count = 0;
-        for delta_row in [self.height - 1, 0, 1].iter().cloned() {
-            for delta_col in [self.width - 1, 0, 1].iter().cloned() {
+        for delta_row in [-1_isize, 0, 1].iter().cloned() {
+            for delta_col in [-1_isize, 0, 1].iter().cloned() {
                 if delta_row == 0 && delta_col == 0 {
                     continue;
                 }
-                let neighbor_row = (row + delta_row) % self.height;
-                let neighbor_col = (col + delta_col) % self.width;
-                let idx = self.get_index(neighbor_row, neighbor_col);
-                count += match self.cells[idx] {
-                    Cell::Alive => 1,
-                    Cell::Dead => 0,
+                let neighbor_row = row as isize + delta_row;
+                let neighbor_col = col as isize + delta_col;
+                if neighbor_row >= 0 && neighbor_row < self.height as isize && neighbor_col >= 0 && neighbor_col < self.width as isize {
+                    let idx = self.get_index(neighbor_row as usize, neighbor_col as usize);
+                    count += match self.cells[idx] {
+                        Cell::Alive => 1,
+                        Cell::Dead => 0,
+                    }
                 }
-
             }
         }
         count
