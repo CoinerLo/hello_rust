@@ -1,4 +1,10 @@
-use std::fmt;
+use std::{fmt, io::stdout, io::Result, time::Duration, thread};
+use crossterm::{
+    cursor,
+    execute,
+    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
+    terminal::{self, Clear, ClearType},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Cell {
@@ -92,8 +98,8 @@ impl Universe {
     }
 }
 
-fn main() {
-    let mut universe = Universe::new(10, 5);
+fn main() -> Result<()> {
+    let mut universe = Universe::new(20, 10);
 
     universe.set_cell(2, 3, Cell::Alive);
     universe.set_cell(2, 4, Cell::Alive);
@@ -105,11 +111,21 @@ fn main() {
     universe.set_cell(1, 3, Cell::Alive);
     universe.set_cell(1, 5, Cell::Alive);
 
-    for state in 0..5 {
-        println!("{} -----------------------", state);
-        println!("{}", universe.render());
-        universe.tick();
-    }
+    let mut stdout = stdout();
+    execute!(stdout, terminal::EnterAlternateScreen);
+    terminal::enable_raw_mode()?;
+    execute!(stdout, cursor::Hide)?;
+
+    // for state in 0..5 {
+    //     println!("{} -----------------------", state);
+    //     println!("{}", universe.render());
+    //     universe.tick();
+    // }
+
+
+    terminal::disable_raw_mode()?;
+    execute!(stdout, terminal::LeaveAlternateScreen, cursor::Show)?;
+    Ok(())
 }
 
 #[cfg(test)]
