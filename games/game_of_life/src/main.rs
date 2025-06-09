@@ -2,6 +2,7 @@ use std::{fmt, io::stdout, io::Result, time::Duration, thread};
 use crossterm::{
     cursor,
     execute,
+    event::{self, Event, KeyCode},
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
     terminal::{self, Clear, ClearType},
 };
@@ -116,12 +117,34 @@ fn main() -> Result<()> {
     terminal::enable_raw_mode()?;
     execute!(stdout, cursor::Hide)?;
 
-    // for state in 0..5 {
-    //     println!("{} -----------------------", state);
-    //     println!("{}", universe.render());
-    //     universe.tick();
-    // }
+    loop {
+        execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
+        for (y, line) in universe.render().lines().enumerate() {
+            execute!(stdout, cursor::MoveTo(0, y as u16))?;
+            for ch in line.chars() {
+                if ch == '■' {
+                    execute!(
+                        stdout,
+                        SetForegroundColor(Color::Green),
+                        SetBackgroundColor(Color::Black),
+                        Print(ch),
+                        ResetColor,
+                    )?;
+                } else {
+                    execute!(
+                        stdout,
+                        SetForegroundColor(Color::White),
+                        SetBackgroundColor(Color::Black),
+                        Print(ch),
+                        ResetColor,
+                    )?;
+                }
+            }
+        }
+        universe.tick();
+        thread::sleep(Duration::from_millis(100));
+    }
 
     terminal::disable_raw_mode()?;
     execute!(stdout, terminal::LeaveAlternateScreen, cursor::Show)?;
