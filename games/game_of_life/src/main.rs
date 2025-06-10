@@ -113,11 +113,21 @@ fn main() -> Result<()> {
     universe.set_cell(1, 5, Cell::Alive);
 
     let mut stdout = stdout();
-    execute!(stdout, terminal::EnterAlternateScreen);
+    execute!(stdout, terminal::EnterAlternateScreen)?;
     terminal::enable_raw_mode()?;
     execute!(stdout, cursor::Hide)?;
 
+    let max_ticks = 100;
+    let mut ticks = 0;
+
     loop {
+        if event::poll(Duration::from_millis(0))? {
+            if let Event::Key(event) = event::read()? {
+                if event.code == KeyCode::Char('q') {
+                    break;
+                }
+            }
+        }
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
         for (y, line) in universe.render().lines().enumerate() {
@@ -144,6 +154,12 @@ fn main() -> Result<()> {
         }
         universe.tick();
         thread::sleep(Duration::from_millis(100));
+
+        ticks += 1;
+
+        if ticks >= max_ticks {
+            break;
+        }
     }
 
     terminal::disable_raw_mode()?;
