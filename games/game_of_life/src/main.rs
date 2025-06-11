@@ -2,7 +2,7 @@ use std::{fmt, io::stdout, io::Result, time::Duration, thread};
 use crossterm::{
     cursor,
     execute,
-    event::{self, Event, KeyCode},
+    event::{self, Event, KeyCode, KeyEvent},
     style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
     terminal::{self, Clear, ClearType},
 };
@@ -117,17 +117,29 @@ fn main() -> Result<()> {
     terminal::enable_raw_mode()?;
     execute!(stdout, cursor::Hide)?;
 
+    let mut is_paused = false;
+    let mut tick_duration = Duration::from_millis(1000);
     let max_ticks = 100;
     let mut ticks = 0;
 
     loop {
         if event::poll(Duration::from_millis(0))? {
-            if let Event::Key(event) = event::read()? {
-                if event.code == KeyCode::Char('q') {
-                    break;
+            if let Event::Key(KeyEvent { code, .. }) = event::read()? {
+                match code {
+                    KeyCode::Char('q') => break,
+                    KeyCode::Char('p') => is_paused = !is_paused,
+                    KeyCode::Char('+') => tick_duration = tick_duration.saturating_sub(Duration::from_millis(100)),
+                    KeyCode::Char('-') => tick_duration += Duration::from_millis(100),
+                    _ => {}
                 }
             }
         }
+
+        if is_paused {
+            thread::sleep(Duration::from_millis(100));
+            continue;
+        }
+
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
         for (y, line) in universe.render().lines().enumerate() {
@@ -153,7 +165,7 @@ fn main() -> Result<()> {
             }
         }
         universe.tick();
-        thread::sleep(Duration::from_millis(100));
+        thread::sleep(tick_duration);
 
         ticks += 1;
 
