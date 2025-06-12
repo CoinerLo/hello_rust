@@ -218,6 +218,13 @@ fn main() -> Result<()> {
             ticks,
             if is_paused { "Yes" } else { "No" },
         );
+        execute!(
+            stdout,
+            cursor::MoveTo(0, universe.height as u16),
+            SetForegroundColor(Color::Cyan),
+            Print(status),
+            ResetColor,
+        )?;
 
         thread::sleep(tick_duration);
     }
