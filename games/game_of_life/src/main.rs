@@ -203,13 +203,23 @@ fn main() -> Result<()> {
             }
         }
 
-        thread::sleep(tick_duration);
-
+        
         ticks += 1;
-
+        
         if ticks >= max_ticks {
             break;
         }
+
+        let live_cells = universe.count_live_cells();
+        let status = format!(
+            "Live cells: {}, Speed: {}ms, Ticks: {}, Paused: {}",
+            live_cells,
+            tick_duration.as_millis(),
+            ticks,
+            if is_paused { "Yes" } else { "No" },
+        );
+
+        thread::sleep(tick_duration);
     }
 
     terminal::disable_raw_mode()?;
