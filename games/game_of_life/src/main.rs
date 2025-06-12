@@ -101,6 +101,10 @@ impl Universe {
             .collect::<Vec<String>>()
             .join("\n")
     }
+
+    fn count_live_cells(&self) -> usize {
+        self.cells.iter().filter(|&&cell| cell == Cell::Alive).count()
+    }
 }
 
 fn main() -> Result<()> {
