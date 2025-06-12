@@ -1,4 +1,4 @@
-use std::{fmt, io::stdout, io::Result, time::Duration, thread};
+use std::{io::stdout, io::Result, time::Duration, thread};
 use crossterm::{
     cursor,
     execute,
@@ -11,12 +11,6 @@ use crossterm::{
 enum Cell {
     Alive,
     Dead,
-}
-
-impl fmt::Display for Cell {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", if *self == Cell::Alive { "■" } else { " " })
-    }
 }
 
 struct Universe {
@@ -86,12 +80,22 @@ impl Universe {
         self.cells = next;
     }
 
-    fn render(&self) -> String {
+    fn render(&self, selected_row: Option<usize>, selected_col: Option<usize>) -> String {
         self.cells
             .chunks(self.width)
-            .map(|row| {
+            .enumerate()
+            .map(|(y, row)| {
                 row.iter()
-                    .map(|cell| format!("{}", cell))
+                    .enumerate()
+                    .map(|(x, cell)| {
+                        if Some(y) == selected_row && Some(x) == selected_col {
+                            format!("*")
+                        } else if *cell == Cell::Alive {
+                            "■".to_string()
+                        } else {
+                            " ".to_string()
+                        }
+                    })
                     .collect::<String>()
             })
             .collect::<Vec<String>>()
@@ -121,6 +125,8 @@ fn main() -> Result<()> {
     let mut tick_duration = Duration::from_millis(1000);
     let max_ticks = 100;
     let mut ticks = 0;
+    let mut selected_row: usize = 0;
+    let mut selected_col: usize = 0;
 
     loop {
         if event::poll(Duration::from_millis(0))? {
@@ -130,22 +136,44 @@ fn main() -> Result<()> {
                     KeyCode::Char('p') => is_paused = !is_paused,
                     KeyCode::Char('+') => tick_duration = tick_duration.saturating_sub(Duration::from_millis(100)),
                     KeyCode::Char('-') => tick_duration += Duration::from_millis(100),
+                    KeyCode::Up => selected_row = selected_row.saturating_sub(1),
+                    KeyCode::Down => selected_row = (selected_row + 1).min(universe.height - 1),
+                    KeyCode::Left => selected_col = selected_col.saturating_sub(1),
+                    KeyCode::Right => selected_col = (selected_col + 1).min(universe.width - 1),
+                    KeyCode::Enter | KeyCode::Char(' ') => {
+                        if is_paused {
+                            let current_state = universe.cells[universe.get_index(selected_row, selected_col)];
+                            let new_state = if current_state == Cell::Alive {
+                                Cell::Dead
+                            } else {
+                                Cell::Alive
+                            };
+                            universe.set_cell(selected_row, selected_col, new_state);
+                        }
+                    },
                     _ => {}
                 }
             }
         }
 
-        if is_paused {
-            thread::sleep(Duration::from_millis(100));
-            continue;
+        if !is_paused {
+            universe.tick();
         }
 
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
-        for (y, line) in universe.render().lines().enumerate() {
+        for (y, line) in universe.render(Some(selected_row), Some(selected_col)).lines().enumerate() {
             execute!(stdout, cursor::MoveTo(0, y as u16))?;
             for ch in line.chars() {
-                if ch == '■' {
+                if ch == '*' {
+                    execute!(
+                        stdout,
+                        SetForegroundColor(Color::Red),
+                        SetBackgroundColor(Color::Black),
+                        Print(ch),
+                        ResetColor,
+                    )?;
+                } else if ch == '■' {
                     execute!(
                         stdout,
                         SetForegroundColor(Color::Green),
@@ -164,7 +192,7 @@ fn main() -> Result<()> {
                 }
             }
         }
-        universe.tick();
+
         thread::sleep(tick_duration);
 
         ticks += 1;
