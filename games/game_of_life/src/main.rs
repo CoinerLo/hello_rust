@@ -162,7 +162,13 @@ fn main() -> Result<()> {
 
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
-        for (y, line) in universe.render(Some(selected_row), Some(selected_col)).lines().enumerate() {
+        let rendered = if is_paused {
+            universe.render(Some(selected_row), Some(selected_col))
+        } else {
+            universe.render(None, None)
+        };
+
+        for (y, line) in rendered.lines().enumerate() {
             execute!(stdout, cursor::MoveTo(0, y as u16))?;
             for ch in line.chars() {
                 if ch == '*' {
