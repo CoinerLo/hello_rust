@@ -5,7 +5,7 @@ pub enum ShootResult {
     Destroy,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Ship {
     pub coords: Vec<(usize, usize)>,
     pub hits: Vec<bool>,
