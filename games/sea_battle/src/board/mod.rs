@@ -1,11 +1,4 @@
-use crate::ship::Ship;
-
-#[derive(Debug, PartialEq)]
-pub enum ShootResult {
-    Miss,
-    Hit,
-    Destroy,
-}
+use crate::ship::{Ship, ShootResult};
 
 pub struct Board {
     pub cells: Vec<Vec<Option<Ship>>>,
