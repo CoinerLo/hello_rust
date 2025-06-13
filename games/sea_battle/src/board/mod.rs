@@ -40,6 +40,20 @@ impl Board {
     }
 
     pub fn shoot(&mut self, row: usize, col: usize) -> ShootResult {
-        
+        if row >= self.height || col >= self.width {
+            panic!("Выстрел за пределы поля!");
+        }
+
+        if let Some(ship) = &mut self.cells[row][col] {
+            let index = ship.coords.iter().position(|&coord| coord == (row, col)).unwrap();
+            ship.hit(index);
+            if ship.is_destroyed() {
+                ShootResult::Destroy
+            } else {
+                ShootResult::Hit
+            }
+        } else {
+            ShootResult::Miss
+        }
     }
 }
