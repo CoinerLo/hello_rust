@@ -12,14 +12,14 @@ pub async fn register_user(pool: &DbPool, username: &str, password: &str) -> App
 }
 
 pub async fn authenticate_user(pool: &DbPool, username: &str, password: &str) -> AppResult<bool> {
-  let current_user = user::find_user_by_username(pool, username).await?;
-  if let Some((_, password_hash)) = current_user {
-    let is_valid = verify(password, &password_hash)
-        .map_err(|e| {
-            error!("Ошибка проверки пароля: {}", e);
-            ServerError::BcryptError(e)
-        })?;
-    return Ok(is_valid);
-  }
-  Ok(false)
+    let current_user = user::find_user_by_username(pool, username).await?;
+    if let Some((_, password_hash)) = current_user {
+        let is_valid = verify(password, &password_hash)
+            .map_err(|e| {
+                error!("Ошибка проверки пароля: {}", e);
+                ServerError::BcryptError(e)
+            })?;
+        return Ok(is_valid);
+    }
+    Ok(false)
 }

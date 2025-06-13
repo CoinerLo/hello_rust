@@ -3,7 +3,7 @@ use tracing::{info, error};
 
 use crate::types::{AppResult, DbPool, ServerError};
 
-pub async  fn find_user_by_username(pool: &DbPool, username: &str,) -> AppResult<Option<(String, String)>> {
+pub async fn find_user_by_username(pool: &DbPool, username: &str,) -> AppResult<Option<(String, String)>> {
     let row = sqlx::query!(
         "SELECT username, password_hash FROM users WHERE username = $1",
         username,
