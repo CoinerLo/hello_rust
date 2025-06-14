@@ -1,5 +1,6 @@
 use std::io;
-use game::Game;
+use crate::game::Game;
+use crate::ship::ShootResult;
 
 mod ship;
 mod board;
@@ -14,6 +15,29 @@ fn main() {
         io::stdin().read_line(&mut input).unwrap();
         let (row, col) = parse_coordinates(&input.trim()).unwrap();
         let result = game.player_shoot(row, col);
+
+        match result {
+            ShootResult::Miss => println!("Промах!"),
+            ShootResult::Hit => println!("Попал!"),
+            ShootResult::Destroy => println!("Корабль уничтожен!"),
+        }
+
+        if game.check_game_over() {
+            println!("Вы победили!");
+            break;
+        }
+
+        let result = game.computer_shoot();
+        match result {
+            ShootResult::Miss => println!("Компьютер промахнулся!"),
+            ShootResult::Hit => println!("Компьютер попал!"),
+            ShootResult::Destroy => println!("Компьютер уничтожил ваш корабль!"),
+        }
+
+        if game.check_game_over() {
+            println!("Компьютер победил!");
+            break;
+        }
     }
 }
 

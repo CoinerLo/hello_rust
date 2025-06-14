@@ -28,7 +28,7 @@ impl Game {
         self.player_board.shoot(row, col)
     }
 
-    pub fn chack_game_over(&self) -> bool {
+    pub fn check_game_over(&self) -> bool {
         self.player_board.all_ships_destroyed() || self.computer_board.all_ships_destroyed()
     }
 }
