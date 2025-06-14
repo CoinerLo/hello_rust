@@ -29,6 +29,6 @@ impl Game {
     }
 
     pub fn chack_game_over(&self) -> bool {
-
+        self.player_board.all_ships_destroyed() || self.computer_board.all_ships_destroyed()
     }
 }

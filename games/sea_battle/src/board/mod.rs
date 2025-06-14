@@ -49,4 +49,17 @@ impl Board {
             ShootResult::Miss
         }
     }
+
+    pub fn all_ships_destroyed(&self) -> bool {
+        for row in &self.cells {
+            for cell in row {
+                if let Some(ship) = cell {
+                    if !ship.is_destroyed() {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true
+    }
 }
