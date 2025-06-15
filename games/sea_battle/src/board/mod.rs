@@ -15,21 +15,27 @@ impl Board {
         }
     }
 
-    pub fn place_ship(&mut self, ship: &Ship) -> Result<(), String> {
-        for &(row, col) in &ship.coords {
-            if row >= self.height || col >= self.width {
-                return Err("Координаты корабля выходят за пределы поля".to_string());
-            }
-            if self.cells[row][col].is_some() {
-                return Err("Корабль пересекается с другим кораблем".to_string());
+    pub fn place_ships_randomly(&mut self)-> Result<(), String> {
+        let chips_to_place = vec![
+            (4, 1), // 1 четырёхпалубный корабль
+            (3, 2), // 2 трёхпалубных корабля
+            (2, 3), // 3 двухпалубных корабля
+            (1, 4), // 4 однопалубных корабля
+        ];
+
+        for &(size, count) in &chips_to_place {
+            for _ in 0..count {
+                if !self.place_random_ship(size) {
+                    return Err("Не удалось разместить все корабли".to_string());
+                }
             }
         }
-
-        for &(row, col) in &ship.coords {
-            self.cells[row][col] = Some(ship.clone())
-        }
-
         Ok(())
+    }
+
+    pub fn place_random_ship(&mut self, size: usize) -> bool {
+        
+        true
     }
 
     pub fn shoot(&mut self, row: usize, col: usize) -> ShootResult {
