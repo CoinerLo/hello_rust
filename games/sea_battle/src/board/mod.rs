@@ -36,7 +36,7 @@ impl Board {
 
     pub fn place_random_ship(&mut self, size: usize) -> bool {
         let mut rng = rand::rng();
-        let vertical = rng.gen_bool(0.5);
+        let vertical = rng.random_bool(0.5);
 
         let max_row = if vertical { self.height - size } else { self.height };
         let max_col = if vertical { self.width } else { self.width - size };
@@ -45,10 +45,10 @@ impl Board {
             return false; // не хватает места
         }
 
-        let row = rng.gen_range(0..max_row);
-        let col = rng.gen_range(0..max_col);
+        let row = rng.random_range(0..max_row);
+        let col = rng.random_range(0..max_col);
 
-        let coords = Vec!<(usize, usize)> = if vertical {
+        let coords: Vec<(usize, usize)> = if vertical {
             (row..row + size).map(|r| (r, col)).collect()
         } else {
             (col..col + size).map(|c| (row, c)).collect()
@@ -65,7 +65,24 @@ impl Board {
         }
 
         // проверяем соседние клетки
-        
+        for &(r, c) in &coords {
+            for dr in -1..=1 {
+                for dc in -1..=1 {
+                    let nr = r as isize + dr;
+                    let nc = c as isize + dc;
+                    if nr >= 0 && nr < self.height as isize && nc >= 0 && nc < self.width as isize {
+                        if self.cells[nr as usize][nc as usize].is_some() {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        //размещаем корабль
+        for &(r, c) in &coords {
+            self.cells[r][c] = Some(Ship::new(coords.clone(), size));
+        }
 
         true
     }
