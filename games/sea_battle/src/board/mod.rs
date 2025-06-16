@@ -1,4 +1,5 @@
 use crate::ship::{Ship, ShootResult};
+use rand::Rng;
 
 pub struct Board {
     pub cells: Vec<Vec<Option<Ship>>>,
@@ -34,7 +35,16 @@ impl Board {
     }
 
     pub fn place_random_ship(&mut self, size: usize) -> bool {
-        
+        let mut rng = rand::rng();
+        let vertical = rng.gen_bool(0.5);
+
+        let max_row = if vertical { self.height - size } else { self.height };
+        let max_col = if vertical { self.width } else { self.width - size };
+
+        if max_row == 0 || max_col == 0 {
+            return false; // не хватает места
+        }
+
         true
     }
 
