@@ -45,6 +45,28 @@ impl Board {
             return false; // не хватает места
         }
 
+        let row = rng.gen_range(0..max_row);
+        let col = rng.gen_range(0..max_col);
+
+        let coords = Vec!<(usize, usize)> = if vertical {
+            (row..row + size).map(|r| (r, col)).collect()
+        } else {
+            (col..col + size).map(|c| (row, c)).collect()
+        };
+
+        // проверяем можно ли разметить корабль
+        for &(r, c) in &coords {
+            if r >= self.height || c >= self.width {
+                return false;
+            }
+            if self.cells[r][c].is_some() {
+                return false;
+            }
+        }
+
+        // проверяем соседние клетки
+        
+
         true
     }
 
