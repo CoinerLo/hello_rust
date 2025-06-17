@@ -17,6 +17,8 @@ impl Board {
     }
 
     pub fn place_ships_randomly(&mut self)-> Result<(), String> {
+        const MAX_ATTEMPTS: usize = 1000;
+
         let chips_to_place = vec![
             (4, 1), // 1 четырёхпалубный корабль
             (3, 2), // 2 трёхпалубных корабля
@@ -26,8 +28,12 @@ impl Board {
 
         for &(size, count) in &chips_to_place {
             for _ in 0..count {
-                if !self.place_random_ship(size) {
-                    return Err("Не удалось разместить все корабли".to_string());
+                let mut attempts = 0;
+                while !self.place_random_ship(size) {
+                    attempts += 1;
+                    if attempts > MAX_ATTEMPTS {
+                        return Err("Не удалось разместить все корабли".to_string());
+                    }
                 }
             }
         }
