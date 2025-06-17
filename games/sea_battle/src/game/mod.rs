@@ -5,16 +5,19 @@ use rand::Rng;
 pub struct Game {
     pub player_board: Board,
     pub computer_board: Board,
-    pub game_over: bool,
 }
 
 impl Game {
     pub fn new() -> Self {
-        Game {
+        let mut game = Game {
             player_board: Board::new(10, 10),
             computer_board: Board::new(10, 10),
-            game_over: false,
-        }
+        };
+
+        game.player_board.place_ships_randomly().unwrap();
+        game.computer_board.place_ships_randomly().unwrap();
+
+        game
     }
 
     pub fn player_shoot(&mut self, row: usize, col: usize) -> ShootResult {

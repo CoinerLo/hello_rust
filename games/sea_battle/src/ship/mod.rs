@@ -9,7 +9,6 @@ pub enum ShootResult {
 pub struct Ship {
     pub coords: Vec<(usize, usize)>,
     pub hits: Vec<bool>,
-    pub size: usize,
 }
 
 impl Ship {
@@ -17,7 +16,6 @@ impl Ship {
         Ship {
             coords,
             hits: vec!(false; size),
-            size,
         }
     }
 
