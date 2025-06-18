@@ -9,15 +9,18 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        let mut game = Game {
-            player_board: Board::new(10, 10),
-            computer_board: Board::new(10, 10),
-        };
-
-        game.player_board.place_ships_randomly().unwrap();
-        game.computer_board.place_ships_randomly().unwrap();
-
-        game
+        loop {
+            let mut game = Game {
+                player_board: Board::new(10, 10),
+                computer_board: Board::new(10, 10),
+            };
+    
+            if game.player_board.place_ships_randomly().is_ok() && game.computer_board.place_ships_randomly().is_ok() {
+                return game;
+            }
+            // перезапуск генерации досок
+            println!("Перегенерация досок...");
+        }
     }
 
     pub fn player_shoot(&mut self, row: usize, col: usize) -> ShootResult {
