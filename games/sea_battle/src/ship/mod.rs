@@ -29,3 +29,19 @@ impl Ship {
         self.hits.iter().all(|&hit| hit)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::board::Board;
+
+    #[test]
+    fn test_ship_destroyed() {
+        let mut board = Board::new(10, 10);
+        let ship = Ship::new(vec![(0, 0), (0, 1)], 2);
+
+        board.place_ship(&ship).unwrap();
+        assert_eq!(board.shoot(0, 0), ShootResult::Hit);
+        assert_eq!(board.shoot(0, 2), ShootResult::Destroy);
+    }
+}
