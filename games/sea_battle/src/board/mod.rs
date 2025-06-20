@@ -93,6 +93,15 @@ impl Board {
         true
     }
 
+    pub fn place_ship(&mut self, coords: Vec<(usize, usize)>, size: usize) -> Result<(), String> {
+
+        for &(row, col) in &coords {
+            self.cells[row][col] = Some(Ship::new(coords.clone(), size));
+        }
+
+        Ok(())
+    }
+
     pub fn shoot(&mut self, row: usize, col: usize) -> ShootResult {
         if row >= self.height || col >= self.width {
             panic!("Выстрел за пределы поля!");
