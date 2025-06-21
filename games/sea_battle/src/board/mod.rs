@@ -93,7 +93,33 @@ impl Board {
         true
     }
 
-    pub fn place_ship(&mut self, coords: Vec<(usize, usize)>, size: usize) -> Result<(), String> {
+    pub fn place_ship(&mut self, ship: Ship) -> Result<(), String> {
+        let coords = ship.coords;
+        let size = ship.size;
+        if coords.len() != size {
+            return Err("Количество координат не соответствует размеру корабля".to_string());
+        }
+
+        for &(row, col) in &coords {
+            if row >= self.height || col >= self.width {
+                return Err("Координаты корабля выходят за границы поля".to_string());
+            }
+            if self.cells[row][col].is_some() {
+                return Err("Корабль пересекается с другим кораблем".to_string());
+            }
+        }
+
+        for &(row, col) in &coords {
+            for dr in -1..=1 {
+                for dc in -1..=1 {
+                    let nr = row as isize + dr;
+                    let nc = col as isize + dc;
+                    if self.cells[nr as usize][nc as usize].is_some() {
+                        return Err("Корабль касается другого корабля".to_string());
+                    }
+                }
+            }
+        }
 
         for &(row, col) in &coords {
             self.cells[row][col] = Some(Ship::new(coords.clone(), size));
