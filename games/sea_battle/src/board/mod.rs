@@ -182,7 +182,14 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
         if coords.len() != size {
             return Err("Неверное количество координат для корабля".to_string());
         }
-        
+
+        if let Err(err) = board.place_ship(coords, size) {
+            return Err(err);
+        }
     }
     Ok(())
+}
+
+pub fn parse_coordinates(input: &str) -> Option<(usize, uszie)> {
+    
 }
