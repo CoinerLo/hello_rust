@@ -128,6 +128,7 @@ impl Board {
         Ok(())
     }
 
+
     pub fn shoot(&mut self, row: usize, col: usize) -> ShootResult {
         if row >= self.height || col >= self.width {
             panic!("Выстрел за пределы поля!");
@@ -158,4 +159,30 @@ impl Board {
         }
         return true
     }
+}
+
+pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
+    let chips_to_place = vec![
+        (4, 1),
+        (3, 2),
+        (2, 3),
+        (1, 4),
+    ];
+
+    for &(size, count) in &chips_to_place {
+        println!("Разметсите {}-палубный корабль. Введите координаты через пробел (например A1 A2 A3):", size);
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        let coords: Vec<(usize, usize)> = input
+            .trim()
+            .split_whitespace()
+            .map(|coord| parse_coordinates(coord).unwrap())
+            .collect();
+        
+        if coords.len() != size {
+            return Err("Неверное количество координат для корабля".to_string());
+        }
+        
+    }
+    Ok(())
 }
