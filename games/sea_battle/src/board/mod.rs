@@ -191,5 +191,9 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
 }
 
 pub fn parse_coordinates(input: &str) -> Option<(usize, uszie)> {
+    let chars: Vec<char> = input.chars().collect();
+    if chars.len() != 2 {
+        return None;
+    }
     
 }
