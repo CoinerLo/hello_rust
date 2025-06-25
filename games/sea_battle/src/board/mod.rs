@@ -196,4 +196,10 @@ pub fn parse_coordinates(input: &str) -> Option<(usize, uszie)> {
         return None;
     }
     
+    let row = match cahrs[0] {
+        'A'..='J' => chars[0] as usize - 'A' usize,
+        _ => return None,
+    };
+    let col = chars[1].to_digit(10)? as usize - 1;
+    Some((row, col))
 }
