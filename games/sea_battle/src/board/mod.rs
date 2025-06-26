@@ -1,5 +1,6 @@
 use crate::ship::{Ship, ShootResult};
 use rand::Rng;
+use std::io;
 
 pub struct Board {
     pub cells: Vec<Vec<Option<Ship>>>,
@@ -183,21 +184,23 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
             return Err("Неверное количество координат для корабля".to_string());
         }
 
-        if let Err(err) = board.place_ship(coords, size) {
+        let ship = Ship::new(coords, size);
+
+        if let Err(err) = board.place_ship(ship) {
             return Err(err);
         }
     }
     Ok(())
 }
 
-pub fn parse_coordinates(input: &str) -> Option<(usize, uszie)> {
+pub fn parse_coordinates(input: &str) -> Option<(usize, usize)> {
     let chars: Vec<char> = input.chars().collect();
     if chars.len() != 2 {
         return None;
     }
     
-    let row = match cahrs[0] {
-        'A'..='J' => chars[0] as usize - 'A' usize,
+    let row = match chars[0] {
+        'A'..='J' => chars[0] as usize - 'A' as usize,
         _ => return None,
     };
     let col = chars[1].to_digit(10)? as usize - 1;

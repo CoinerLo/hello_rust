@@ -1,6 +1,8 @@
 use crate::board::Board;
 use crate::ship::ShootResult;
 use rand::Rng;
+use std::io;
+use crate::board::place_ships_manually;
 
 pub struct Game {
     pub player_board: Board,
