@@ -171,23 +171,25 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
     ];
 
     for &(size, count) in &chips_to_place {
-        println!("Разметсите {}-палубный корабль. Введите координаты через пробел (например A1 A2 A3):", size);
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        let coords: Vec<(usize, usize)> = input
-            .trim()
-            .split_whitespace()
-            .map(|coord| parse_coordinates(coord).unwrap())
-            .collect();
-        
-        if coords.len() != size {
-            return Err("Неверное количество координат для корабля".to_string());
-        }
-
-        let ship = Ship::new(coords, size);
-
-        if let Err(err) = board.place_ship(ship) {
-            return Err(err);
+        for _ in 0..count {
+            println!("Разметсите {}-палубный корабль. Введите координаты через пробел (например A1 A2 A3):", size);
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let coords: Vec<(usize, usize)> = input
+                .trim()
+                .split_whitespace()
+                .map(|coord| parse_coordinates(coord).unwrap())
+                .collect();
+            
+            if coords.len() != size {
+                return Err("Неверное количество координат для корабля".to_string());
+            }
+    
+            let ship = Ship::new(coords, size);
+    
+            if let Err(err) = board.place_ship(ship) {
+                return Err(err);
+            }
         }
     }
     Ok(())

@@ -1,6 +1,7 @@
 use std::io;
 use crate::game::Game;
 use crate::ship::ShootResult;
+use crate::board::parse_coordinates;
 
 mod ship;
 mod board;
@@ -39,17 +40,4 @@ fn main() {
             break;
         }
     }
-}
-
-fn parse_coordinates(input: &str) -> Option<(usize, usize)> {
-    let chars: Vec<char> = input.chars().collect();
-    if chars.len() != 2 {
-        return None;
-    }
-    let row = match chars[0] {
-        'A'..='J' => chars[0] as usize - 'A' as usize,
-        _ => return None,
-    };
-    let col = chars[1].to_digit(10)? as usize - 1;
-    Some((row, col))
 }
