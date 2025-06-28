@@ -115,8 +115,10 @@ impl Board {
                 for dc in -1..=1 {
                     let nr = row as isize + dr;
                     let nc = col as isize + dc;
-                    if self.cells[nr as usize][nc as usize].is_some() {
-                        return Err("Корабль касается другого корабля".to_string());
+                    if nr >= 0 && nr < self.height as isize && nc >=0 && nc < self.width as isize {
+                        if self.cells[nr as usize][nc as usize].is_some() {
+                            return Err("Корабль касается другого корабля".to_string());
+                        }
                     }
                 }
             }
@@ -136,16 +138,18 @@ impl Board {
         }
 
         if let Some(ship) = &mut self.cells[row][col] {
-            let index = ship.coords.iter().position(|&coord| coord == (row, col)).unwrap();
-            ship.hit(index);
-            if ship.is_destroyed() {
-                ShootResult::Destroy
+            if let Some(index) = ship.coords.iter().position(|&coord| coord == (row, col)) {
+                ship.hit(index);
+                if ship.is_destroyed() {
+                    return ShootResult::Destroy;
+                } else {
+                    return ShootResult::Hit;
+                }
             } else {
-                ShootResult::Hit
+                panic!("Несовпадение координат корабля");
             }
-        } else {
-            ShootResult::Miss
         }
+        ShootResult::Miss
     }
 
     pub fn all_ships_destroyed(&self) -> bool {
