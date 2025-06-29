@@ -44,6 +44,7 @@ mod tests {
 
         board.place_ship(ship).unwrap();
         assert_eq!(board.shoot(0, 0), ShootResult::Hit);
-        assert_eq!(board.shoot(0, 2), ShootResult::Destroy);
+        assert_eq!(board.shoot(0, 2), ShootResult::Miss);
+        assert_eq!(board.shoot(0, 1), ShootResult::Destroy);
     }
 }
