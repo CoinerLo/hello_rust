@@ -36,11 +36,12 @@ impl Ship {
 mod tests {
     use super::*;
     use crate::board::Board;
+    use std::{rc::Rc, cell::RefCell};
 
     #[test]
     fn test_ship_destroyed() {
         let mut board = Board::new(10, 10);
-        let ship = Ship::new(vec![(0, 0), (0, 1)], 2);
+        let ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0), (0, 1)], 2)));
 
         board.place_ship(ship).unwrap();
         assert_eq!(board.shoot(0, 0), ShootResult::Hit);

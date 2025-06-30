@@ -1,9 +1,10 @@
 use crate::ship::{Ship, ShootResult};
 use rand::Rng;
-use std::io;
+use std::{io, rc::Rc, cell::RefCell};
+
 
 pub struct Board {
-    pub cells: Vec<Vec<Option<Ship>>>,
+    pub cells: Vec<Vec<Option<Rc<RefCell<Ship>>>>>,
     pub width: usize,
     pub height: usize,
 }
@@ -87,21 +88,23 @@ impl Board {
         }
 
         //размещаем корабль
+        let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
         for &(r, c) in &coords {
-            self.cells[r][c] = Some(Ship::new(coords.clone(), size));
+            self.cells[r][c] = Some(Rc::clone(&ship));
         }
 
         true
     }
 
-    pub fn place_ship(&mut self, ship: Ship) -> Result<(), String> {
-        let coords = ship.coords;
-        let size = ship.size;
+    pub fn place_ship(&mut self, ship: Rc<RefCell<Ship>>) -> Result<(), String> {
+        let ship_ref = ship.borrow_mut();
+        let coords = &ship_ref.coords;
+        let size = ship_ref.size;
         if coords.len() != size {
             return Err("Количество координат не соответствует размеру корабля".to_string());
         }
 
-        for &(row, col) in &coords {
+        for &(row, col) in coords {
             if row >= self.height || col >= self.width {
                 return Err("Координаты корабля выходят за границы поля".to_string());
             }
@@ -110,7 +113,7 @@ impl Board {
             }
         }
 
-        for &(row, col) in &coords {
+        for &(row, col) in coords {
             for dr in -1..=1 {
                 for dc in -1..=1 {
                     let nr = row as isize + dr;
@@ -124,13 +127,11 @@ impl Board {
             }
         }
 
-        for &(row, col) in &coords {
-            self.cells[row][col] = Some(Ship::new(coords.clone(), size));
+        for &(row, col) in coords {
+            self.cells[row][col] = Some(Rc::clone(&ship));
         }
-
         Ok(())
     }
-
 
     pub fn shoot(&mut self, row: usize, col: usize) -> ShootResult {
         if row >= self.height || col >= self.width {
@@ -138,9 +139,10 @@ impl Board {
         }
 
         if let Some(ship) = &mut self.cells[row][col] {
-            if let Some(index) = ship.coords.iter().position(|&coord| coord == (row, col)) {
-                ship.hit(index);
-                if ship.is_destroyed() {
+            let mut ship_ref = ship.borrow_mut();
+            if let Some(index) = ship_ref.coords.iter().position(|&coord| coord == (row, col)) {
+                ship_ref.hit(index);
+                if ship_ref.is_destroyed() {
                     return ShootResult::Destroy;
                 } else {
                     return ShootResult::Hit;
@@ -156,7 +158,8 @@ impl Board {
         for row in &self.cells {
             for cell in row {
                 if let Some(ship) = cell {
-                    if !ship.is_destroyed() {
+                    let ship_ref = ship.borrow_mut();
+                    if !ship_ref.is_destroyed() {
                         return false;
                     }
                 }
@@ -189,7 +192,7 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
                 return Err("Неверное количество координат для корабля".to_string());
             }
     
-            let ship = Ship::new(coords, size);
+            let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
     
             if let Err(err) = board.place_ship(ship) {
                 return Err(err);
