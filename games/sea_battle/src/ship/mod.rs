@@ -39,6 +39,24 @@ mod tests {
     use std::{rc::Rc, cell::RefCell};
 
     #[test]
+    fn test_ship_creation() {
+        let ship = Ship::new(vec![(0, 0), (0, 1)], 2);
+        assert_eq!(ship.size, 2);
+        assert_eq!(ship.hits, vec![false, false]);
+        assert_eq!(ship.is_destroyed(), false);
+    }
+
+    #[test]
+    fn test_board_place_ship() {
+        let mut board = Board::new(10, 10);
+        let ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0), (0, 1)], 2)));
+
+        assert!(board.place_ship(ship).is_ok());
+        assert!(board.cells[0][0].is_some());
+        assert!(board.cells[0][1].is_some());
+    }
+
+    #[test]
     fn test_ship_destroyed() {
         let mut board = Board::new(10, 10);
         let ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0), (0, 1)], 2)));
