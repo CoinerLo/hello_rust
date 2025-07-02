@@ -66,4 +66,17 @@ mod tests {
         assert_eq!(board.shoot(0, 2), ShootResult::Miss);
         assert_eq!(board.shoot(0, 1), ShootResult::Destroy);
     }
+
+    #[test]
+    fn test_all_ships_destroyed_with_alive_ships() {
+        let mut board = Board::new(10, 10);
+        let ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0), (0, 1)], 2)));
+
+        board.place_ship(ship).unwrap();
+        assert!(!board.all_ships_destroyed(), "Корабль должен быть еще жив");
+        assert_eq!(board.shoot(0, 0), ShootResult::Hit);
+        assert_eq!(board.shoot(0, 2), ShootResult::Miss);
+        assert_eq!(board.shoot(0, 1), ShootResult::Destroy);
+        assert!(board.all_ships_destroyed(), "Все корабли на поле должны быть уничтожены");
+    }
 }
