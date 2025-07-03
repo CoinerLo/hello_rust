@@ -8,7 +8,20 @@ mod board;
 mod game;
 
 fn main() {
-    let mut game = Game::new();
+    println!("Добро пожаловать в игру 'Морской бой'!");
+    println!("Выберите режим размещения кораблей: 1 - автоматически, 2 - вручную");
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let mode = match input.trim() {
+        "1" => "auto",
+        "2" => "manual",
+        _ => {
+            println!("Неверный ввод. Используется автоматический режим.");
+            "auto"
+        },
+    };
+
+    let mut game = Game::new(mode);
 
     loop {
         println!("Ваш ход! Введите координаты (например, А5):");
