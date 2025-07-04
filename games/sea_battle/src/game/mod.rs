@@ -77,7 +77,7 @@ mod tests {
         let _ = game.computer_board.place_ship(computer_ship);
 
         assert!(!game.check_game_over(), "Игра должна быть активна");
-        game.player_shoot(1, 1);
+        assert_eq!(game.player_shoot(1, 1), ShootResult::Destroy);
         assert!(game.check_game_over(), "Игра должна быть закончена");
     }
 }
