@@ -158,7 +158,7 @@ impl Board {
         for row in &self.cells {
             for cell in row {
                 if let Some(ship) = cell {
-                    let ship_ref = ship.borrow_mut();
+                    let ship_ref = ship.borrow();
                     if !ship_ref.is_destroyed() {
                         return false;
                     }
@@ -214,4 +214,33 @@ pub fn parse_coordinates(input: &str) -> Option<(usize, usize)> {
     };
     let col = chars[1].to_digit(10)? as usize - 1;
     Some((row, col))
+}
+
+pub trait ShipPlacer {
+    fn place_ships(&self, board: &mut Board) -> Result<(), String>;
+}
+
+pub struct AutoShipPlacer;
+impl ShipPlacer for AutoShipPlacer {
+    fn place_ships(&self, board: &mut Board) -> Result<(), String> {
+        if board.place_ships_randomly().is_err() {
+            println!("Не удалось разместить корабли автоматически. Перегенерация...");
+            loop {
+                if board.place_ships_randomly().is_ok() {
+                    break;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+pub struct ManualShipPlacer;
+impl ShipPlacer for ManualShipPlacer {
+    fn place_ships(&self, board: &mut Board) -> Result<(), String> {
+        if place_ships_manually(board).is_err() {
+            panic!("Не удалось разместить корабли вручную");
+        }
+        Ok(())
+    }
 }

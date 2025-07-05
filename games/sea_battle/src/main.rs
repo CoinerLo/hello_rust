@@ -1,7 +1,7 @@
 use std::io;
 use crate::game::Game;
 use crate::ship::ShootResult;
-use crate::board::parse_coordinates;
+use crate::board::{parse_coordinates, ManualShipPlacer, AutoShipPlacer, ShipPlacer};
 
 mod ship;
 mod board;
@@ -12,16 +12,16 @@ fn main() {
     println!("Выберите режим размещения кораблей: 1 - автоматически, 2 - вручную");
     let mut input = String::new();
     io::stdin().read_line(&mut input).unwrap();
-    let mode = match input.trim() {
-        "1" => "auto",
-        "2" => "manual",
+    let player_placer: Box<dyn ShipPlacer> = match input.trim() {
+        "1" => Box::new(AutoShipPlacer),
+        "2" => Box::new(ManualShipPlacer),
         _ => {
             println!("Неверный ввод. Используется автоматический режим.");
-            "auto"
+            Box::new(AutoShipPlacer)
         },
     };
-
-    let mut game = Game::new(mode);
+    let computer_placer = AutoShipPlacer;
+    let mut game = Game::new(&*player_placer, &computer_placer);
 
     loop {
         println!("Ваш ход! Введите координаты (например, А5):");

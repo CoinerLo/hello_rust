@@ -1,7 +1,7 @@
 use crate::board::Board;
 use crate::ship::ShootResult;
 use rand::Rng;
-use crate::board::place_ships_manually;
+use crate::board::ShipPlacer;
 
 pub struct Game {
     pub player_board: Board,
@@ -9,37 +9,18 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(mode: &str) -> Self {
+    pub fn new(player_placer: &dyn ShipPlacer, computer_placer: &dyn ShipPlacer) -> Self {
         let mut game = Game {
             player_board: Board::new(10, 10),
             computer_board: Board::new(10, 10),
         };
 
-        match mode {
-            "auto" => {
-                if game.player_board.place_ships_randomly().is_err() {
-                    println!("Не удалось разместить корабли автоматически. Перегенерация...");
-                    loop {
-                        if game.player_board.place_ships_randomly().is_ok() {
-                            break;
-                        }
-                    }
-                }
-            }
-            "manual" => {
-                if place_ships_manually(&mut game.player_board).is_err() {
-                    panic!("Не удалось разместить корабли вручную");
-                }
-            }
-            _ => panic!("Неверный режим размещения кораблей"),
+        if let Err(err) = player_placer.place_ships(&mut game.player_board) {
+            panic!("Ошибка при размещении кораблей игрока: {}", err);
         }
 
-        loop {
-            if game.computer_board.place_ships_randomly().is_ok() {
-                break;
-            }
-            // перезапуск генерации досок
-            println!("Перегенерация досок компьютера...");
+        if let Err(err) = computer_placer.place_ships(&mut game.computer_board) {
+            panic!("Ошибка при размещении кораблей коспьютера: {}", err);
         }
 
         game
