@@ -1,5 +1,5 @@
 use std::io;
-use crate::game::Game;
+use crate::game::{Game, RandomShotStrategy};
 use crate::ship::ShootResult;
 use crate::board::{parse_coordinates, ManualShipPlacer, AutoShipPlacer, ShipPlacer};
 
@@ -41,7 +41,7 @@ fn main() {
             break;
         }
 
-        let result = game.computer_shoot();
+        let result = game.computer_shoot(&RandomShotStrategy);
         match result {
             ShootResult::Miss => println!("Компьютер промахнулся!"),
             ShootResult::Hit => println!("Компьютер попал!"),

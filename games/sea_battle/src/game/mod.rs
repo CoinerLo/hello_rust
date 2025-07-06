@@ -23,8 +23,6 @@ impl ShotStrategy for RandomShotStrategy {
     }
 }
 
-
-
 impl Game {
     pub fn new(player_placer: &dyn ShipPlacer, computer_placer: &dyn ShipPlacer) -> Self {
         let mut game = Game {
@@ -47,8 +45,8 @@ impl Game {
         self.computer_board.shoot(row, col)
     }
 
-    pub fn computer_shoot(&mut self) -> ShootResult {
-
+    pub fn computer_shoot(&mut self, strategy: &dyn ShotStrategy) -> ShootResult {
+        let (row, col) = strategy.choose_shot(&self.player_board);
         self.player_board.shoot(row, col)
     }
 
@@ -70,6 +68,16 @@ mod tests {
     impl ShipPlacer for MockShipPlacer {
         fn place_ships(&self, board: &mut Board) -> Result<(), String> {
             board.place_ship(self.ship.clone())
+        }
+    }
+
+    pub struct MockShotStrategy {
+        coords: (usize, usize),
+    }
+
+    impl ShotStrategy for MockShotStrategy {
+        fn choose_shot(&self, board: &Board) -> (usize, usize) {
+            self.coords
         }
     }
 
