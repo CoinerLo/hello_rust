@@ -48,14 +48,25 @@ mod tests {
     use crate::ship::Ship;
     use std::{rc::Rc, cell::RefCell};
 
+    struct MockShipPlacer {
+        ship: Rc<RefCell<Ship>>,
+    }
+
+    impl ShipPlacer for MockShipPlacer {
+        fn place_ships(&self, board: &mut Board) -> Result<(), String> {
+            board.place_ship(self.ship.clone())
+        }
+    }
+
     #[test]
     fn test_check_game_over_player_wins() {
-        let mut game = Game::new("auto");
         let player_ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0)], 1)));
         let computer_ship = Rc::new(RefCell::new(Ship::new(vec![(1, 1)], 1)));
 
-        let _ = game.player_board.place_ship(player_ship);
-        let _ = game.computer_board.place_ship(computer_ship);
+        let player_placer = MockShipPlacer { ship: player_ship };
+        let computer_placer = MockShipPlacer { ship: computer_ship };
+
+        let mut game = Game::new(&player_placer, &computer_placer);
 
         assert!(!game.check_game_over(), "Игра должна быть активна");
         assert_eq!(game.player_shoot(1, 1), ShootResult::Destroy);
