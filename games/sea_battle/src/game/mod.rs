@@ -72,4 +72,19 @@ mod tests {
         assert_eq!(game.player_shoot(1, 1), ShootResult::Destroy);
         assert!(game.check_game_over(), "Игра должна быть закончена");
     }
+
+    #[test]
+    fn test_check_game_over_computer_wins() {
+        let player_ship = Rc::new(RefCell::new(Ship::new(vec![(0, 0)], 1)));
+        let computer_ship = Rc::new(RefCell::new(Ship::new(vec![(1, 1)], 1)));
+
+        let player_placer = MockShipPlacer { ship: player_ship };
+        let computer_placer = MockShipPlacer { ship: computer_ship };
+
+        let mut game = Game::new(&player_placer, &computer_placer);
+
+        assert!(!game.check_game_over(), "Игра должна быть активна");
+        assert_eq!(game.computer_shoot(0, 0), ShootResult::Destroy);
+        assert!(game.check_game_over(), "Игра должна быть закончена");
+    }
 }
