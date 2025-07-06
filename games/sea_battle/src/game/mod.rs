@@ -8,6 +8,23 @@ pub struct Game {
     pub computer_board: Board,
 }
 
+pub trait ShotStrategy {
+    fn choose_shot(&self, board: &Board) -> (usize, usize);
+}
+
+pub struct RandomShotStrategy;
+
+impl ShotStrategy for RandomShotStrategy {
+    fn choose_shot(&self, board: &Board) -> (usize, usize) {
+        let mut rng = rand::rng();
+        let row = rng.random_range(0..board.height);
+        let col = rng.random_range(0..board.width);
+        (row, col)
+    }
+}
+
+
+
 impl Game {
     pub fn new(player_placer: &dyn ShipPlacer, computer_placer: &dyn ShipPlacer) -> Self {
         let mut game = Game {
@@ -31,9 +48,7 @@ impl Game {
     }
 
     pub fn computer_shoot(&mut self) -> ShootResult {
-        let mut rng = rand::rng();
-        let row = rng.random_range(0..10);
-        let col = rng.random_range(0..10);
+
         self.player_board.shoot(row, col)
     }
 
