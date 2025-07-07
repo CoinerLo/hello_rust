@@ -76,7 +76,7 @@ mod tests {
     }
 
     impl ShotStrategy for MockShotStrategy {
-        fn choose_shot(&self, board: &Board) -> (usize, usize) {
+        fn choose_shot(&self, _board: &Board) -> (usize, usize) {
             self.coords
         }
     }
@@ -107,7 +107,10 @@ mod tests {
         let mut game = Game::new(&player_placer, &computer_placer);
 
         assert!(!game.check_game_over(), "Игра должна быть активна");
-        assert_eq!(game.computer_shoot(0, 0), ShootResult::Destroy);
+
+        let strategy = MockShotStrategy{ coords: (0, 0) };
+        assert_eq!(game.computer_shoot(&strategy), ShootResult::Destroy);
+
         assert!(game.check_game_over(), "Игра должна быть закончена");
     }
 }
