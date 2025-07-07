@@ -104,27 +104,8 @@ impl Board {
             return Err("Количество координат не соответствует размеру корабля".to_string());
         }
 
-        for &(row, col) in coords {
-            if row >= self.height || col >= self.width {
-                return Err("Координаты корабля выходят за границы поля".to_string());
-            }
-            if self.cells[row][col].is_some() {
-                return Err("Корабль пересекается с другим кораблем".to_string());
-            }
-        }
-
-        for &(row, col) in coords {
-            for dr in -1..=1 {
-                for dc in -1..=1 {
-                    let nr = row as isize + dr;
-                    let nc = col as isize + dc;
-                    if nr >= 0 && nr < self.height as isize && nc >=0 && nc < self.width as isize {
-                        if self.cells[nr as usize][nc as usize].is_some() {
-                            return Err("Корабль касается другого корабля".to_string());
-                        }
-                    }
-                }
-            }
+        if !self.can_place_ship(&coords) {
+            return Err("Корабль пересекается с другим кораблем или координаты корабля выходят за границы поля".to_string());
         }
 
         for &(row, col) in coords {
@@ -166,6 +147,31 @@ impl Board {
             }
         }
         return true
+    }
+
+    pub fn can_place_ship(&self, coords: &[(usize, usize)]) -> bool {
+        for &(row, col) in coords {
+            if row >= self.height || col >= self.width {
+                return false;
+            }
+            if self.cells[row][col].is_some() {
+                return false;
+            }
+        }
+        for &(row, col) in coords {
+            for dr in -1..=1 {
+                for dc in -1..=1 {
+                    let nr = row as isize + dr;
+                    let nc = col as isize + dc;
+                    if nr >= 0 && nr < self.height as isize && nc >=0 && nc < self.width as isize {
+                        if self.cells[nr as usize][nc as usize].is_some() {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        true
     }
 }
 
