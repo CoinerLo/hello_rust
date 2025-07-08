@@ -53,47 +53,27 @@ impl Board {
             return false; // не хватает места
         }
 
-        let row = rng.random_range(0..max_row);
-        let col = rng.random_range(0..max_col);
-
-        let coords: Vec<(usize, usize)> = if vertical {
-            (row..row + size).map(|r| (r, col)).collect()
-        } else {
-            (col..col + size).map(|c| (row, c)).collect()
-        };
-
-        // проверяем можно ли разметить корабль
-        for &(r, c) in &coords {
-            if r >= self.height || c >= self.width {
-                return false;
-            }
-            if self.cells[r][c].is_some() {
-                return false;
-            }
-        }
-
-        // проверяем соседние клетки
-        for &(r, c) in &coords {
-            for dr in -1..=1 {
-                for dc in -1..=1 {
-                    let nr = r as isize + dr;
-                    let nc = c as isize + dc;
-                    if nr >= 0 && nr < self.height as isize && nc >= 0 && nc < self.width as isize {
-                        if self.cells[nr as usize][nc as usize].is_some() {
-                            return false;
-                        }
-                    }
+        for _ in 0..1000 {
+            let row = rng.random_range(0..max_row);
+            let col = rng.random_range(0..max_col);
+    
+            let coords: Vec<(usize, usize)> = if vertical {
+                (row..row + size).map(|r| (r, col)).collect()
+            } else {
+                (col..col + size).map(|c| (row, c)).collect()
+            };
+    
+            if self.can_place_ship(&coords) {
+                //размещаем корабль
+                let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
+                for &(r, c) in &coords {
+                    self.cells[r][c] = Some(Rc::clone(&ship));
                 }
+                return true;
             }
         }
-
-        //размещаем корабль
-        let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
-        for &(r, c) in &coords {
-            self.cells[r][c] = Some(Rc::clone(&ship));
-        }
-
-        true
+    
+        false
     }
 
     pub fn place_ship(&mut self, ship: Rc<RefCell<Ship>>) -> Result<(), String> {
