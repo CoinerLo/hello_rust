@@ -182,7 +182,9 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
 
     for &(size, count) in &chips_to_place {
         for _ in 0..count {
-            println!("Разметсите {}-палубный корабль. Введите координаты через пробел (например A1 A2 A3):", size);
+            println!("Разметсите {}-палубный корабль. ", size);
+            board.print_board(false);
+            println!("Введите координаты через пробел (например A1 A2 A3):");
             let mut input = String::new();
             io::stdin().read_line(&mut input).unwrap();
             let coords: Vec<(usize, usize)> = input
