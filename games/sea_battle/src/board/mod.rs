@@ -153,6 +153,23 @@ impl Board {
         }
         true
     }
+
+    pub fn print_board(&self, hide_ships: bool) {
+        for row in 0..self.height {
+            for col in 0..self.width {
+                if let Some(_ship) = &self.cells[row][col] {
+                    if hide_ships {
+                        print!("~ ");
+                    } else {
+                        print!("■ ");
+                    }
+                } else {
+                    print!("~ ");
+                }
+            }
+            println!();
+        }
+    }
 }
 
 pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
