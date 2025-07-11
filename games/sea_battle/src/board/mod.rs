@@ -182,24 +182,47 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
 
     for &(size, count) in &chips_to_place {
         for _ in 0..count {
+            println!(
+                "\nРазместите {}-палубный корабль (осталось {}).",
+                size,
+                count - i
+            );
+            board.print_board(false);
+
             loop {
-                println!("\nРазметсите {}-палубный корабль. ", size);
-                board.print_board(false);
                 println!("Введите координаты через пробел (например A1 A2 A3):");
+
                 let mut input = String::new();
                 io::stdin().read_line(&mut input).unwrap();
-                let coords: Vec<(usize, usize)> = input
+                let coords: Vec<Result<(usize, usize), String>> = input
                     .trim()
                     .split_whitespace()
-                    .map(|coord| parse_coordinates(coord).unwrap())
+                    .map(|coord| parse_coordinates(coord))
                     .collect();
+
+                let mut valid_coords = Vec:new();
+                let mut has_error = false;
+
+                for result in coords {
+                    match result {
+                        Ok(coord) => valid_coords.push(coord),
+                        Err(err) => {
+                            println!("Ошибка: {}", err);
+                            has_error = true;
+                            break;
+                        }
+                    }
+                }
                 
-                if coords.len() != size {
-                    println!("Неверное количество координат для корабля");
+                if has_error || valid_coords.len() != size {
+                    println!(
+                        "Неверное количество координат для {}-палубного корабля. Попробуйте снова.",
+                        size
+                    );
                     continue;
                 }
         
-                let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
+                let ship = Rc::new(RefCell::new(Ship::new(valid_coords.clone(), size)));
         
                 if let Err(err) = board.place_ship(ship) {
                     println!("{}", err);
@@ -212,10 +235,10 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
     Ok(())
 }
 
-pub fn parse_coordinates(input: &str) -> Option<(usize, usize)> {
+pub fn parse_coordinates(input: &str) -> Result<(usize, usize), String> {
     let chars: Vec<char> = input.chars().collect();
     if chars.len() != 2 {
-        return None;
+        return Err("Неверный формат координат. Введите две буквы (например, 'A5').".to_string());
     }
     
     let row = match chars[0] {
