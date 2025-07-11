@@ -182,25 +182,30 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
 
     for &(size, count) in &chips_to_place {
         for _ in 0..count {
-            println!("Разметсите {}-палубный корабль. ", size);
-            board.print_board(false);
-            println!("Введите координаты через пробел (например A1 A2 A3):");
-            let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
-            let coords: Vec<(usize, usize)> = input
-                .trim()
-                .split_whitespace()
-                .map(|coord| parse_coordinates(coord).unwrap())
-                .collect();
-            
-            if coords.len() != size {
-                return Err("Неверное количество координат для корабля".to_string());
-            }
-    
-            let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
-    
-            if let Err(err) = board.place_ship(ship) {
-                return Err(err);
+            loop {
+                println!("\nРазметсите {}-палубный корабль. ", size);
+                board.print_board(false);
+                println!("Введите координаты через пробел (например A1 A2 A3):");
+                let mut input = String::new();
+                io::stdin().read_line(&mut input).unwrap();
+                let coords: Vec<(usize, usize)> = input
+                    .trim()
+                    .split_whitespace()
+                    .map(|coord| parse_coordinates(coord).unwrap())
+                    .collect();
+                
+                if coords.len() != size {
+                    println!("Неверное количество координат для корабля");
+                    continue;
+                }
+        
+                let ship = Rc::new(RefCell::new(Ship::new(coords.clone(), size)));
+        
+                if let Err(err) = board.place_ship(ship) {
+                    println!("{}", err);
+                    continue;
+                }
+                break;
             }
         }
     }

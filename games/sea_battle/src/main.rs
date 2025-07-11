@@ -23,6 +23,9 @@ fn main() {
     let computer_placer = AutoShipPlacer;
     let mut game = Game::new(&*player_placer, &computer_placer);
 
+    println!("Итоговое расположение кораблей:");
+    game.player_board.print_board(false);
+
     loop {
         println!("Ваш ход! Введите координаты (например, А5):");
         let mut input = String::new();
