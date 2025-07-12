@@ -181,7 +181,7 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
     ];
 
     for &(size, count) in &chips_to_place {
-        for _ in 0..count {
+        for i in 0..count {
             println!(
                 "\nРазместите {}-палубный корабль (осталось {}).",
                 size,
@@ -200,7 +200,7 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
                     .map(|coord| parse_coordinates(coord))
                     .collect();
 
-                let mut valid_coords = Vec:new();
+                let mut valid_coords = Vec::new();
                 let mut has_error = false;
 
                 for result in coords {
@@ -242,11 +242,14 @@ pub fn parse_coordinates(input: &str) -> Result<(usize, usize), String> {
     }
     
     let row = match chars[0] {
-        'A'..='J' => chars[0] as usize - 'A' as usize,
-        _ => return None,
-    };
-    let col = chars[1].to_digit(10)? as usize - 1;
-    Some((row, col))
+        'A'..='J' => Ok(chars[0] as usize - 'A' as usize),
+        _ => Err("Первая буква должна быть от 'A' до 'J'.".to_string()),
+    }?;
+    let col = match chars[1].to_digit(10) {
+        Some(num) if num >= 1 && num <= 10 => Ok((num - 1) as usize),
+        _ => Err("Второй символ должен быть числом от 1 до 10.".to_string()),
+    }?;
+    Ok((row, col))
 }
 
 pub trait ShipPlacer {
