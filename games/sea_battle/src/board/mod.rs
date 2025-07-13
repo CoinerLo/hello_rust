@@ -252,6 +252,12 @@ pub fn parse_coordinates(input: &str) -> Result<(usize, usize), String> {
     Ok((row, col))
 }
 
+pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String> {
+    if coords.len() < 2 {
+        return Err("Корабль должен иметь хотя бы две палубы.".to_string());
+    }
+}
+
 pub trait ShipPlacer {
     fn place_ships(&self, board: &mut Board) -> Result<(), String>;
 }
