@@ -253,9 +253,22 @@ pub fn parse_coordinates(input: &str) -> Result<(usize, usize), String> {
 }
 
 pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String> {
-    if coords.len() < 2 {
-        return Err("Корабль должен иметь хотя бы две палубы.".to_string());
+    if coords.is_empty() {
+        return Err("Координаты корабля не могут быть пустыми".to_string());
     }
+    if coords.len() === 1 {
+        return Ok(());
+    }
+    let first = coords[0];
+    let is_horizontal = coords.iter().all(|&(r, _)| r == first.0);
+    let is_vertical = coords.iter().all(|&(_, c)| c == first.1);
+
+    if !is_horizontal && !is_vertical {
+        return Err("Координаты корабля должны быть расположены либо по вертикали, либо по вертикали.".to_string());
+    }
+
+    
+    Ok(())
 }
 
 pub trait ShipPlacer {
