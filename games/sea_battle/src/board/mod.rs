@@ -267,6 +267,27 @@ pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String
         return Err("Координаты корабля должны быть расположены либо по вертикали, либо по вертикали.".to_string());
     }
 
+    let sorted_coodrs: Vec<(usize, usize)> = if is_horizontal {
+        let mut sorted = coords.to_vec();
+        sorted.sort_by_key(|&(_, c)| c); // сортировка по столбцам
+        sorted
+    } else {
+        let mut  sorted = coords.to_vec();
+        sorted.sort_by_key(|&(r, _)| r); // сортировка по строкам
+        sorted
+    }
+    
+    for i in 1..sorted_coodrs.len() {
+        let prev = sorted_coodrs[i - 1];
+        let curr = sorted_coodrs[i];
+        
+        if is_horizontal && curr.1 != prev.1 + 1 {
+            return Err("Координаты корабля должны быть непрерывными по горизонтали.".to_string());
+        }
+        if is_vertical && curr.0 != prev.0 + 1 {
+            return Err("Координаты корабля должны быть непрерывными по вертикали.".to_string());
+        }
+    }
     
     Ok(())
 }
