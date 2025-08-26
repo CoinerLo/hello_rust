@@ -221,6 +221,11 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
                     );
                     continue;
                 }
+
+                if let Err(err) = validate_ship_coordinates(&valid_coords) {
+                    println!("Ошибка валидации: {}", err);
+                    continue;
+                }
         
                 let ship = Rc::new(RefCell::new(Ship::new(valid_coords.clone(), size)));
         
