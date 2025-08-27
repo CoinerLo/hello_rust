@@ -261,7 +261,7 @@ pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String
     if coords.is_empty() {
         return Err("Координаты корабля не могут быть пустыми".to_string());
     }
-    if coords.len() === 1 {
+    if coords.len() == 1 {
         return Ok(());
     }
     let first = coords[0];
@@ -269,7 +269,7 @@ pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String
     let is_vertical = coords.iter().all(|&(_, c)| c == first.1);
 
     if !is_horizontal && !is_vertical {
-        return Err("Координаты корабля должны быть расположены либо по вертикали, либо по вертикали.".to_string());
+        return Err("Координаты корабля должны быть расположены либо по вертикали, либо по горизонтали.".to_string());
     }
 
     let sorted_coodrs: Vec<(usize, usize)> = if is_horizontal {
@@ -277,20 +277,20 @@ pub fn validate_ship_coordinates(coords: &[(usize, usize)]) -> Result<(), String
         sorted.sort_by_key(|&(_, c)| c); // сортировка по столбцам
         sorted
     } else {
-        let mut  sorted = coords.to_vec();
+        let mut sorted = coords.to_vec();
         sorted.sort_by_key(|&(r, _)| r); // сортировка по строкам
         sorted
-    }
+    };
     
     for i in 1..sorted_coodrs.len() {
         let prev = sorted_coodrs[i - 1];
         let curr = sorted_coodrs[i];
         
         if is_horizontal && curr.1 != prev.1 + 1 {
-            return Err("Координаты корабля должны быть непрерывными по горизонтали.".to_string());
+            return Err("Координаты корабля должны быть непрерывными по вертикали.".to_string());
         }
         if is_vertical && curr.0 != prev.0 + 1 {
-            return Err("Координаты корабля должны быть непрерывными по вертикали.".to_string());
+            return Err("Координаты корабля должны быть непрерывными по горизонтали.".to_string());
         }
     }
     
