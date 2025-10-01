@@ -1,7 +1,7 @@
 use crate::ship::{Ship, ShootResult};
 use rand::Rng;
 use std::{io, rc::Rc, cell::RefCell};
-
+use eframe::egui;
 
 pub struct Board {
     pub cells: Vec<Vec<Option<Rc<RefCell<Ship>>>>>,
@@ -169,6 +169,10 @@ impl Board {
             }
             println!();
         }
+    }
+
+    pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) {
+        egui::Grid::new("board_grid");
     }
 }
 
