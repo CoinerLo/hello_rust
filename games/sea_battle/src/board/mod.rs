@@ -172,7 +172,12 @@ impl Board {
     }
 
     pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) {
-        egui::Grid::new("board_grid");
+        egui::Grid::new("board_grid")
+            .min_col_width(20.0)
+            .min_row_height(20.0)
+            .show(ui, |ui| {
+                
+            });
     }
 }
 
