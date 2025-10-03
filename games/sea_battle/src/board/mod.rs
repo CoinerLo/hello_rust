@@ -176,7 +176,21 @@ impl Board {
             .min_col_width(20.0)
             .min_row_height(20.0)
             .show(ui, |ui| {
-                
+                for row in 0..self.height {
+                    for col in 0..self.width {
+                        let cell = &self.cells[row][col];
+                        let color = match cell {
+                            Some(ship) => {
+                                if ship.borrow().is_destroyed() {
+                                    egui::Color32::RED
+                                } else {
+                                    egui::Color32::GREEN
+                                }
+                            }
+                            None => egui::Color32::BLUE,
+                        };
+                    }
+                }
             });
     }
 }
