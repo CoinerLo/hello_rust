@@ -189,7 +189,17 @@ impl Board {
                             }
                             None => egui::Color32::BLUE,
                         };
+
+                        ui.painter().rect_filled(
+                            egui::Rect::from_min_size(
+                                egui::Pos2::new(col as f32 * 20.0, row as f32 * 20.0),
+                                egui::Vec2::splat(20.0),
+                            ),
+                            0.0,
+                            color,
+                        );
                     }
+                    ui.end_row();
                 }
             });
     }
