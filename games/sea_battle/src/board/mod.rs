@@ -183,8 +183,10 @@ impl Board {
                             Some(ship) => {
                                 if ship.borrow().is_destroyed() {
                                     egui::Color32::RED
-                                } else {
+                                } else if !hide_ships {
                                     egui::Color32::GREEN
+                                } else {
+                                    egui::Color32::BLUE
                                 }
                             }
                             None => egui::Color32::BLUE,
