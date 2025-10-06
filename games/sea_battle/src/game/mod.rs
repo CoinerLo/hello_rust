@@ -55,6 +55,19 @@ impl Game {
     }
 }
 
+impl eframe::App for Game {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Морской бой");
+
+            ui.label("Ваша доска:");
+            self.player_board.draw_board(ui, false);
+
+
+        });
+    } 
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
