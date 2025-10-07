@@ -63,7 +63,17 @@ impl eframe::App for Game {
             ui.label("Ваша доска:");
             self.player_board.draw_board(ui, false);
 
+            ui.label("Доска компьютера:");
+            self.computer_board.draw_board(ui, true);
 
+            if self.check_game_over() {
+                ui.label(if self.player_board.all_ships_destroyed() {
+                    "Компьютер победил!"
+                } else {
+                    "ВЫ победили!"
+                });
+                return;
+            }
         });
     } 
 }
