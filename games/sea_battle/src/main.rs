@@ -94,7 +94,6 @@ impl Default for GameApp {
 impl eframe::App for GameApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            // Инициализация игры
             if self.game.is_none() {
                 ui.heading("Добро пожаловать в игру 'Морской бой'!");
                 ui.label("Выберите режим размещения кораблей:");
@@ -111,14 +110,12 @@ impl eframe::App for GameApp {
 
             let game = self.game.as_mut().unwrap();
 
-            // Отображение досок
             ui.label("Ваша доска:");
             game.player_board.draw_board(ui, false);
 
             ui.label("Доска компьютера:");
             game.computer_board.draw_board(ui, true);
 
-            // Проверка завершения игры
             if game.check_game_over() {
                 ui.label(if game.player_board.all_ships_destroyed() {
                     "Компьютер победил!"
@@ -128,25 +125,25 @@ impl eframe::App for GameApp {
                 return;
             }
 
-            // Ход игрока
             if self.is_player_turn {
-                ui.label("Ваш ход! Введите координаты (например, A5):");
-                ui.text_edit_singleline(&mut self.input_coords);
-                if ui.button("Сделать ход").clicked() {
-                    if let Ok((row, col)) = parse_coordinates(&self.input_coords.trim()) {
-                        let result = game.player_shoot(row, col);
-                        match result {
-                            crate::ship::ShootResult::Miss => println!("Промах!"),
-                            crate::ship::ShootResult::Hit => println!("Попал!"),
-                            crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
+                ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
+                    ui.label("Ваш ход! Введите координаты (например, A5):");
+                    ui.text_edit_singleline(&mut self.input_coords);
+                    if ui.button("Сделать ход").clicked() {
+                        if let Ok((row, col)) = parse_coordinates(&self.input_coords.trim()) {
+                            let result = game.player_shoot(row, col);
+                            match result {
+                                crate::ship::ShootResult::Miss => println!("Промах!"),
+                                crate::ship::ShootResult::Hit => println!("Попал!"),
+                                crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
+                            }
+                            self.is_player_turn = false;
+                        } else {
+                            println!("Неверные координаты!");
                         }
-                        self.is_player_turn = false;
-                    } else {
-                        println!("Неверные координаты!");
                     }
-                }
+                });
             } else {
-                // Ход компьютера
                 let result = game.computer_shoot(&RandomShotStrategy);
                 match result {
                     crate::ship::ShootResult::Miss => println!("Компьютер промахнулся!"),
