@@ -278,16 +278,16 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
 pub fn parse_coordinates(input: &str) -> Result<(usize, usize), String> {
     let chars: Vec<char> = input.chars().collect();
     if chars.len() != 2 {
-        return Err("Неверный формат координат. Введите две буквы (например, 'A5').".to_string());
+        return Err("Неверный формат координат. Введите два символа (например, 'A5').".to_string());
     }
-    
+
     let row = match chars[0] {
         'A'..='J' => Ok(chars[0] as usize - 'A' as usize),
         _ => Err("Первая буква должна быть от 'A' до 'J'.".to_string()),
     }?;
     let col = match chars[1].to_digit(10) {
-        Some(num) if num >= 1 && num <= 10 => Ok((num - 1) as usize),
-        _ => Err("Второй символ должен быть числом от 1 до 10.".to_string()),
+        Some(num) if num <= 10 => Ok((num) as usize),
+        _ => Err("Второй символ должен быть числом от 0 до 9.".to_string()),
     }?;
     Ok((row, col))
 }
