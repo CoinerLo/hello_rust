@@ -2,10 +2,21 @@ use crate::board::Board;
 use crate::ship::ShootResult;
 use rand::Rng;
 use crate::board::ShipPlacer;
+use std::fmt::Debug;
+use std::fmt::Formatter;
 
 pub struct Game {
     pub player_board: Board,
     pub computer_board: Board,
+}
+
+impl Debug for Game {
+    fn fmt(&self, _: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        self.player_board.print_board(false);
+        println!("\n");
+        self.computer_board.print_board(false);
+        Ok(())
+    }
 }
 
 pub trait ShotStrategy {
