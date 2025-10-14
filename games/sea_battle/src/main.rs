@@ -160,14 +160,6 @@ impl GameApp {
     fn start_game(&mut self) {
         let mut game = Game::new(&*self.player_placer, &*self.computer_placer);
         println!("{:?}", game);
-        // Размещаем корабли
-        if let Err(err) = self.player_placer.place_ships(&mut game.player_board) {
-            panic!("Ошибка при размещении кораблей игрока: {}", err);
-        }
-
-        if let Err(err) = self.computer_placer.place_ships(&mut game.computer_board) {
-            panic!("Ошибка при размещении кораблей компьютера: {}", err);
-        }
 
         self.game = Some(game);
     }
