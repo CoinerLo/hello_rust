@@ -172,9 +172,9 @@ impl Board {
     }
 
     pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) {
-        egui::Grid::new("board_grid")
-            .min_col_width(20.0)
-            .min_row_height(20.0)
+        egui::Grid::new(format!("board_grid_{}", if hide_ships { "computer" } else { "player" }))
+            .min_col_width(40.0)
+            .min_row_height(40.0)
             .show(ui, |ui| {
                 for row in 0..self.height {
                     for col in 0..self.width {
