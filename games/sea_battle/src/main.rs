@@ -113,6 +113,8 @@ impl eframe::App for GameApp {
             ui.label("Ваша доска:");
             game.player_board.draw_board(ui, false);
 
+            ui.add_space(20.0);
+
             ui.label("Доска компьютера:");
             game.computer_board.draw_board(ui, true);
 
@@ -158,7 +160,7 @@ impl eframe::App for GameApp {
 
 impl GameApp {
     fn start_game(&mut self) {
-        let mut game = Game::new(&*self.player_placer, &*self.computer_placer);
+        let game = Game::new(&*self.player_placer, &*self.computer_placer);
         println!("{:?}", game);
 
         self.game = Some(game);
