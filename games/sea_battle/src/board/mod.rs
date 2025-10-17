@@ -172,9 +172,11 @@ impl Board {
     }
 
     pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) {
+        let cell_size = 30.0;
+
         egui::Grid::new(format!("board_grid_{}", if hide_ships { "computer" } else { "player" }))
-            .min_col_width(40.0)
-            .min_row_height(40.0)
+            .min_col_width(cell_size)
+            .min_row_height(cell_size)
             .show(ui, |ui| {
                 for row in 0..self.height {
                     for col in 0..self.width {
@@ -194,8 +196,8 @@ impl Board {
 
                         ui.painter().rect_filled(
                             egui::Rect::from_min_size(
-                                egui::Pos2::new(col as f32 * 20.0, row as f32 * 20.0),
-                                egui::Vec2::splat(20.0),
+                                egui::Pos2::new(col as f32 * cell_size, row as f32 * cell_size),
+                                egui::Vec2::splat(25.0),
                             ),
                             0.0,
                             color,
@@ -223,6 +225,7 @@ pub fn place_ships_manually(board: &mut Board) -> Result<(), String> {
                 count - i
             );
             board.print_board(false);
+            // board.draw_board(false);
 
             loop {
                 println!("Введите координаты через пробел (например A1 A2 A3):");
