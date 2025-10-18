@@ -204,7 +204,10 @@ impl Board {
 
                         ui.painter().rect_filled(
                             egui::Rect::from_min_size(
-                                egui::Pos2::new(col as f32 * cell_size, row as f32 * cell_size),
+                                egui::Pos2::new(
+                                    if !hide_ships { (col + 1) as f32 * 1.25 * cell_size } else { (col as f32 + 12.5) * 1.25 * cell_size },
+                                    (row + 2) as f32 * 1.25 * cell_size,
+                                ),
                                 egui::Vec2::splat(25.0),
                             ),
                             0.0,
