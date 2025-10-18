@@ -178,7 +178,15 @@ impl Board {
             .min_col_width(cell_size)
             .min_row_height(cell_size)
             .show(ui, |ui| {
+                ui.label("");
+                for col in 0..self.width {
+                    ui.label(format!("{}", col));
+                }
+                ui.end_row();
+
                 for row in 0..self.height {
+                    let letter = (b'A' + row as u8) as char;
+                    ui.label(format!("{}", letter));
                     for col in 0..self.width {
                         let cell = &self.cells[row][col];
                         let color = match cell {
@@ -191,7 +199,7 @@ impl Board {
                                     egui::Color32::BLUE
                                 }
                             }
-                            None => egui::Color32::BLUE,
+                            None => egui::Color32::DARK_BLUE,
                         };
 
                         ui.painter().rect_filled(
