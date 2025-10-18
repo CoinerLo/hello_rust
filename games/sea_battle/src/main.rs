@@ -108,15 +108,23 @@ impl eframe::App for GameApp {
                 return;
             }
 
+            ui.heading("Морской бой");
+
             let game = self.game.as_mut().unwrap();
 
-            ui.label("Ваша доска:");
-            game.player_board.draw_board(ui, false);
+            ui.horizontal(|ui| {
+                ui.vertical(|ui| {
+                    ui.label("Ваша доска:");
+                    game.player_board.draw_board(ui, false);
+                });
 
-            ui.add_space(20.0);
+                ui.add_space(20.0);
 
-            ui.label("Доска компьютера:");
-            game.computer_board.draw_board(ui, true);
+                ui.vertical(|ui| {
+                    ui.label("Доска компьютера:");
+                    game.computer_board.draw_board(ui, true);
+                });
+            });
 
             if game.check_game_over() {
                 ui.label(if game.player_board.all_ships_destroyed() {
