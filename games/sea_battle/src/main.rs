@@ -176,7 +176,12 @@ impl GameApp {
 }
 
 fn main() {
-    let options = eframe::NativeOptions::default();
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([900.0, 600.0])
+            .with_min_inner_size([800.0, 500.0]), 
+        ..Default::default()
+    };
     let _ = eframe::run_native(
         "Морской бой",
         options,
