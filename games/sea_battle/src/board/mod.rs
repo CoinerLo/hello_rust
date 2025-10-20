@@ -4,6 +4,7 @@ use std::{io, rc::Rc, cell::RefCell};
 use eframe::egui;
 
 pub struct Board {
+    pub shots: Vec<Vec<Option<ShootResult>>>,
     pub cells: Vec<Vec<Option<Rc<RefCell<Ship>>>>>,
     pub width: usize,
     pub height: usize,
@@ -12,6 +13,7 @@ pub struct Board {
 impl Board {
     pub fn new(width: usize, height: usize) -> Self {
         Board {
+            shots: vec![vec![None; width]; height],
             cells: vec![vec![None; width]; height],
             width,
             height,
@@ -196,7 +198,7 @@ impl Board {
                                 } else if !hide_ships {
                                     egui::Color32::GREEN
                                 } else {
-                                    egui::Color32::BLUE
+                                    egui::Color32::DARK_BLUE
                                 }
                             }
                             None => egui::Color32::DARK_BLUE,
