@@ -4,7 +4,7 @@ use std::{io, rc::Rc, cell::RefCell};
 use eframe::egui;
 
 pub struct Board {
-    pub shots: Vec<Vec<Option<ShootResult>>>,
+    pub shots: Vec<Vec<Option<bool>>>,
     pub cells: Vec<Vec<Option<Rc<RefCell<Ship>>>>>,
     pub width: usize,
     pub height: usize,
@@ -100,6 +100,12 @@ impl Board {
         if row >= self.height || col >= self.width {
             panic!("Выстрел за пределы поля!");
         }
+
+        if self.shots[row][col].is_some() {
+            return ShootResult::Miss;
+        }
+
+        self.shots[row][col] = Some(self.cells[row][col].is_some());
 
         if let Some(ship) = &mut self.cells[row][col] {
             let mut ship_ref = ship.borrow_mut();
