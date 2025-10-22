@@ -197,17 +197,21 @@ impl Board {
                     ui.label(format!("{}", letter));
                     for col in 0..self.width {
                         let cell = &self.cells[row][col];
-                        let color = match cell {
-                            Some(ship) => {
-                                if ship.borrow().is_destroyed() {
-                                    egui::Color32::RED
-                                } else if !hide_ships {
-                                    egui::Color32::GREEN
+                        let shot = self.shots[row][col];
+                        let color = match shot {
+                            Some(true) => egui::Color32::RED,
+                            Some(false) => egui::Color32::ORANGE,
+                            None => {
+                                if let Some(ship) = cell {
+                                    if !hide_ships {
+                                        egui::Color32::GREEN // Живой корабль (виден только для игрока)
+                                    } else {
+                                        egui::Color32::DARK_BLUE // Скрытая клетка
+                                    }
                                 } else {
-                                    egui::Color32::DARK_BLUE
+                                    egui::Color32::DARK_BLUE // Пустая клетка
                                 }
                             }
-                            None => egui::Color32::DARK_BLUE,
                         };
 
                         ui.painter().rect_filled(
