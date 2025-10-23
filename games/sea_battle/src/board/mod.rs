@@ -179,8 +179,9 @@ impl Board {
         }
     }
 
-    pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) {
+    pub fn draw_board(&self, ui: &mut egui::Ui, hide_ships: bool) -> Option<(usize, usize)> {
         let cell_size = 30.0;
+        let mut clicked_cell = None;
 
         egui::Grid::new(format!("board_grid_{}", if hide_ships { "computer" } else { "player" }))
             .min_col_width(cell_size)
@@ -202,7 +203,7 @@ impl Board {
                             Some(true) => egui::Color32::RED,
                             Some(false) => egui::Color32::ORANGE,
                             None => {
-                                if let Some(ship) = cell {
+                                if let Some(_ship) = cell {
                                     if !hide_ships {
                                         egui::Color32::GREEN // Живой корабль (виден только для игрока)
                                     } else {
@@ -214,21 +215,25 @@ impl Board {
                             }
                         };
 
-                        ui.painter().rect_filled(
-                            egui::Rect::from_min_size(
-                                egui::Pos2::new(
-                                    if !hide_ships { (col + 1) as f32 * 1.25 * cell_size } else { (col as f32 + 12.5) * 1.25 * cell_size },
-                                    (row + 2) as f32 * 1.25 * cell_size,
-                                ),
-                                egui::Vec2::splat(25.0),
+                        let rect = egui::Rect::from_min_size(
+                            egui::Pos2::new(
+                                if !hide_ships { (col + 1) as f32 * 1.25 * cell_size } else { (col as f32 + 12.5) * 1.25 * cell_size },
+                                (row + 2) as f32 * 1.25 * cell_size,
                             ),
-                            0.0,
-                            color,
+                            egui::Vec2::splat(25.0),
                         );
+
+                        ui.painter().rect_filled(rect, 0.0, color);
+
+                        let response = ui.interact(rect, egui::Id::new((row, col)), egui::Sense::click());
+                        if response.clicked() {
+                            clicked_cell = Some((row, col));
+                        }
                     }
                     ui.end_row();
                 }
             });
+        clicked_cell
     }
 }
 
