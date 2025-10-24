@@ -122,7 +122,20 @@ impl eframe::App for GameApp {
 
                 ui.vertical(|ui| {
                     ui.label("Доска компьютера:");
-                    game.computer_board.draw_board(ui, true);
+                    if let Some((row, col)) = game.computer_board.draw_board(ui, true) {
+                        if self.is_player_turn {
+                            // Выполняем выстрел по компьютеру
+                            let result = game.player_shoot(row, col);
+                            match result {
+                                crate::ship::ShootResult::Miss => println!("Промах!"),
+                                crate::ship::ShootResult::Hit => println!("Попадание!"),
+                                crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
+                            }
+
+                            // Передаём ход компьютеру
+                            self.is_player_turn = false;
+                        }
+                    };
                 });
             });
 
@@ -135,33 +148,37 @@ impl eframe::App for GameApp {
                 return;
             }
 
-            if self.is_player_turn {
-                ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    ui.label("Ваш ход! Введите координаты (например, A5):");
-                    ui.text_edit_singleline(&mut self.input_coords);
-                    if ui.button("Сделать ход").clicked() {
-                        if let Ok((row, col)) = parse_coordinates(&self.input_coords.trim()) {
-                            let result = game.player_shoot(row, col);
-                            match result {
-                                crate::ship::ShootResult::Miss => println!("Промах!"),
-                                crate::ship::ShootResult::Hit => println!("Попал!"),
-                                crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
-                            }
-                            self.is_player_turn = false;
-                        } else {
-                            println!("Неверные координаты!");
-                        }
-                    }
-                });
-            } else {
-                let result = game.computer_shoot(&RandomShotStrategy);
-                match result {
-                    crate::ship::ShootResult::Miss => println!("Компьютер промахнулся!"),
-                    crate::ship::ShootResult::Hit => println!("Компьютер попал!"),
-                    crate::ship::ShootResult::Destroy => println!("Компьютер уничтожил ваш корабль!"),
-                }
-                self.is_player_turn = true;
+            if !self.is_player_turn {
+                game.computer_shoot(&RandomShotStrategy);
             }
+
+            // if self.is_player_turn {
+            //     ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
+            //         ui.label("Ваш ход! Введите координаты (например, A5):");
+            //         ui.text_edit_singleline(&mut self.input_coords);
+            //         if ui.button("Сделать ход").clicked() {
+            //             if let Ok((row, col)) = parse_coordinates(&self.input_coords.trim()) {
+            //                 let result = game.player_shoot(row, col);
+            //                 match result {
+            //                     crate::ship::ShootResult::Miss => println!("Промах!"),
+            //                     crate::ship::ShootResult::Hit => println!("Попал!"),
+            //                     crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
+            //                 }
+            //                 self.is_player_turn = false;
+            //             } else {
+            //                 println!("Неверные координаты!");
+            //             }
+            //         }
+            //     });
+            // } else {
+            //     let result = game.computer_shoot(&RandomShotStrategy);
+            //     match result {
+            //         crate::ship::ShootResult::Miss => println!("Компьютер промахнулся!"),
+            //         crate::ship::ShootResult::Hit => println!("Компьютер попал!"),
+            //         crate::ship::ShootResult::Destroy => println!("Компьютер уничтожил ваш корабль!"),
+            //     }
+            //     self.is_player_turn = true;
+            // }
         });
     }
 }
