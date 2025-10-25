@@ -197,38 +197,41 @@ impl Board {
                     let letter = (b'A' + row as u8) as char;
                     ui.label(format!("{}", letter));
                     for col in 0..self.width {
-                        let cell = &self.cells[row][col];
-                        let shot = self.shots[row][col];
-                        let color = match shot {
-                            Some(true) => egui::Color32::RED,
-                            Some(false) => egui::Color32::ORANGE,
-                            None => {
-                                if let Some(_ship) = cell {
-                                    if !hide_ships {
-                                        egui::Color32::GREEN // Живой корабль (виден только для игрока)
+                        ui.push_id(format!("cell_{}_{}_{}", row, col, hide_ships), |ui| {
+                            let cell = &self.cells[row][col];
+                            let shot = self.shots[row][col];
+                            let color = match shot {
+                                Some(true) => egui::Color32::RED,
+                                Some(false) => egui::Color32::ORANGE,
+                                None => {
+                                    if let Some(_ship) = cell {
+                                        if !hide_ships {
+                                            egui::Color32::GREEN // Живой корабль (виден только для игрока)
+                                        } else {
+                                            egui::Color32::DARK_BLUE // Скрытая клетка
+                                        }
                                     } else {
-                                        egui::Color32::DARK_BLUE // Скрытая клетка
+                                        egui::Color32::DARK_BLUE // Пустая клетка
                                     }
-                                } else {
-                                    egui::Color32::DARK_BLUE // Пустая клетка
                                 }
+                            };
+
+                            let rect = egui::Rect::from_min_size(
+                                egui::Pos2::new(
+                                    if !hide_ships { (col + 1) as f32 * 1.25 * cell_size } else { (col as f32 + 12.5) * 1.25 * cell_size },
+                                    (row + 2) as f32 * 1.25 * cell_size,
+                                ),
+                                egui::Vec2::splat(25.0),
+                            );
+
+                            ui.painter().rect_filled(rect, 0.0, color);
+
+                            let id = ui.make_persistent_id((row, col, hide_ships));
+                            let response = ui.interact(rect, id, egui::Sense::click());
+                            if response.clicked() {
+                                clicked_cell = Some((row, col));
                             }
-                        };
-
-                        let rect = egui::Rect::from_min_size(
-                            egui::Pos2::new(
-                                if !hide_ships { (col + 1) as f32 * 1.25 * cell_size } else { (col as f32 + 12.5) * 1.25 * cell_size },
-                                (row + 2) as f32 * 1.25 * cell_size,
-                            ),
-                            egui::Vec2::splat(25.0),
-                        );
-
-                        ui.painter().rect_filled(rect, 0.0, color);
-
-                        let response = ui.interact(rect, egui::Id::new((row, col)), egui::Sense::click());
-                        if response.clicked() {
-                            clicked_cell = Some((row, col));
-                        }
+                        });
                     }
                     ui.end_row();
                 }
