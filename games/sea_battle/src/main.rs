@@ -149,7 +149,16 @@ impl eframe::App for GameApp {
             }
 
             if !self.is_player_turn {
-                game.computer_shoot(&RandomShotStrategy);
+                let shoot_result = game.computer_shoot(&RandomShotStrategy);
+                // match shoot_result {
+                //     crate::ship::ShootResult::Miss => {},
+                //     crate::ship::ShootResult::Hit => {
+                //         self.is_player_turn = true;
+                //     }
+                //     crate::ship::ShootResult::Destroy => {
+                //         self.is_player_turn = true;
+                //     }
+                // }
             }
 
             // if self.is_player_turn {
