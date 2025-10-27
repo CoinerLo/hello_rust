@@ -127,13 +127,14 @@ impl eframe::App for GameApp {
                             // Выполняем выстрел по компьютеру
                             let result = game.player_shoot(row, col);
                             match result {
-                                crate::ship::ShootResult::Miss => println!("Промах!"),
+                                crate::ship::ShootResult::Miss => {
+                                    println!("Промах!");
+                                    // Передаём ход компьютеру
+                                    self.is_player_turn = false;
+                                }
                                 crate::ship::ShootResult::Hit => println!("Попадание!"),
                                 crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
                             }
-
-                            // Передаём ход компьютеру
-                            self.is_player_turn = false;
                         }
                     };
                 });
@@ -150,15 +151,13 @@ impl eframe::App for GameApp {
 
             if !self.is_player_turn {
                 let shoot_result = game.computer_shoot(&RandomShotStrategy);
-                // match shoot_result {
-                //     crate::ship::ShootResult::Miss => {},
-                //     crate::ship::ShootResult::Hit => {
-                //         self.is_player_turn = true;
-                //     }
-                //     crate::ship::ShootResult::Destroy => {
-                //         self.is_player_turn = true;
-                //     }
-                // }
+                match shoot_result {
+                    crate::ship::ShootResult::Miss => {
+                        self.is_player_turn = true;
+                    },
+                    crate::ship::ShootResult::Hit => {}
+                    crate::ship::ShootResult::Destroy => {}
+                }
             }
 
             // if self.is_player_turn {
