@@ -141,10 +141,13 @@ impl eframe::App for GameApp {
             });
 
             if game.check_game_over() {
-                ui.label(if game.player_board.all_ships_destroyed() {
-                    "Компьютер победил!"
-                } else {
-                    "Вы победили!"
+                ui.add_space(20.0);
+                ui.horizontal_centered(|ui| {
+                    ui.heading(if game.player_board.all_ships_destroyed() {
+                        "Компьютер победил!"
+                    } else {
+                        "Вы победили!"
+                    });
                 });
                 return;
             }
