@@ -61,6 +61,7 @@
 // }
 
 use eframe::egui;
+use std::{thread, time::Duration};
 use crate::game::{Game, RandomShotStrategy};
 use crate::board::{parse_coordinates, ManualShipPlacer, AutoShipPlacer, ShipPlacer};
 
@@ -111,6 +112,7 @@ impl eframe::App for GameApp {
             ui.heading("Морской бой");
 
             let game = self.game.as_mut().unwrap();
+            let mut label_turn_result = "";
 
             ui.horizontal(|ui| {
                 ui.vertical(|ui| {
@@ -129,11 +131,18 @@ impl eframe::App for GameApp {
                             match result {
                                 crate::ship::ShootResult::Miss => {
                                     println!("Промах!");
+                                    label_turn_result = "Промах!";
                                     // Передаём ход компьютеру
                                     self.is_player_turn = false;
                                 }
-                                crate::ship::ShootResult::Hit => println!("Попадание!"),
-                                crate::ship::ShootResult::Destroy => println!("Корабль уничтожен!"),
+                                crate::ship::ShootResult::Hit => {
+                                    label_turn_result = "Попадание!";
+                                    println!("Попадание!");
+                                }
+                                crate::ship::ShootResult::Destroy => {
+                                    label_turn_result = "Корабль уничтожен!!";
+                                    println!("Корабль уничтожен!");
+                                }
                             }
                         }
                     };
@@ -150,6 +159,12 @@ impl eframe::App for GameApp {
                     });
                 });
                 return;
+            } else {
+                // ui.add_space(20.0);
+                // ui.horizontal_centered(|ui| {
+                //     ui.heading(format!("Результат хода: {}", label_turn_result));
+                // });
+                // thread::sleep(Duration::from_secs(1));
             }
 
             if !self.is_player_turn {
