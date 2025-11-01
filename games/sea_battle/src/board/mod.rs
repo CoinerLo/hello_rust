@@ -201,8 +201,19 @@ impl Board {
                             let cell = &self.cells[row][col];
                             let shot = self.shots[row][col];
                             let color = match shot {
-                                Some(true) => egui::Color32::RED,
                                 Some(false) => egui::Color32::ORANGE,
+                                Some(true) => {
+                                    if let Some(ship) = cell {
+                                        let ship_ref = ship.borrow();
+                                        if ship_ref.is_destroyed() {
+                                            egui::Color32::DARK_RED // Потопленный корабль
+                                        } else {
+                                            egui::Color32::RED // Подбитый корабль
+                                        }
+                                    } else {
+                                        egui::Color32::ORANGE // Попадание в пустую клетку
+                                    }
+                                },
                                 None => {
                                     if let Some(_ship) = cell {
                                         if !hide_ships {
