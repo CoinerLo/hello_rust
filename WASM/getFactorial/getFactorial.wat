@@ -10,13 +10,13 @@
         ;; инициализация: result = 1
         (local.set $result (i32.const 1))
         ;; инициализация: i = 1
-        (local.set $result (i32.const 1))
+        (local.set $i (i32.const 1))
 
         ;; цикл
         (block $done
             (loop $loop
                 ;; если i > n — выйти из цикла (прыгнуть к $done)
-                (br_if $done (i32.gt_u (local.get $result) (local.get $i)))
+                (br_if $done (i32.gt_u (local.get $i) (local.get $n)))
 
                 ;; result *= i
                 (local.set $result
@@ -24,7 +24,7 @@
                 )
 
                 ;; i++
-                (local.set $result
+                (local.set $i
                     (i32.add (local.get $i) (i32.const 1))
                 )
 
