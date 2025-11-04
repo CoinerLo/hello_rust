@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>GetFactorial</title>
+        <script type="module">
+            const wasm = await WebAssembly.instantiateStreaming(await fetch("getFactorial.wasm"), {});
+            const { getFactorial } = wasm.instance.exports;
+            console.log(getFactorial(5));  // 120
+            console.log(getFactorial(0));  // 1 (поскольку цикл не запускается)
+            console.log(getFactorial(1));  // 1
+        </script>
+    </head>
+    <body>
+
+    </body>
+</html>
