@@ -10,7 +10,7 @@
                 logOperation: (num) => console.log(`📝 Число: ${num}`),
                 logResult: (result) => console.log(`✅ Результат: ${result}`)
             };
-            const wasm = await WebAssembly.instantiateStreaming(await fetch("getSum.wasm"), { env: jsImports });
+            const wasm = await WebAssembly.instantiateStreaming(await fetch("getSum_html.wasm"), { env: jsImports });
             const { getSum } = wasm.instance.exports;
             console.log(getSum(5, 2));  // 7
         </script>
