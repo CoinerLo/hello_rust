@@ -1,10 +1,22 @@
-// Ваши структуры:
-// struct Author { ... }
-// struct Book { ... }
-// struct Library { ... }
+struct Author {
+    name: &str
+    year_of_birth: u16
+}
+
+struct Book {
+    name: &str
+    year: u16
+    author: Author
+    tags: Vec<&str>
+    examples: Vec<(id: u32, availability: bool)>
+}
+struct Library {
+    collection: Vec<Book>
+}
 
 fn count_available_copies(book: &Book) -> usize {
-    // Ваш код
+    let count = book.examples.filter(|exem| exem.availability);
+    count.len()
 }
 
 fn find_books_by_author(library: &Library, name: &str) -> Box<[&Book]> {
