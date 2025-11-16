@@ -8,15 +8,17 @@ struct Book<'a> {
     year: u16,
     author: Author<'a>,
     tags: Vec<&'a str>,
-    copies: Vec<{ (id: u32, availability: bool) }>
+    copies: Vec<(u32, bool)>
 }
 struct Library<'a> {
     books: Vec<Book<'a>>
 }
 
 fn count_available_copies(book: &Book) -> usize {
-    let count = book.copies.filter(|exem| exem.availability);
-    count.len()
+    book.copies
+        .iter()
+        .filter(|exem| exem.1)
+        .count()
 }
 
 // fn find_books_by_author(library: &Library, name: &str) -> Box<[&Book]> {
