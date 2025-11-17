@@ -25,9 +25,15 @@ fn count_available_copies(book: &Book) -> usize {
 //     // Ваш код
 // }
 
-// fn add_tag(book: &mut Book, tag: &str) {
-//     // Ваш код
-// }
+fn add_tag<'a>(book: &mut Book<'a>, tag: &'a str) {
+    let count = book.tags
+        .iter()
+        .filter(|book_tag| **book_tag == tag)
+        .count();
+    if count == 0 {
+        book.tags.push(tag);
+    }
+}
 
 // fn oldest_book(library: &Library) -> Option<&Book> {
 //     // Ваш код
@@ -42,8 +48,8 @@ fn main() {
         copies: vec![(1, true), (2, false), (3, true)],
     };
 
-    // add_tag(&mut book1, "classic");
-    // add_tag(&mut book1, "sci-fi");
+    add_tag(&mut book1, "classic");
+    add_tag(&mut book1, "sci-fi");
 
     let book2 = Book {
         title: "Пикник на обочине",
