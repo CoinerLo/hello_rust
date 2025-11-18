@@ -21,9 +21,12 @@ fn count_available_copies(book: &Book) -> usize {
         .count()
 }
 
-// fn find_books_by_author(library: &Library, name: &str) -> Box<[&Book]> {
-//     // Ваш код
-// }
+fn find_books_by_author<'a>(library: &'a Library, name: &'a str) -> Box<[&'a Book<'a>]> {
+    library.books
+        .iter()
+        .filter(|book| book.author.name == name)
+        .collect()
+}
 
 fn add_tag<'a>(book: &mut Book<'a>, tag: &'a str) {
     let count = book.tags
@@ -63,13 +66,13 @@ fn main() {
         books: vec![book1, book2],
     };
 
-    // let books_lem = find_books_by_author(&library, "Лем");
-    // assert_eq!(books_lem.len(), 1);
-    // assert_eq!(books_lem[0].title, "Солярис");
+    let books_lem = find_books_by_author(&library, "Лем");
+    assert_eq!(books_lem.len(), 1);
+    assert_eq!(books_lem[0].title, "Солярис");
 
-    // let books_str = find_books_by_author(&library, "Стругацкие");
-    // assert_eq!(books_str.len(), 1);
-    // assert_eq!(books_str[0].title, "Пикник на обочине");
+    let books_str = find_books_by_author(&library, "Стругацкие");
+    assert_eq!(books_str.len(), 1);
+    assert_eq!(books_str[0].title, "Пикник на обочине");
 
     // let oldest = oldest_book(&library).unwrap();
     // assert_eq!(oldest.title, "Солярис");
