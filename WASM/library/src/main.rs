@@ -38,9 +38,11 @@ fn add_tag<'a>(book: &mut Book<'a>, tag: &'a str) {
     }
 }
 
-// fn oldest_book(library: &Library) -> Option<&Book> {
-//     // Ваш код
-// }
+fn oldest_book<'a>(library: &'a Library<'a>) -> Option<&'a Book<'a>> {
+    library.books
+        .iter()
+        .min_by_key(|book| book.year)
+}
 
 fn main() {
     let mut book1 = Book {
@@ -74,8 +76,8 @@ fn main() {
     assert_eq!(books_str.len(), 1);
     assert_eq!(books_str[0].title, "Пикник на обочине");
 
-    // let oldest = oldest_book(&library).unwrap();
-    // assert_eq!(oldest.title, "Солярис");
+    let oldest = oldest_book(&library).unwrap();
+    assert_eq!(oldest.title, "Солярис");
 
     let first_book = &library.books[0];
     assert_eq!(count_available_copies(first_book), 2);
