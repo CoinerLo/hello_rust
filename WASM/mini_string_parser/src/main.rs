@@ -1,9 +1,28 @@
-enum Token {
-
+enum Operator {
+    sum = '+',
+    diff = '-',
+    mult = '*',
+    div = '/'
 }
 
-enum Expr {
-    
+enum Operand {
+    str,
+    i32,
+}
+
+struct Children {
+    token: Token,
+    child: Option<Children>
+}
+
+enum Token {
+    Operator,
+    Operand,
+    Option<Token>,
+}
+
+struct Expr {
+
 }
 
 fn tokenize(input: &str) -> Vec<Token> {
