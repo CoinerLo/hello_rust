@@ -1,27 +1,8 @@
-enum Operator {
-    sum = '+',
-    diff = '-',
-    mult = '*',
-    div = '/'
-}
-
-enum Operand {
-    str,
-    i32,
-}
-
-struct Children {
-    token: Token,
-    child: Option<Children>
-}
-
 enum Token {
-    Operator,
-    Operand,
-    Option<Token>,
+
 }
 
-struct Expr {
+enum Expr {
 
 }
 
@@ -34,5 +15,101 @@ fn parse(input: &str) -> Expr {
 }
 
 fn main() {
-    println!("Hello, world!");
+    // 1. Простые атомы
+    assert_eq!(parse("x"), Expr::Variable('x'));
+    assert_eq!(parse("4"), Expr::Number(4));
+    assert_eq!(parse("  3  "), Expr::Number(3));
+
+    // 2. Простые бинарные операции
+    assert_eq!(
+        parse("a + b"),
+        Expr::BinOp('+', Box::new(Expr::Variable('a')), Box::new(Expr::Variable('b')))
+    );
+
+    assert_eq!(
+        parse("x*y"),
+        Expr::BinOp('*', Box::new(Expr::Variable('x')), Box::new(Expr::Variable('y')))
+    );
+
+    // 3. Приоритеты
+    assert_eq!(
+        parse("a + b * c"),
+        Expr::BinOp(
+            '+',
+            Box::new(Expr::Variable('a')),
+            Box::new(Expr::BinOp('*', Box::new(Expr::Variable('b')), Box::new(Expr::Variable('c'))))
+        )
+    );
+
+    assert_eq!(
+        parse("a * b + c"),
+        Expr::BinOp(
+            '+',
+            Box::new(Expr::BinOp('*', Box::new(Expr::Variable('a')), Box::new(Expr::Variable('b')))),
+            Box::new(Expr::Variable('c'))
+        )
+    );
+
+    // 4. Скобки меняют приоритет
+    assert_eq!(
+        parse("(a + b) * c"),
+        Expr::BinOp(
+            '*',
+            Box::new(Expr::BinOp('+', Box::new(Expr::Variable('a')), Box::new(Expr::Variable('b')))),
+            Box::new(Expr::Variable('c'))
+        )
+    );
+
+    // 5. Сложные цепочки
+    assert_eq!(
+        parse("a + b + c * d * e - f / g"),
+        Expr::BinOp(
+            '-',
+            Box::new(Expr::BinOp(
+                '+',
+                Box::new(Expr::BinOp(
+                    '+',
+                    Box::new(Expr::Variable('a')),
+                    Box::new(Expr::Variable('b'))
+                )),
+                Box::new(Expr::BinOp(
+                    '*',
+                    Box::new(Expr::BinOp('*', Box::new(Expr::Variable('c')), Box::new(Expr::Variable('d')))),
+                    Box::new(Expr::Variable('e'))
+                ))
+            )),
+            Box::new(Expr::BinOp(
+                '/',
+                Box::new(Expr::Variable('f')),
+                Box::new(Expr::Variable('g'))
+            ))
+        )
+    );
+
+    // 6. Пробелы везде — не должны влиять
+    assert_eq!(parse("  a  +  (  x  *  3  )  "), parse("a+(x*3)"));
+
+    // === Ошибки: должны падать в panic! ===
+
+    macro_rules! should_panic {
+        ($input:expr) => {{
+            let result = std::panic::catch_unwind(|| parse($input));
+            assert!(result.is_err(), "Ожидалась паника на входе: {}", $input);
+        }};
+    }
+
+    should_panic!("");                    // пустая строка
+    should_panic!("a +");                 // незавершённое выражение
+    should_panic!("a + b +");             // тоже
+    should_panic!("(a + b");              // незакрытая скобка
+    should_panic!("a + b)");              // лишняя скобка
+    should_panic!("a + * b");             // два оператора подряд
+    should_panic!("++a");                 // оператор в начале
+    should_panic!("a b");                 // два идентификатора подряд
+    should_panic!("123abc");              // число + буква без оператора
+    should_panic!("a! + b");              // неизвестный символ
+    should_panic!("@");                   // любой мусор
+    should_panic!("   ");                 // только пробелы
+
+    println!("Все тесты прошли!");
 }
