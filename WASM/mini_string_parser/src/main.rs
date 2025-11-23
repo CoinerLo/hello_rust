@@ -1,9 +1,17 @@
+#[derive(Debug, Clone, PartialEq)]
 enum Token {
-
+    Var(char),
+    Num(i64),
+    Op(char),
+    LParen,
+    RParen,
 }
 
+#[derive(Debug, PartialEq)]
 enum Expr {
-
+    Variable(char),
+    Number(i64),
+    BinOp(char, Box<Expr>, Box<Expr>),
 }
 
 fn tokenize(input: &str) -> Vec<Token> {
