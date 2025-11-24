@@ -15,11 +15,36 @@ enum Expr {
 }
 
 fn tokenize(input: &str) -> Vec<Token> {
-    todo!()
+    let mut tokens = Vec::new();
+    let mut chars = input.chars().peekable();
+
+    while let Some(a) = chars.next() {
+        match a {
+            a if a.is_whitespace() => continue,
+            a if a.is_alphabetic() => tokens.push(Token::Var(a)),
+            a if a.is_digit(10) => tokens.push(Token::Num(a.to_digit(10).unwrap() as i64)),
+            '+' | '-' | '*' | '/' => tokens.push(Token::Op(a)),
+            '(' => tokens.push(Token::LParen),
+            ')' => tokens.push(Token::RParen),
+            _ => panic!("Неизвестный символ: {}", a),
+        }
+    }
+
+    tokens
 }
 
 fn parse(input: &str) -> Expr {
-    todo!()
+    let tokens = tokenize(input);
+    let (expr, rest) = parse_expr(&tokens, 0);
+
+    if !rest.is_empty() {
+        panic!("Лишние токены в конце!");
+    }
+    expr
+}
+
+fn parse_expr(tokens: &[Token], min_prec: u8) -> (Expr, &[Token]) {
+    
 }
 
 fn main() {
