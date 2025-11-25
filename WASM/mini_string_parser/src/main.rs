@@ -44,7 +44,26 @@ fn parse(input: &str) -> Expr {
 }
 
 fn parse_expr(tokens: &[Token], min_prec: u8) -> (Expr, &[Token]) {
-    
+    let (mut expr, mut rest) = parse_primary(tokens);
+
+
+
+    (expr, rest)
+}
+
+fn parse_primary(tokens: &[Token]) -> (Expr, &[Token]) {
+    match tokens.first() {
+        Some(Token::Var(b)) => (Expr::Variable(*b), &tokens[1..]),
+        Some(Token::Num(n)) => (Expr::Number(*n), &tokens[1..]),
+        Some(Token::LParen) => {
+            let (expr, rest) = parse_expr(&tokens[1..], 0);
+            match rest.first() {
+                Some(Token:: RParen) => (expr, &rest[1..]),
+                _ => panic!("Ожидалась закрывающая скобка")
+            }
+        }
+        _ => panic!("Ожидалось число, переменная или ("),
+    }
 }
 
 fn main() {
