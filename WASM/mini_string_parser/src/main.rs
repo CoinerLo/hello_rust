@@ -43,10 +43,31 @@ fn parse(input: &str) -> Expr {
     expr
 }
 
+fn precendence(op: char) -> u8 {
+    match op {
+        '*' | '/' => 2,
+        '+' | '-' => 1,
+        _ => 0,
+    }
+}
+
 fn parse_expr(tokens: &[Token], min_prec: u8) -> (Expr, &[Token]) {
     let (mut expr, mut rest) = parse_primary(tokens);
 
-
+    while let Some(token) = rest.first() {
+        if let Token::Op(op) = token {
+            let prec = precendence(*op);
+            if prec < min_prec + 1 {
+                break;
+            }
+            rest = &rest[1..];
+            let (right, new_rest) = parse_expr(rest, prec);
+            expr = Expr::BinOp(*op, Box::new(expr), Box::new(right));
+            rest = new_rest;
+        } else {
+            break;
+        }
+    }
 
     (expr, rest)
 }
