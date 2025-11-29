@@ -5,14 +5,14 @@ pub enum Type {
     Boolean,
 }
 
-pub struct Row (str, Type)
+pub struct Row (String, Type);
 
 pub struct Database {
-    memory: Row[]
+    memory: Vec<Row>,
 }
 
-pub fn database(schema) -> Database {
-    Database {  }
+pub fn database(schema: Vec<Row>) -> Database {
+    Database { memory: schema }
 }
 
 #[cfg(test)]
