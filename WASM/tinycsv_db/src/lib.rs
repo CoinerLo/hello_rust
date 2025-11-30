@@ -15,6 +15,10 @@ pub fn database(schema: Vec<Row>) -> Database {
     Database { memory: schema }
 }
 
+pub fn insert_to(db: &mut Database, row: Row) {
+    db.memory.push(row);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
