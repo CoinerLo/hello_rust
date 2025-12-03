@@ -81,7 +81,20 @@ pub mod row {
 }
 
 pub mod database {
+    use super::Schema;
+    pub struct Database {
+        pub schema: Schema,
+    }
 
+    impl Database {
+        pub fn new(schema: Schema) -> Self {
+            Database { schema }
+        }
+    }
+
+    pub fn new(schema: Schema) -> Database {
+        Database::new(schema)
+    }
 }
 
 
