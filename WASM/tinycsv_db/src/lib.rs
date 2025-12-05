@@ -1,46 +1,23 @@
 use std::collections::HashMap;
 
-pub mod data_type {
-    #[derive(Debug, Clone, PartialEq)]
-    pub enum DataType {
-        Integer,
-        Text,
-        Float,
-        Boolean,
-    }
-
-    pub const Integer: DataType = DataType::Integer;
-    pub const Text: DataType = DataType::Text;
-    pub const Float: DataType = DataType::Float;
-    pub const Boolean: DataType = DataType::Boolean;
-}
-
-pub struct Schema {
-    pub columns: Vec<(String, data_type::DataType)>,
-    column_index: HashMap<String, usize>,
-}
-
-impl Schema {
-    pub fn new(columns: Vec<(String, data_type::DataType)>) -> Self {
-        let column_index = columns
-            .iter()
-            .enumerate()
-            .map(|(i, (name, _))| (name.clone(), i))
-            .collect();
-        Schema { columns, column_index }
-    }
-
-    pub fn column_type(&self, name: &str) -> Option<&data_type::DataType> {
-        self.column_index
-            .get(name)
-            .map(|&i| &self.columns[i].1)
-    }
+#[derive(Debug, Clone, PartialEq)]
+pub enum DataType {
+    Integer,
+    Text,
+    Float,
+    Boolean,
 }
 
 pub mod schema {
-    use super::{data_type, Schema};
-    pub fn new(columns: Vec<(String, data_type::DataType)>) -> Schema {
-        Schema::new(columns)
+    use super::DataType;
+
+    pub type SchemaRow = Vec<(String, DataType)>
+
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct Schema(pub(crate) SchemaRow);
+
+    pub fn new(columns: SchemaRow) -> Schema {
+        Schema(columns)
     }
 }
 
@@ -90,13 +67,19 @@ pub mod database {
         pub fn new(schema: Schema) -> Self {
             Database { schema }
         }
+
+        // pub fn from_csv(csv: &str) -> Self {
+            
+        //     Database { schema }
+        // }
     }
 
     pub fn new(schema: Schema) -> Database {
         Database::new(schema)
     }
-}
 
+
+}
 
 #[cfg(test)]
 mod tests {
