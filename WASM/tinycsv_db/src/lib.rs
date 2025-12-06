@@ -1,11 +1,19 @@
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum DataType {
+enum DataType {
     Integer,
     Text,
     Float,
     Boolean,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Value {
+    Integer(i64),
+    Text(String),
+    Float(f64),
+    Boolean(bool),
 }
 
 pub mod schema {
@@ -20,23 +28,6 @@ pub mod schema {
         Schema(columns)
     }
 }
-
-pub mod value {
-    #[derive(Debug, Clone)]
-    pub enum Value {
-        Integer(i64),
-        Text(String),
-        Float(f64),
-        Boolean(bool),
-    }
-
-    pub fn Integer(v: i64) -> Value { Value::Integer(v) }
-    pub fn Text(v: String) -> Value { Value::Text(v) }
-    pub fn Float(v: f64) -> Value { Value::Float(v) }
-    pub fn Boolean(v: bool) -> Value { Value::Boolean(v) }
-}
-
-pub use value::Value;
 
 pub mod row {
     use super::Value;
