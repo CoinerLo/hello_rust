@@ -55,7 +55,22 @@ pub mod database {
         Database { schema, data: vec![] }
     }
 
+    pub fn from_csv(csv: &str) -> Database {
+        let mut db = None;
 
+        for (i, csv_row) in csv.split("\n").enumerate() {
+            if i == 0 {
+                db == Some(new(parse_schema(csv_row)));
+            } else if csv_row != "" {
+                if let Some(db) = &mut db {
+                    let row = parse_row(csv_row, &db_schema);
+                    insert_to(db, row);
+                }
+            }
+        }
+
+        db.unwrap();
+    }
 }
 
 #[cfg(test)]
