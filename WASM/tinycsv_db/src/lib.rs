@@ -32,41 +32,27 @@ pub mod schema {
 pub mod row {
     use super::Value;
 
-    #[derive(Debug, Clone)]
-    pub struct Row {
-        pub values: Vec<Value>,
-    }
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct Row(pub(crate) Vec<Value>)
 
-    impl Row {
-        pub fn new(values: Vec<Value>) -> Self {
-            Row { values }
-        }
-    }
-
-    pub fn new(values: Vec<Value>) -> Row {
-        Row::new(values)
+    pub fn new(schema: Vec<Value>) -> Row {
+        Row::new(schema)
     }
 }
 
 pub mod database {
-    use super::Schema;
+    use super::schema::Schema;
+    use super::row::Row;
+    use super::{DataType, Value}
+
+    #[derive(Debug, Clone, PartialEq)]
     pub struct Database {
-        pub schema: Schema,
-    }
-
-    impl Database {
-        pub fn new(schema: Schema) -> Self {
-            Database { schema }
-        }
-
-        // pub fn from_csv(csv: &str) -> Self {
-            
-        //     Database { schema }
-        // }
+        pub(crate) schema: Schema,
+        pub(crate) data: Vec<Row>
     }
 
     pub fn new(schema: Schema) -> Database {
-        Database::new(schema)
+        Database { schema, data: vec![] }
     }
 
 
