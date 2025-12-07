@@ -36,7 +36,7 @@ pub mod row {
     pub struct Row(pub(crate) Vec<Value>)
 
     pub fn new(schema: Vec<Value>) -> Row {
-        Row::new(schema)
+        Row(schema)
     }
 }
 
@@ -71,6 +71,31 @@ pub mod database {
 
         db.unwrap();
     }
+
+    fn parse_row(row: &str, schema: Schema) -> Row {
+        let mut data = vec![];
+        for (i, col) in row.split(",").enumerate() {
+            assert(i < schema.0.len());
+
+            match schema.0[i].1 {
+                DataType::Integer => {
+                    data.push(Value::Integer(col.parse::<i64>().unwrap()));
+                }
+                DataType::Text => {
+                    data.push(Value::Text(col.to_string()));
+                }
+                DataType::Float => {
+                    data.push(Value::Float(col.parse::<f64>().unwrap()));
+                }
+                DataType::Boolean => {
+                    data.push(Value::Boolean(col == "true"));
+                }
+            }
+        }
+        Row(data)
+    }
+
+    
 }
 
 #[cfg(test)]
