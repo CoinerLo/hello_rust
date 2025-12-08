@@ -1,6 +1,5 @@
-use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 enum DataType {
     Integer,
     Text,
@@ -19,7 +18,7 @@ enum Value {
 pub mod schema {
     use super::DataType;
 
-    pub type SchemaRow = Vec<(String, DataType)>
+    pub type SchemaRow = Vec<(String, DataType)>;
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct Schema(pub(crate) SchemaRow);
@@ -33,7 +32,7 @@ pub mod row {
     use super::Value;
 
     #[derive(Debug, Clone, PartialEq)]
-    pub struct Row(pub(crate) Vec<Value>)
+    pub struct Row(pub(crate) Vec<Value>);
 
     pub fn new(schema: Vec<Value>) -> Row {
         Row(schema)
@@ -43,7 +42,7 @@ pub mod row {
 pub mod database {
     use super::schema::Schema;
     use super::row::Row;
-    use super::{DataType, Value}
+    use super::{DataType, Value};
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct Database {
@@ -63,19 +62,19 @@ pub mod database {
                 db == Some(new(parse_schema(csv_row)));
             } else if csv_row != "" {
                 if let Some(db) = &mut db {
-                    let row = parse_row(csv_row, &db_schema);
+                    let row = parse_row(csv_row, &db.schema);
                     insert_to(db, row);
                 }
             }
         }
 
-        db.unwrap();
+        db.unwrap()
     }
 
-    fn parse_row(row: &str, schema: Schema) -> Row {
+    fn parse_row(row: &str, schema: &Schema) -> Row {
         let mut data = vec![];
         for (i, col) in row.split(",").enumerate() {
-            assert(i < schema.0.len());
+            assert!(i < schema.0.len());
 
             match schema.0[i].1 {
                 DataType::Integer => {
@@ -95,7 +94,29 @@ pub mod database {
         Row(data)
     }
 
-    
+    fn parse_schema(row: &str) -> Schema {
+        let mut schema = vec![];
+
+        for csv_col in row.split(",") {
+            let mut name = "";
+
+            for (a, val) in csv_col.split(":").enumerate() {
+                match a {
+                    0 => name = val,
+                    _ => {
+                        schema.push((name.to_string(), match val {
+                            "Integer" => DataType::Integer,
+                            "Text" => DataType::Text,
+                            "Float" => DataType::Float,
+                            "Boolean" => DataType::Boolean,
+                            _ => unreachable!(),
+                        }))
+                    }
+                }
+            }
+        }
+        Schema(schema)
+    }
 }
 
 #[cfg(test)]
