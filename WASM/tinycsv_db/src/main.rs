@@ -1,5 +1,4 @@
 use tinycsv_db::*;
-use crate::data_type::DataType;
 
 fn main() {
     let schema = schema::new(vec![
