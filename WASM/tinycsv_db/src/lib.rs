@@ -1,6 +1,6 @@
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-enum DataType {
+pub enum DataType {
     Integer,
     Text,
     Float,
@@ -42,7 +42,7 @@ pub mod row {
 pub mod database {
     use super::schema::Schema;
     use super::row::Row;
-    use super::{DataType, Value};
+    use super::{DataType, Value, insert_to};
 
     #[derive(Debug, Clone, PartialEq)]
     pub struct Database {
@@ -117,6 +117,69 @@ pub mod database {
         }
         Schema(schema)
     }
+}
+
+use database::Database;
+use row::Row;
+
+fn insert_to(db: &mut Database, row: Row) {
+    assert_eq!(db.schema.0.len(), row.0.len());
+
+    for (i, t) in db.schema.0.iter().enumerate() {
+        assert!(
+            match t.1 {
+                DataType::Integer => matches!(row.0[i], Value::Integer(_)),
+                DataType::Text => matches!(row.0[i], Value::Text(_)),
+                DataType::Float => matches!(row.0[i], Value::Float(_)),
+                DataType::Boolean => matches!(row.0[i], Value::Boolean(_)),
+            },
+            "Неправильный тип данных"
+        );
+    }
+
+    db.data.push(row);
+}
+
+fn find_exact(&Database { ref schema, ref data }: &Database, column: &str, value: &Value) -> Box<[usize]> {
+    if let Some(column_i) = schema.0.iter().position(|x| x.0 == column) {
+        let mut ids = vec![];
+
+        for (id, row) in data.iter().enumerate() {
+            if row.0[column_i] == *value {
+                ids.push(id);
+            }
+        }
+        ids.into_boxed_slice()
+    } else {
+        panic!("Колонка {} не найдена в базе данных", column);
+    }
+}
+
+fn remove_exact(db: &mut Database, column: &str, value: &Value) {
+    for id in find_exact(db, column, value) {
+        db.data.remove(id);
+    }
+}
+
+fn find_contains(&Database { ref schema, ref data }: &Database, column: &str, value: &str) -> Box<[usize]> {
+    if let Some(column_i) = schema.0.iter().position(|x| x.0 == column) {
+        let mut ids = vec![];
+
+        for (id, row) in data.iter().enumerate() {
+            match &row.0[column_i] {
+                Value::Text(t) if t.contains(value) => ids.push(id),
+                _ => {},
+            }
+        }
+
+        ids.into_boxed_slice()
+    } else {
+        panic!("Колонка {} не найдена в базе данных", column);
+    }
+}
+
+fn to_csv(&Database { ref schema, ref data }: &Database) -> String {
+    
 }
 
 #[cfg(test)]
