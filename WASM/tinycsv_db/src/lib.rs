@@ -179,7 +179,29 @@ fn find_contains(&Database { ref schema, ref data }: &Database, column: &str, va
 }
 
 fn to_csv(&Database { ref schema, ref data }: &Database) -> String {
-    
+    let mut csv = String::new();
+
+    for (column, t) in &schema.0 {
+        csv.push_str(&format!("{}:{:?},", column, t));
+    }
+
+    csv.pop();
+    csv.push('\n');
+
+    for row in data {
+        for value in row.0.iter() {
+            match value {
+                Value::Integer(i) => csv.push_str(&i.to_string()),
+                Value::Text(t) => csv.push_str(&t.as_str()),
+                Value::Float(f) => csv.push_str(&f.to_string()),
+                Value::Boolean(b) => csv.push_str(&b. to_string()),
+            }
+            csv.push(',');
+        }
+        csv.pop();
+        csv.push('\n');
+    }
+    csv
 }
 
 #[cfg(test)]
