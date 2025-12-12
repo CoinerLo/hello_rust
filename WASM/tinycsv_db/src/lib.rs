@@ -203,39 +203,3 @@ fn to_csv(&Database { ref schema, ref data }: &Database) -> String {
     }
     csv
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-
-    // let schema = schema::new(vec![
-    //     ("id".to_string(),       data_type::Integer),
-    //     ("name".to_string(),     data_type::Text),
-    //     ("score".to_string(),    data_type::Float),
-    //     ("active".to_string(),   data_type::Boolean),
-    // ]);
-
-    // let mut db = database::new(schema);
-
-    // // Вставка
-    // insert_to(&mut db, row::new(vec![
-    //     value::Integer(1),
-    //     value::Text("Alice".to_string()),
-    //     value::Float(95.5),
-    //     value::Boolean(true),
-    // ]));
-
-    // // Поиск
-    // let ids = find_exact(&db, "name", &value::Text("Alice".to_string()));
-    // let contains = find_contains(&db, "name", "lic");
-
-    // // Сериализация / десериализация
-    // let csv = to_csv(&db);
-    // let db2 = database::from_csv(&csv);
-}
