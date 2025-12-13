@@ -8,7 +8,7 @@ pub enum DataType {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-enum Value {
+pub enum Value {
     Integer(i64),
     Text(String),
     Float(f64),
