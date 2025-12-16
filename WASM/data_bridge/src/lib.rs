@@ -25,14 +25,27 @@ mod mem {
     
     /// Упаковывает заданный вектор для передачи через Wasm Bridge.
     /// Данную функцию нужно использовать в коде на Rust для передачи векторов в JS.
+    pub fn pack_vec<T>(val: Vec<T>) -> *const usize {
+        let mut h = vec![val.as_ptr() as usize, val.len()];
+        h.shrink_to_fit(); // минимально необходимая память
+        std::mem::forget(val);
+        h.leak().as_ptr()
+    }
     
     /// Распаковывает значение вектора по указателю и длине.
     /// Данную функцию нужно использовать в коде на Rust
     /// для преобразования данных из линейной памяти в Rust вектор.
+    pub fn unpack_vec<T>(ptr: *mut T, len: usize) -> Vec<T> {
+        unsafe { Vec::from_raw_parts(ptr, len, len) }
+    }
     
     /// Распаковывает значение вектора по указателю.
     /// Данную функцию нужно использовать в коде на Rust
     /// для преобразования данных из линейной памяти в Rust вектор.
+    pub fn unpack_vec_header<T>(ptr: *mut usize) -> Vec<T> {
+        let h = unsafe { Vec::from_raw_parts(ptr, 2, 2) };
+        unpack_vec(h[0] as *mut T, h[1])
+    }
 
     /// Упаковывает заданную строку для передачи через Wasm Bridge.
     /// Данную функцию нужно использовать в коде на Rust для передачи строк в JS.
