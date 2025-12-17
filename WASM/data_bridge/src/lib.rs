@@ -49,10 +49,20 @@ mod mem {
 
     /// Упаковывает заданную строку для передачи через Wasm Bridge.
     /// Данную функцию нужно использовать в коде на Rust для передачи строк в JS.
+    pub fn pack_str(val: &str) -> *const usize {
+        let s = val.to_string();
+        let mut h = vec![s.as_ptr us usize, val.len()];
+        h.shrink_to_fit();
+        std::mem::forget(s);
+        h.leak().as_ptr()
+    }
     
     /// Распаковывает значение строки по указателю и длине.
     /// Данную функцию нужно использовать в коде на Rust
     /// для преобразования данных из линейной памяти в Rust строку.
+    pub fn unpack_str(ptr: *mut u8, len: usize) -> String {
+        unsafe { String::from_raw_parts(ptr, len, len) }
+    }
     
     /// Распаковывает значение строки по указателю.
     /// Данную функцию нужно использовать в коде на Rust
