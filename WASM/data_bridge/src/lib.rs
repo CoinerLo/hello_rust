@@ -51,7 +51,7 @@ mod mem {
     /// Данную функцию нужно использовать в коде на Rust для передачи строк в JS.
     pub fn pack_str(val: &str) -> *const usize {
         let s = val.to_string();
-        let mut h = vec![s.as_ptr us usize, val.len()];
+        let mut h = vec![s.as_ptr() as usize, val.len()];
         h.shrink_to_fit();
         std::mem::forget(s);
         h.leak().as_ptr()
@@ -67,7 +67,18 @@ mod mem {
     /// Распаковывает значение строки по указателю.
     /// Данную функцию нужно использовать в коде на Rust
     /// для преобразования данных из линейной памяти в Rust строку.
+    pub fn unpack_str_header(ptr: *mut usize) -> String {
+        let h = unsafe { Vec::from_raw_parts(ptr, 2, 2) };
+        unpack_str(h[0] as *mut u8, h[1])
+    }
     
     /// Упаковывает заданный вектор строк для передачи через Wasm Bridge.
     /// Данную функцию нужно использовать в коде на Rust для передачи вектора строк в JS.
+    pub fn pack_vec_str(v: Vec<&str>) -> *const usize {
+        let mut r = Vec::with_capacity(v.len());
+        for s in v {
+            r.push(pack_str(s));
+        }
+        pack_vec(r)
+    }
 }
