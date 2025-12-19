@@ -82,3 +82,19 @@ mod mem {
         pack_vec(r)
     }
 }
+
+/// Передает строку в JS
+#[unsafe(no_mangle)]
+pub extern "C" fn get_str() -> *const usize {
+    mem::pack_str("Hello, word!")
+}
+
+/// Принимает строку из JS, модифицирует и возвращает результат
+#[unsafe(no_mangle)]
+pub extern "C" fn mod_str(ptr: *mut u8, len: usize) -> *const usize {
+    let str = mem::unpack_str(ptr, len) + " (it works!)";
+    mem::pack_str(&str)
+}
+
+/// Передает вектор строк в JS
+
