@@ -64,3 +64,43 @@ export function readMemSlice(wasm, prt, View) {
     wasm.exports.free(ptr);
     return bytes;
 }
+
+/**
+ * Записывает данные в линейную память заданного Wasm экземпляра в виде среза
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {View} data любой типизированный массив
+ * @returns {[number, number]} кортеж, где первый элемент указатель, а второй - длина (согласно типу)
+ */
+export function packSlice(wasm, data) {
+    const ptr = wasm.exports.malloc(data.byteLength);
+    const mem = getMem(wasm);
+    new Uint8Array(mem, ptr, data.byteLength).set(new Uint8Array(data.buffer));
+    return [ptr, data.length];
+}
+
+/**
+ * Записывает заголовочные данные среза в линейную память заданного Wasm экземпляра
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @param {number} len
+ * @returns {number} указатель на заголовок в линейной памяти
+ */
+export function packHeader(wasm, ptr, len) {
+    const hPtr = wasm.exports.malloc(2 * USIZE.BYTES_PER_ELEMENT);
+    const mem = getMem(wasm);
+    new USIZE(mem, hPtr, 2).set(new USIZE([ptr, len]));
+    return hPtr;
+}
+
+/**
+ * Записывает строку в линейную память заданного Wasm экземпляра в виде среза
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {string} str
+ * @returns {[number,number]} кортеж, где первый элемент указатель, а второй - длина (согласно типу)
+ */
+export function packStr(wasm, str) {
+    return packSlice(wasm, new TextDecoder().encode(str));
+}
