@@ -97,4 +97,27 @@ pub extern "C" fn mod_str(ptr: *mut u8, len: usize) -> *const usize {
 }
 
 /// Передает вектор строк в JS
+#[unsafe(no_mangle)]
+pub extern "C" fn get_strs() -> *const usize {
+    mem::pack_vec_str(vec!["hello", "world"])
+}
 
+/// Передает вектор f32 чисел в JS
+#[unsafe(no_mangle)]
+pub extern "C" fn get_slice_f32() -> *const usize {
+    mem::pack_vec(vec![1f32, 2.42, 3.13])
+}
+
+/// Принимает вектор f32 чисел из JS, модифицирует и возвращает результат
+#[unsafe(no_mangle)]
+pub extern "C" fn mod_vec_f32(ptr: *mut f32, len: usize) -> *const usize {
+    let mut vec = mem::unpack_vec(ptr, len);
+    vec.push(42f32);
+    mem::pack_vec(vec)
+}
+
+/// Передает вектор i64 чисел в JS
+#[unsafe(no_mangle)]
+pub extern "C" fn get_slice_i64() -> *const usize {
+    mem::pack_vec(vec![1i64, 2, i64::MAX])
+}
