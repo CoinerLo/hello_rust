@@ -57,7 +57,7 @@ export function readSliceHeader(wasm, ptr) {
  * @param {ViewConstructor} View
  * @returns {ArrayBufferView|*}
  */
-export function readMemSlice(wasm, prt, View) {
+export function readMemSlice(wasm, ptr, View) {
     ptr = ptr >>> 0;
     const [sPtr, len] = readSliceHeader(wasm, ptr);
     const bytes = new View(getMem(wasm), sPtr, len).slice();
@@ -103,4 +103,96 @@ export function packHeader(wasm, ptr, len) {
  */
 export function packStr(wasm, str) {
     return packSlice(wasm, new TextDecoder().encode(str));
+}
+
+/**
+ * Записывает строку в линейную память заданного Wasm экземпляра в виде среза
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {string} str
+ * @returns {number} указатель на заголовок среза
+ */
+export function packStrWithHeader(wasm, str) {
+    return packHeader(wasm, ...packStr(wasm, str));
+}
+
+/**
+ * Считывает строку из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {string}
+ */
+export function readStr(wasm, ptr) {
+    return new TextDecoder().decode(readMemSlice(wasm, ptr, Uint8Array));
+}
+
+/**
+ * Считывает массив строк из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {string[]}
+ */
+export function readStrs(wasm, ptr) {
+    const strs = [];
+    readSliceUSize(wasm, ptr).forEach((ptr) => {
+        strs.push(readStr(wasm, ptr));
+    })
+    return strs;
+}
+
+/**
+ * Считывает usize срез из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {USIZE_VIEW}
+ */
+export function readSliceUSize(wasm, ptr) {
+    return readMemSlice(wasm, ptr, USIZE);
+}
+
+/**
+ * Считывает i32 срез из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {Int32Array}
+ */
+export function readSliceI32(wasm, ptr) {
+    return readMemSlice(wasm, ptr, Int32Array);
+}
+
+/**
+ * Считывает i64 срез из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {BigInt64Array}
+ */
+export function readSliceI64(wasm, ptr) {
+    return readMemSlice(wasm, ptr, BigInt64Array);
+}
+
+/**
+ * Считывает f32 срез из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {Float32Array}
+ */
+export function readSliceI64(wasm, ptr) {
+    return readMemSlice(wasm, ptr, Float32Array);
+}
+
+/**
+ * Считывает f64 срез из линейной памяти заданного Wasm экземпляра по указателю
+ *
+ * @param {WebAssembly.Instance} wasm
+ * @param {number} ptr
+ * @returns {Float64Array}
+ */
+export function readSliceI64(wasm, ptr) {
+    return readMemSlice(wasm, ptr, Float64Array);
 }
