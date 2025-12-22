@@ -182,7 +182,7 @@ export function readSliceI64(wasm, ptr) {
  * @param {number} ptr
  * @returns {Float32Array}
  */
-export function readSliceI64(wasm, ptr) {
+export function readSliceF32(wasm, ptr) {
     return readMemSlice(wasm, ptr, Float32Array);
 }
 
@@ -193,6 +193,6 @@ export function readSliceI64(wasm, ptr) {
  * @param {number} ptr
  * @returns {Float64Array}
  */
-export function readSliceI64(wasm, ptr) {
+export function readSliceF64(wasm, ptr) {
     return readMemSlice(wasm, ptr, Float64Array);
 }
