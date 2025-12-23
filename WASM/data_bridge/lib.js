@@ -102,7 +102,7 @@ export function packHeader(wasm, ptr, len) {
  * @returns {[number,number]} кортеж, где первый элемент указатель, а второй - длина (согласно типу)
  */
 export function packStr(wasm, str) {
-    return packSlice(wasm, new TextDecoder().encode(str));
+    return packSlice(wasm, new TextEncoder().encode(str));
 }
 
 /**
