@@ -83,6 +83,43 @@ mod mem {
     }
 }
 
+mod ls {
+    use crate::mem::*;
+
+    unsafe extern "C" {
+        fn lsGetItem(key: *const usize) -> *mut usize;
+        fn lsSetItem(key: *const usize, value: *const usize);
+        fn lsRemoveItem(key: *const usize);
+    }
+
+    /// Извлекает значение из localStorage по заданному ключу
+    pub fn get_item(key: &str) -> String {
+        let s = unsafe { lsGetItem(pack_str(key)) };
+        unpack_str_header(s)
+    }
+
+    /// Сохраняет значение в localStorage по заданному ключу
+    pub fn set_item(key: &str, value: &str) {
+        unsafe { lsSetItem(pack_str(key), pack_str(value)) }
+    }
+
+    /// Удаляет значение из localStorage по заданному ключу
+    pub fn remove_item(key: &str) {
+        unsafe { lsRemoveItem(pack_str(key)) }
+    }
+}
+
+/// Записывает значение в localStorage по ключу hello
+#[unsafe(no_mangle)]
+pub extern "C" fn write_something_to_ls() {
+    ls::set_item("hello", "world");
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn read_something_from_ls() -> *const usize {
+    mem::pack_str(&ls::get_item("hello"))
+}
+
 /// Передает строку в JS
 #[unsafe(no_mangle)]
 pub extern "C" fn get_str() -> *const usize {
