@@ -1,3 +1,4 @@
 */target
 *.pem
 .env
+*/node_modules
