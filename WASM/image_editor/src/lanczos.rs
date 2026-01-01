@@ -22,9 +22,12 @@ pub fn resize(src: &Image, dst_width: usize, dst_height: usize, r: usize) -> Ima
     // Горизонтальный проход
     resize_horizontal(src, &mut dst_hor, &kernel, support);
 
-
-
+    // Финальный буфер: dst_width × dst_height
     let mut dst = Image::new(dst_width, dst_height);
+
+    // Вертикальный проход
+    resize_vertical(&dst_hor, &mut dst, &kernel, support);
+
     dst
 
 }
@@ -47,3 +50,6 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
 
 }
 
+fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
+    
+}
