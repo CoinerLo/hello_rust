@@ -47,9 +47,49 @@ fn lanczos(x: isize, radius: usize) -> f32 {
 }
 
 fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
+    let src_width = src.width;
+    let src_height = src.height;
+    let dst_width = dst.width;
+    let scale_x = src_width as f32 / dst_width as f32;
+
+    for y in 0..src_height {
+        let src_offset_base = y * src_width * 4;
+        let dst_offset_base = y * dst_width * 4;
+        for dst_x in 0..dst_width {
+            let src_x_center = (dst_x as f32 + 0.5) * scale_x;
+            let start = (src_x_center - support).floor() as isize;
+            let end = (src_x_center + support).floor() as isize;
+
+            let mut sum_r = 0.;
+            let mut sum_g = 0.;
+            let mut sum_b = 0.;
+            let mut sum_a = 0.;
+            let mut sum_w = 0.;
+
+            for src_x_i in start..=end {
+                let src_x = src_x_i.clamp(0, src_width as isize - 1) as usize;
+                let rel_i = (src_x_i - start) as usize;
+                if rel_i >= kernel.len() {
+                    continue;
+                }
+                let weight = kernel[rel_i];
+                if weight.abs() < 1e-5 {
+                    continue;
+                }
+                let idx = src_offset_base + src_x * 4;
+
+                sum_r += src.data[idx] as f32 * weight;
+                sum_g += src.data[idx + 1] as f32 * weight;
+                sum_b += src.data[idx + 2] as f32 * weight;
+                sum_a += src.data[idx + 3] as f32 * weight;
+
+                sum_w += weight;
+            }
+        }
+    }
 
 }
 
 fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
-    
+
 }
