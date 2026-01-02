@@ -85,6 +85,16 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
 
                 sum_w += weight;
             }
+            let out_idx = dst_offset_base + dst_x * 4;
+            if sum_w > 1e-5 {
+                let inv_w = 1.0f32 / sum_w;
+                dst.data[out_idx] = ((sum_r *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 1] = ((sum_g *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 2] = ((sum_b *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 3] = ((sum_a *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+            } else {
+
+            }
         }
     }
 
