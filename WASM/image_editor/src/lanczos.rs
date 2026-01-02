@@ -46,6 +46,7 @@ fn lanczos(x: isize, radius: usize) -> f32 {
     r * pi_x.sin() * (pi_x / r).sin() / (pi_x * pi_x)
 }
 
+/// Горизонтальный 1D Lanczos (по строкам)
 fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
     let src_width = src.width;
     let src_height = src.height;
@@ -93,13 +94,68 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
                 dst.data[out_idx + 2] = ((sum_b *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
                 dst.data[out_idx + 3] = ((sum_a *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
             } else {
-
+                let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
+                let idx = src_offset_base + src_x * 4;
+                let out_slice = &mut dst.data[out_idx..out_idx + 4];
+                out_slice.copy_from_slice(&src.data[idx..idx + 4]);
             }
         }
     }
-
 }
 
+/// Вертикальный 1D Lanczos (по столбцам)
 fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
+    let src_width = src.width;
+    let src_height = src.height;
+    let dst_height = dst.height;
+    let scale_y = src_height as f32 / dst_height as f32;
 
+    for x in 0..src_width {
+        let col_offset = x *4;
+
+        for dst_y in 0..dst_height {
+            let src_y_center = (dst_y as f32 + 0.5) * scale_y;
+            let start = (src_y_center - support).floor() as isize;
+            let end = (src_y_center + support).floor() as isize;
+
+            let mut sum_r = 0.;
+            let mut sum_g = 0.;
+            let mut sum_b = 0.;
+            let mut sum_a = 0.;
+            let mut sum_w = 0.;
+
+            for src_y_i in start..=end {
+                let src_x = src_x_i.clamp(0, src_width as isize - 1) as usize;
+                let rel_i = (src_x_i - start) as usize;
+                if rel_i >= kernel.len() {
+                    continue;
+                }
+                let weight = kernel[rel_i];
+                if weight.abs() < 1e-5 {
+                    continue;
+                }
+                let idx = src_offset_base + src_x * 4;
+
+                sum_r += src.data[idx] as f32 * weight;
+                sum_g += src.data[idx + 1] as f32 * weight;
+                sum_b += src.data[idx + 2] as f32 * weight;
+                sum_a += src.data[idx + 3] as f32 * weight;
+
+                sum_w += weight;
+            }
+            let out_idx = dst_offset_base + dst_x * 4;
+            if sum_w > 1e-5 {
+                let inv_w = 1.0f32 / sum_w;
+                dst.data[out_idx] = ((sum_r *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 1] = ((sum_g *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 2] = ((sum_b *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 3] = ((sum_a *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+            } else {
+                let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
+                let idx = src_offset_base + src_x * 4;
+                let out_slice = &mut dst.data[out_idx..out_idx + 4];
+                out_slice.copy_from_slice(&src.data[idx..idx + 4]);
+            }
+        }
+    }
 }
