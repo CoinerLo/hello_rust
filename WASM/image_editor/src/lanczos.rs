@@ -89,10 +89,10 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
             let out_idx = dst_offset_base + dst_x * 4;
             if sum_w > 1e-5 {
                 let inv_w = 1.0f32 / sum_w;
-                dst.data[out_idx] = ((sum_r *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 1] = ((sum_g *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 2] = ((sum_b *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 3] = ((sum_a *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
             } else {
                 let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
                 let idx = src_offset_base + src_x * 4;
@@ -125,8 +125,8 @@ fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
             let mut sum_w = 0.;
 
             for src_y_i in start..=end {
-                let src_x = src_x_i.clamp(0, src_width as isize - 1) as usize;
-                let rel_i = (src_x_i - start) as usize;
+                let src_y = src_y_i.clamp(0, src_height as isize - 1) as usize;
+                let rel_i = (src_y_i - start) as usize;
                 if rel_i >= kernel.len() {
                     continue;
                 }
@@ -134,7 +134,7 @@ fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
                 if weight.abs() < 1e-5 {
                     continue;
                 }
-                let idx = src_offset_base + src_x * 4;
+                let idx = src_y * src_width * 4 + col_offset;
 
                 sum_r += src.data[idx] as f32 * weight;
                 sum_g += src.data[idx + 1] as f32 * weight;
@@ -143,16 +143,16 @@ fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
 
                 sum_w += weight;
             }
-            let out_idx = dst_offset_base + dst_x * 4;
+            let out_idx = dst_y * src_width * 4 + col_offset;
             if sum_w > 1e-5 {
                 let inv_w = 1.0f32 / sum_w;
-                dst.data[out_idx] = ((sum_r *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 1] = ((sum_g *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 2] = ((sum_b *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 3] = ((sum_a *inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
             } else {
-                let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
-                let idx = src_offset_base + src_x * 4;
+                let src_y = src_y_center.round().clamp(0.0, (src_height as f32) - 1.0) as usize;
+                let idx = src_y * src_width * 4 + col_offset;
                 let out_slice = &mut dst.data[out_idx..out_idx + 4];
                 out_slice.copy_from_slice(&src.data[idx..idx + 4]);
             }
