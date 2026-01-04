@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Масштабирование изображения методом Ланцоша</title>
+        <script type="module" src="index.js" defer></script>
+    </head>
+    <body>
+        <form id="image-params">
+            <div>
+                <button id="reset">Сбросить</button>
+                <input type="file" id="image">
+                <label>Wasm <input type="radio" name="type" value="wasm" checked></label>
+                <label>JS <input type="radio" name="type" value="js"></label>
+            </div>
+            <div>
+                <label>
+                    Оригинальная высота:
+                    <input name="srcw" disabled>
+                </label>
+                <label>
+                    Оригинальная ширина:
+                    <input name="srch" disabled>
+                </label>
+            </div>
+            <div>
+                <label>
+                    Высота:
+                    <input name="height" type="number" value="600">
+                </label>
+                <label>
+                    Ширина:
+                    <input name="width" type="number" value="800">
+                </label>
+                <label>
+                    Резкость:
+                    <input name="sharpness" value="3" type="number">
+                </label>
+            </div>
+            <div>
+                <button type="submit">
+                    Масштабировать
+                </button>
+            </div>
+        </form>
+        <canvas id="editor"></canvas>
+    </body>
+</html>
