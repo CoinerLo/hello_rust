@@ -89,10 +89,10 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
             let out_idx = dst_offset_base + dst_x * 4;
             if sum_w > 1e-5 {
                 let inv_w = 1.0f32 / sum_w;
-                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.) as u8;
+                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.) as u8;
+                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.) as u8;
+                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.) as u8;
             } else {
                 let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
                 let idx = src_offset_base + src_x * 4;
@@ -111,7 +111,7 @@ fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
     let scale_y = src_height as f32 / dst_height as f32;
 
     for x in 0..src_width {
-        let col_offset = x *4;
+        let col_offset = x * 4;
 
         for dst_y in 0..dst_height {
             let src_y_center = (dst_y as f32 + 0.5) * scale_y;
@@ -146,10 +146,10 @@ fn resize_vertical(src: &Image, dst: &mut Image, kernel: &[f32], support: f32) {
             let out_idx = dst_y * src_width * 4 + col_offset;
             if sum_w > 1e-5 {
                 let inv_w = 1.0f32 / sum_w;
-                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
-                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0., 255.) as u8;
+                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0., 255.) as u8;
+                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0., 255.) as u8;
+                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0., 255.) as u8;
             } else {
                 let src_y = src_y_center.round().clamp(0.0, (src_height as f32) - 1.0) as usize;
                 let idx = src_y * src_width * 4 + col_offset;
