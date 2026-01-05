@@ -8,7 +8,7 @@ pub fn resize(src: &Image, dst_width: usize, dst_height: usize, r: usize) -> Ima
     let support = (r as f32) - 1.0;
     let kernel_size = 2 * r - 1;
 
-    // Создаём имметричное ядро Lanczos
+    // Создаём симметричное ядро Lanczos
     let mut kernel = vec![0.0f32; kernel_size];
 
     for i in 0..kernel_size {
@@ -32,12 +32,13 @@ pub fn resize(src: &Image, dst_width: usize, dst_height: usize, r: usize) -> Ima
 
 }
 
+/// Рассчет ядра Ланцоша
 fn lanczos(x: isize, radius: usize) -> f32 {
     if x == 0 {
         return 1.0;
     }
     let abs_x = x.abs() as f32;
-    if abs_x > radius as f32 {
+    if abs_x >= radius as f32 {
         return 0.0;
     }
     let pi_x = std::f32::consts::PI * abs_x;
@@ -89,10 +90,10 @@ fn resize_horizontal(src: &Image, dst: &mut Image, kernel: &[f32], support: f32)
             let out_idx = dst_offset_base + dst_x * 4;
             if sum_w > 1e-5 {
                 let inv_w = 1.0f32 / sum_w;
-                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.) as u8;
-                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.) as u8;
-                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.) as u8;
-                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.) as u8;
+                dst.data[out_idx] = ((sum_r * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 1] = ((sum_g * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 2] = ((sum_b * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
+                dst.data[out_idx + 3] = ((sum_a * inv_w) + 0.5).clamp(0.0, 255.0) as u8;
             } else {
                 let src_x = src_x_center.round().clamp(0.0, (src_width as f32) - 1.0) as usize;
                 let idx = src_offset_base + src_x * 4;

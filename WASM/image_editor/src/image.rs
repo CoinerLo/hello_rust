@@ -9,7 +9,7 @@ impl Image {
         Self { width, height, data: vec![0; width * height * 4] }
     }
 
-    pub fn from(data: &[u8], height: usize, width: usize) -> Self {
+    pub fn from(data: &[u8], width: usize, height: usize) -> Self {
         Self { width, height, data: data.to_vec() }
     }
 }
