@@ -1,4 +1,4 @@
-import initWasm, { wasm_resize } from "./dist/image_editor.js";
+import initWasm, { wasm_resize, wasm_auto_resize } from "./dist/image_editor.js";
 import { resize } from "./resize.js";
 
 await initWasm();
@@ -79,4 +79,9 @@ document.getElementById("image-params").addEventListener("submit", (e) => {
     ctx.putImageData(imageData, 0, 0);
     console.log("Масштабирование завершено");
     console.timeEnd("resize");
+})
+
+document.getElementById("wasm-resize").addEventListener("click", (e) => {
+    e.preventDefault();
+    wasm_auto_resize();
 })
