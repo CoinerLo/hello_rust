@@ -8,6 +8,19 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wasm-bindgen = "0.2.106"
+web-sys = { version = "0.3.83", features = [
+        "console",
+        "Document",
+        "Element",
+        "HtmlCanvasElement",
+        "CanvasRenderingContext2d",
+        "ImageData",
+        "HtmlImageElement",
+        "Window",
+] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.34"
 
 [profile.release]
 lto = true
