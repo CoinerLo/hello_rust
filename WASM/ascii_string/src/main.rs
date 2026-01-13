@@ -1,4 +1,42 @@
+use std::error::Error;
+use std::fmt;
 
+/// Ошибка при создании AsciiString из невалидных данных
+#[derive(Debug)]
+pub struct AsciiError {
+    msg: String,
+    cause: Option<Box<dyn Error + 'static>>
+}
+
+impl AsciiError {
+    fn new(msg: impl Into<String>) -> Self {
+        Self {
+            msg: msg.into(),
+            cause: None,
+        }
+    }
+
+    fn with_cause(msg: impl Into<String>, cause: impl Error + 'static) -> Self {
+        Self {
+            msg: msg.into(),
+            cause: Some(Box::new(cause)),
+        }
+    }
+}
+
+impl fmt::Display for AsciiError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.msg)
+    }
+}
+
+impl Error for AsciiError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        self.cause.as_ref().map(|e| &**e as _)
+    }
+}
+
+/// Владеющая ASCII-строка (байты 0–127)
 
 
 fn main() {
