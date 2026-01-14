@@ -37,7 +37,27 @@ impl Error for AsciiError {
 }
 
 /// Владеющая ASCII-строка (байты 0–127)
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct AsciiString(String);
 
+impl AsciiString {
+    /// Создаёт из &str с паникой при не-ASCII
+    pub fn new(str: impl AsRef<str>) -> Self {
+        let str: Result<AsciiString, _> = str.as_ref().try_into();
+        match str {
+            Ok(str)=> str,
+            Err(err) => panic!("{}", err),
+        }
+    }
+
+    pub fn from_bytes(bytes: impl AsRef<[u8]>) -> Self {
+        let str: Result<AsciiString, _> = String::from_utf8_lossy(bytes.as_ref()).as_ref().try_into();
+        match str {
+            Ok(str) => str,
+            Err(err) => panic!("{}", err),
+        }
+    }
+}
 
 fn main() {
     // ========================
