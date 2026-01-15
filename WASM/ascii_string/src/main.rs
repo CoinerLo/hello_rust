@@ -57,6 +57,30 @@ impl AsciiString {
             Err(err) => panic!("{}", err),
         }
     }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn to_ascii_lowercase(&self) -> Self {
+        Self(self.0.to_ascii_lowercase())
+    }
+
+    pub fn to_ascii_uppercase(&self) -> Self {
+        Self(self.0.to_ascii_uppercase())
+    }
+
+    pub fn constants(&self, pat: &str) -> bool {
+        self.0.contains(pat)
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
 }
 
 fn main() {
