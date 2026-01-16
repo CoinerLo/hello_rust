@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt;
+use std::ops::{Deref, DerefMut};
 
 /// Ошибка при создании AsciiString из невалидных данных
 #[derive(Debug)]
@@ -80,6 +81,19 @@ impl AsciiString {
 
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
+    }
+}
+
+impl Deref for AsciiString {
+    type Target = str;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for AsciiString {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
