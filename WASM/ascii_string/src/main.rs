@@ -97,6 +97,29 @@ impl DerefMut for AsciiString {
     }
 }
 
+impl<const N: usize> From<&'static [u8;N]> for AsciiString {
+    fn from(s: &'static [u8;N]) -> Self {
+        Self(String::from_utf16_lossy(s).to_string())
+    }
+}
+
+impl TryFrom<&str> for AsciiString {
+    type Error = AsciiError;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        if s.is_ascii() {
+            Ok(Self(s.to_owned()))
+        } else {
+            let (pos, ch) = s.char_indices().find(|&(_, c)| !c.is_ascii()).unwrap();
+            Err(AsciiError::new(format!(
+                "non-ASCII character '{}' (U+{:04X}) at byte position {}",
+                ch, ch as u32, pos
+            )))
+        }
+
+    }
+}
+
 fn main() {
     // ========================
     // Успешное создание из ASCII-данных
