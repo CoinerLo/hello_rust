@@ -99,7 +99,7 @@ impl DerefMut for AsciiString {
 
 impl<const N: usize> From<&'static [u8;N]> for AsciiString {
     fn from(s: &'static [u8;N]) -> Self {
-        Self(String::from_utf16_lossy(s).to_string())
+        Self(String::from_utf8_lossy(s).to_string())
     }
 }
 
@@ -117,6 +117,31 @@ impl TryFrom<&str> for AsciiString {
             )))
         }
 
+    }
+}
+
+impl AsRef<str> for AsciiString {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+
+impl AsRef<[u8]> for AsciiString {
+    fn as_ref(&self) -> &[u8] {
+        &self.0.as_bytes()
+    }
+}
+
+impl fmt::Debug for AsciiString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "AsciiString({:?})", self.0)
+    }
+}
+
+impl fmt::Display for AsciiString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
