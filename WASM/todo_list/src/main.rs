@@ -1,4 +1,21 @@
 
+struct Task<'a> {
+    title: String,
+    comleted: bool,
+    sub_tasks: Vec<&'a Task<'a>>,
+    parent_task: Option<&'a Task<'a>>
+}
+
+impl Task<'_> {
+    pub fn new(title: &str) -> Self {
+        Self {
+            title: title.to_string(),
+            comleted: false,
+            sub_tasks: vec![],
+            parent_task: None
+        }
+    }
+}
 
 fn main() {
     let root = Task::new("Изучить Rust");
