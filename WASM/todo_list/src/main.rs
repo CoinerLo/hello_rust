@@ -1,19 +1,21 @@
+use std::{cell::{Cell, RefCell}, rc::{Rc, Weak}};
 
-struct Task<'a> {
-    title: String,
-    comleted: bool,
-    sub_tasks: Vec<&'a Task<'a>>,
-    parent_task: Option<&'a Task<'a>>
+
+pub struct Task {
+    pub title: String,
+    pub comleted: Cell<bool>,
+    children: RefCell<Vec<Weak<Task>>>,
+    parent: RefCell<Option<Weak<Task>>>,
 }
 
-impl Task<'_> {
-    pub fn new(title: &str) -> Self {
-        Self {
-            title: title.to_string(),
-            comleted: false,
-            sub_tasks: vec![],
-            parent_task: None
-        }
+impl Task {
+    pub fn new(title: impl AsRef<str>) -> Rc<Task> {
+        Rc::new(Task {
+            title: title.as_ref().to_string(),
+            comleted: Cell::new(false),
+            children: RefCell::new(vec![]),
+            parent: RefCell::new(None),
+        })
     }
 }
 
