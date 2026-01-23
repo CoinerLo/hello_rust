@@ -19,6 +19,31 @@ impl Task {
     }
 }
 
+pub trait TaskAPI {
+    fn add_subtask(&self, task: Rc<Task>);
+    fn mark_completed(&self);
+    fn mark_completed_recursive(&self);
+    fn print_tree(&self, depth: usize);
+}
+
+impl TaskAPI for Rc<Task> {
+    fn add_subtask(&self, task: Rc<Task>) {
+        
+    }
+
+    fn mark_completed(&self) {
+        
+    }
+
+    fn mark_completed_recursive(&self) {
+        
+    }
+
+    fn print_tree(&self, depth: usize) {
+        
+    }
+}
+
 fn main() {
     let root = Task::new("Изучить Rust");
 
