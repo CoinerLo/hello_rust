@@ -28,19 +28,36 @@ pub trait TaskAPI {
 
 impl TaskAPI for Rc<Task> {
     fn add_subtask(&self, task: Rc<Task>) {
-        
+        self.children.borrow_mut().push(Rc::downgrade(&task));
+        *task.parent.borrow_mut() = Some(Rc::downgrade(&task));
     }
 
     fn mark_completed(&self) {
-        
+        self.comleted.set(true);
     }
 
     fn mark_completed_recursive(&self) {
-        
+        self.mark_completed();
+        for child in self.children.borrow().iter() {
+            if let Some(task) = child.upgrade() {
+                task.mark_completed_recursive();
+            }
+        }
     }
 
     fn print_tree(&self, depth: usize) {
-        
+        println!(
+            "{:depth$} {icon} {title:} {status:}", "",
+            icon = if depth > 0 { "↳" } else { "-" },
+            title = self.title,
+            status = if self.comleted.get() { "[x]" } else { "" },
+        );
+
+        for child in self.children.borrow().iter() {
+            if let Some(task) = child.upgrade() {
+                task.print_tree(depth + 2);
+            }
+        }
     }
 }
 
