@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use wasm_bindgen::prelude::*;
 
 #[derive(Serialize, Deserialize)]
 #[repr(C)]
@@ -33,6 +34,8 @@ impl Product {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[wasm_bindgen]
 struct Order {
     order_id: u64,
     customer_name: String,
@@ -40,18 +43,36 @@ struct Order {
     items: Vec<Product>,
 }
 
+#[wasm_bindgen]
 impl Order {
     /// Конструктор — создаёт новый заказ
-    pub fn new(order_id: u64, customer_name: String) -> Order;
+    #[wasm_bindgen(constructor)]
+    pub fn new(order_id: u64, customer_name: String) -> Order {
+        Order {
+            order_id,
+            customer_name: customer_name.to_string(),
+            created_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true),
+            items: Vec::new(),
+        }
+    }
 
     /// Добавляет товар в заказ
-    pub fn add_product(&mut self, sku: String, price: f64, quantity: u32, in_stock: bool);
+    #[wasm_bindgen(js_name = addProduct)]
+    pub fn add_product(&mut self, sku: String, price: f64, quantity: u32, in_stock: bool) {
+        self.items.push(Product::new(sku.to_string(), price, quantity, in_stock));
+    }
 
     /// Количество позиций в заказе
-    pub fn total_items_count(&self) -> usize;
+    #[wasm_bindgen(js_name = totalItemsCount)]
+    pub fn total_items_count(&self) -> usize {
+        self.items.len()
+    }
 
     /// Общая стоимость (∑ price × quantity)
-    pub fn total_value(&self) -> f64;
+    #[wasm_bindgen(js_name = totalValue)]
+    pub fn total_value(&self) -> f64 {
+        self.items.iter().map(|item| item.price).sum()
+    }
 
     /// Вариант А — возвращает массив объектов JS
     pub fn get_items_js(&self) -> JsValue;
