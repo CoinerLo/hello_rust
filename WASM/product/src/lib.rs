@@ -1,5 +1,7 @@
+use gloo_utils::format::JsValueSerdeExt;
 use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
+use chrono::{Utc, SecondsFormat};
 
 #[derive(Serialize, Deserialize)]
 #[repr(C)]
@@ -75,8 +77,24 @@ impl Order {
     }
 
     /// Вариант А — возвращает массив объектов JS
-    pub fn get_items_js(&self) -> JsValue;
+    #[wasm_bindgen(js_name = getItemsJS)]
+    pub fn get_items_js(&self) -> JsValue {
+        serde_wasm_bindgen::to_value(&self.items).unwrap()
+    }
+
+    #[wasm_bindgen(js_name = getItemsJSON)]
+    pub fn get_items_json(&self) -> JsValue {
+        JsValue::from_serde(&self.items).unwrap()
+    }
 
     /// Вариант Б — возвращает бинарные данные
-    pub fn get_items_binary(&self) -> Vec<u8>;
+    #[wasm_bindgen(js_name = getItemsBinary)]
+    pub fn get_items_binary(&self) -> Vec<u8> {
+        self.items.iter().flat_map(|item| item.encode()).collect()
+    }
+
+    #[wasm_bindgen(js_name = getItemsBinaryRaw)]
+    pub fn get_items_binary_raw(&self) -> Vec<usize> {
+        vec![self.items.as_ptr() as usize, self.items.len() * size_of::<Product>()]
+    } 
 }
