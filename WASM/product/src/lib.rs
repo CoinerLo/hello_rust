@@ -98,3 +98,27 @@ impl Order {
         vec![self.items.as_ptr() as usize, self.items.len() * size_of::<Product>()]
     } 
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn get_mock() -> Order {
+        let mut order = Order::new(42, "Bob");
+
+        order.add_product("PROD-100", 239.99, 42, true);
+        order.add_product("PROD-101", 242.29, 41, true);
+
+        order
+    }
+
+    #[test]
+    fn total_value_test() {
+        assert_eq!(get_mock().total_value(), 482.28);
+    }
+
+    #[test]
+    fn total_items_count_test() {
+        assert_eq!(get_mock().total_items_count(), 2);
+    }
+}
