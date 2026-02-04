@@ -104,10 +104,10 @@ mod test {
     use super::*;
 
     fn get_mock() -> Order {
-        let mut order = Order::new(42, "Bob");
+        let mut order = Order::new(42, "Bob".to_owned());
 
-        order.add_product("PROD-100", 239.99, 42, true);
-        order.add_product("PROD-101", 242.29, 41, true);
+        order.add_product("PROD-100".to_owned(), 239.99, 42, true);
+        order.add_product("PROD-101".to_owned(), 242.29, 41, true);
 
         order
     }
