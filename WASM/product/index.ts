@@ -1,4 +1,4 @@
-import { Order } from "../pkg/product.js";
+import { Order } from "./pkg/product.js";
 
 import { ProductsView, ProductsViewRaw } from "./view.ts";
 

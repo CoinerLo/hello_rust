@@ -1,5 +1,5 @@
-//@ts-ignore
-import * as wasm from "../pkg/product_bg.wasm";
+// @ts-ignore
+import * as wasm from "./pkg/product_bg.wasm";
 
 const memory: WebAssembly.Memory = wasm.memory;
 
